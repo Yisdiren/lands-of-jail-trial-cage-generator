@@ -33,20 +33,62 @@ function addHeroIcon(slot: HTMLElement) {
   nameElement.before(img);
 }
 
+function readHeroStars(name: string) {
+  const select = document.querySelector<HTMLSelectElement>(
+    `select[aria-label="${CSS.escape(name)} star level"]`,
+  );
+  const value = Number(select?.value ?? 1);
+  return Number.isFinite(value) ? Math.min(5, Math.max(1, value)) : 1;
+}
+
+function addFormationReason(card: HTMLElement) {
+  if (card.querySelector(".formation-why")) return;
+  const slots = card.querySelectorAll<HTMLElement>(".slot");
+  if (slots.length < 3) return;
+
+  const left = slots[0];
+  const leftName = left.querySelector("b")?.textContent?.trim();
+  const skill = left.querySelector("small")?.textContent?.trim();
+  const levelText = left.querySelector("span")?.textContent?.match(/Lv\s*(\d+)/i)?.[1];
+  if (!leftName) return;
+
+  const stars = readHeroStars(leftName);
+  const why = document.createElement("div");
+  why.className = "formation-why";
+  why.style.marginTop = "10px";
+  why.style.padding = "9px 11px";
+  why.style.borderRadius = "8px";
+  why.style.background = "rgba(255,255,255,0.045)";
+  why.style.fontSize = "12px";
+  why.style.lineHeight = "1.45";
+
+  const title = document.createElement("b");
+  title.textContent = "WHY THIS FORMATION";
+  title.style.display = "block";
+  title.style.marginBottom = "3px";
+
+  const detail = document.createElement("span");
+  const skillDetail = skill || "active first War skill";
+  detail.textContent = `LEFT priority: ${leftName} • ${skillDetail} • War Skill Lv${levelText ?? "?"} • ${"★".repeat(stars)}. Middle/right are class-legal fillers chosen to preserve stronger LEFT-skill heroes for other marches.`;
+
+  why.append(title, detail);
+  const slotsContainer = card.querySelector(".slots");
+  slotsContainer?.after(why);
+}
+
 function enhanceGenerator() {
-  // Joiner formation cards.
   document
     .querySelectorAll<HTMLElement>(".formation-card .slot")
     .forEach(addHeroIcon);
 
-  // Rally Leader: the top-level three-slot RECOMMENDED LEADER BASELINE.
+  document
+    .querySelectorAll<HTMLElement>(".formation-card")
+    .forEach(addFormationReason);
+
   document
     .querySelectorAll<HTMLElement>(".result > .slots > .slot")
     .forEach(addHeroIcon);
 
-  // Keep the app focused on formation generation. The old result lab remains
-  // in the source for backwards compatibility with saved browser data, but is
-  // removed from the visible/accessible generator UI.
   document.querySelectorAll<HTMLElement>(".results-panel").forEach((panel) => {
     panel.hidden = true;
     panel.setAttribute("aria-hidden", "true");
