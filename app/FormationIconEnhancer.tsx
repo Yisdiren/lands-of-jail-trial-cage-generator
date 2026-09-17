@@ -18,27 +18,45 @@ const heroIconSlug = (name: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-function addFormationIcons() {
-  document.querySelectorAll<HTMLElement>(".formation-card .slot").forEach((slot) => {
-    if (slot.querySelector(".formation-hero-icon")) return;
-    const nameElement = slot.querySelector("b");
-    const name = nameElement?.textContent?.trim();
-    if (!name || !heroIconNames.has(name) || !nameElement) return;
+function addHeroIcon(slot: HTMLElement) {
+  if (slot.querySelector(".formation-hero-icon")) return;
+  const nameElement = slot.querySelector("b");
+  const name = nameElement?.textContent?.trim();
+  if (!name || !heroIconNames.has(name) || !nameElement) return;
 
-    const img = document.createElement("img");
-    img.className = "formation-hero-icon";
-    img.src = `/icons/${heroIconSlug(name)}.png`;
-    img.alt = `${name} portrait`;
-    img.width = 48;
-    img.height = 60;
-    nameElement.before(img);
+  const img = document.createElement("img");
+  img.className = "formation-hero-icon";
+  img.src = `/icons/${heroIconSlug(name)}.png`;
+  img.alt = `${name} portrait`;
+  img.width = 48;
+  img.height = 60;
+  nameElement.before(img);
+}
+
+function enhanceGenerator() {
+  // Joiner formation cards.
+  document
+    .querySelectorAll<HTMLElement>(".formation-card .slot")
+    .forEach(addHeroIcon);
+
+  // Rally Leader: the top-level three-slot RECOMMENDED LEADER BASELINE.
+  document
+    .querySelectorAll<HTMLElement>(".result > .slots > .slot")
+    .forEach(addHeroIcon);
+
+  // Keep the app focused on formation generation. The old result lab remains
+  // in the source for backwards compatibility with saved browser data, but is
+  // removed from the visible/accessible generator UI.
+  document.querySelectorAll<HTMLElement>(".results-panel").forEach((panel) => {
+    panel.hidden = true;
+    panel.setAttribute("aria-hidden", "true");
   });
 }
 
 export default function FormationIconEnhancer() {
   useEffect(() => {
-    addFormationIcons();
-    const observer = new MutationObserver(addFormationIcons);
+    enhanceGenerator();
+    const observer = new MutationObserver(enhanceGenerator);
     observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);
