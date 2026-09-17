@@ -190,6 +190,15 @@ select {
   font-style: normal;
   font-weight: 900;
 }
+.hero-icon {
+  display: block;
+  width: 48px;
+  height: 60px;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 7px;
+  margin-bottom: 7px;
+}
 .hero strong,
 .hero small {
   display: block;
