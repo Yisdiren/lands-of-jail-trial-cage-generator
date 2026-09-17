@@ -513,6 +513,69 @@ footer {
 .rally-condition {
   margin-top: 17px;
 }
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.7fr 0.8fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.profile-grid label,
+.profile-role {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.profile-grid select,
+.profile-grid input {
+  width: 100%;
+  margin-top: 0;
+  padding: 11px 12px;
+  background: #111f30;
+  border: 1px solid #304a64;
+  color: #d9e7f6;
+  border-radius: 9px;
+  font-weight: 700;
+}
+.profile-role strong {
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid #304a64;
+  border-radius: 9px;
+  background: #07121e;
+  color: #ffbd2e;
+}
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 14px;
+}
+.profile-actions button {
+  padding: 10px 13px;
+  border: 1px solid #304a64;
+  border-radius: 9px;
+  background: #111f30;
+  color: #d9e7f6;
+  font-weight: 800;
+  cursor: pointer;
+}
+.profile-actions .profile-save {
+  border-color: #ffb51e;
+  background: #ffb51e;
+  color: #17110a;
+}
+.profile-actions .profile-delete {
+  border-color: #713333;
+  background: #2b1414;
+  color: #ffb7b7;
+}
+.profile-notice {
+  margin: 12px 0 0;
+  color: #85e6aa;
+  font-weight: 700;
+}
 .troop-capacity {
   display: grid;
   grid-template-columns: minmax(160px, 220px) 1fr;
@@ -676,10 +739,9 @@ footer {
 }
 .result-row {
   display: grid;
-  grid-template-columns: minmax(150px, 0.8fr) minmax(220px, 1.2fr) minmax(
-      220px,
-      1.2fr
-    ) auto;
+  grid-template-columns:
+    minmax(150px, 0.8fr) minmax(220px, 1.2fr) minmax(220px, 1.2fr)
+    auto;
   gap: 14px;
   align-items: center;
   padding: 13px 0;
@@ -767,6 +829,9 @@ footer {
     grid-template-columns: repeat(2, 1fr);
   }
   .troop-capacity {
+    grid-template-columns: 1fr;
+  }
+  .profile-grid {
     grid-template-columns: 1fr;
   }
   .troop-capacity small {

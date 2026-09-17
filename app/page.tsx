@@ -20,8 +20,13 @@ import {
   type CageResult,
   type TestVariant,
 } from "../lib/results";
+import {
+  createBlankProfile,
+  type MemberProfile,
+  type MemberRole,
+} from "../lib/profiles";
 
-type Mode = "leader" | "joiner";
+type Mode = MemberRole;
 const troopClasses: { key: TroopClassKey; label: string }[] = [
   { key: "shield", label: "Shieldbearers" },
   { key: "bomber", label: "Bombers" },
@@ -31,8 +36,37 @@ const troopTierOptions = Array.from(
   { length: 11 },
   (_, index) => `T${index + 1}` as TroopTier,
 );
-const resultStorageKey = "loj-cage-results-v1";
+const legacyResultStorageKey = "loj-cage-results-v1";
+const profileStorageKey = "loj-member-profiles-v1";
+const activeProfileStorageKey = "loj-active-profile-v1";
+const resultStorageKey = (profileId: string) =>
+  `loj-cage-results-v1:${profileId}`;
 const formatDamage = (value: number) => value.toLocaleString("en-US");
+const createMarvinProfile = (): MemberProfile => ({
+  id: "stiletto-s260",
+  playerName: "Stiletto",
+  server: "260",
+  role: "joiner",
+  season: 6,
+  ownedHeroes: heroes
+    .filter((hero) => hero.cageAllowed)
+    .map((hero) => hero.name),
+  warSkillLevels: Object.fromEntries(
+    heroes.filter((hero) => hero.leftSkill).map((hero) => [hero.name, 5]),
+  ),
+  ownedRobots: [...robots],
+  ownedFelons: felons.map((felon) => felon.name),
+  rallyFills: true,
+  joinerCapacity: 100000,
+  leaderCapacity: 188662,
+  joinerRatios: { shield: 0, bomber: 0, shooter: 100 },
+  leaderRatios: { shield: 0, bomber: 10, shooter: 90 },
+  troopTiers: { shield: "T10", bomber: "T10", shooter: "T11" },
+  availableTroops: { shield: 188662, bomber: 188662, shooter: 188662 },
+  troopPreset: "shooters",
+  joinCount: 6,
+  updatedAt: Date.now(),
+});
 
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner");
@@ -75,8 +109,15 @@ export default function Home() {
   );
   const [rallyFills, setRallyFills] = useState(true);
   const [generated, setGenerated] = useState(false);
+  const [profiles, setProfiles] = useState<MemberProfile[]>([]);
+  const [activeProfileId, setActiveProfileId] = useState("stiletto-s260");
+  const [profileName, setProfileName] = useState("Stiletto");
+  const [profileServer, setProfileServer] = useState("260");
+  const [profilesLoaded, setProfilesLoaded] = useState(false);
+  const [profileNotice, setProfileNotice] = useState("");
   const [cageResults, setCageResults] = useState<CageResult[]>([]);
   const [resultsLoaded, setResultsLoaded] = useState(false);
+  const [resultsProfileId, setResultsProfileId] = useState("");
   const [resultCage, setResultCage] = useState<CageName>("Cage 1");
   const [resultDate, setResultDate] = useState("");
   const [testName, setTestName] = useState("Main baseline");
@@ -87,25 +128,88 @@ export default function Home() {
   const [resultError, setResultError] = useState("");
   const [comparisonName, setComparisonName] = useState("");
 
+  function applyProfile(profile: MemberProfile) {
+    setProfileName(profile.playerName);
+    setProfileServer(profile.server);
+    setMode(profile.role);
+    setSeason(profile.season);
+    setOwned(profile.ownedHeroes);
+    setWarSkillLevels(profile.warSkillLevels);
+    setOwnedRobots(profile.ownedRobots);
+    setOwnedFelons(profile.ownedFelons);
+    setRallyFills(profile.rallyFills);
+    setJoinerCapacity(profile.joinerCapacity);
+    setLeaderCapacity(profile.leaderCapacity);
+    setJoinerRatios(profile.joinerRatios);
+    setLeaderRatios(profile.leaderRatios);
+    setTroopTiers(profile.troopTiers);
+    setAvailableTroops(profile.availableTroops);
+    setTroopPreset(profile.troopPreset);
+    setJoinCount(profile.joinCount);
+    setGenerated(false);
+  }
+
   useEffect(() => {
     setResultDate(new Date().toISOString().slice(0, 10));
     try {
-      const stored = localStorage.getItem(resultStorageKey);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) setCageResults(parsed);
-      }
+      const storedProfiles = localStorage.getItem(profileStorageKey);
+      const parsedProfiles = storedProfiles ? JSON.parse(storedProfiles) : null;
+      const loadedProfiles: MemberProfile[] =
+        Array.isArray(parsedProfiles) && parsedProfiles.length
+          ? parsedProfiles
+          : [createMarvinProfile()];
+      const storedActive = localStorage.getItem(activeProfileStorageKey);
+      const active =
+        loadedProfiles.find((profile) => profile.id === storedActive) ??
+        loadedProfiles[0];
+      setProfiles(loadedProfiles);
+      setActiveProfileId(active.id);
+      applyProfile(active);
+      localStorage.setItem(profileStorageKey, JSON.stringify(loadedProfiles));
+      localStorage.setItem(activeProfileStorageKey, active.id);
     } catch {
-      setResultError("Saved results could not be read in this browser.");
+      const fallback = createMarvinProfile();
+      setProfiles([fallback]);
+      applyProfile(fallback);
+      setProfileNotice("Saved member profiles could not be read.");
     } finally {
-      setResultsLoaded(true);
+      setProfilesLoaded(true);
     }
   }, []);
 
   useEffect(() => {
-    if (!resultsLoaded) return;
-    localStorage.setItem(resultStorageKey, JSON.stringify(cageResults));
-  }, [cageResults, resultsLoaded]);
+    if (!profilesLoaded) return;
+    setResultsLoaded(false);
+    setComparisonName("");
+    try {
+      const profileKey = resultStorageKey(activeProfileId);
+      const stored = localStorage.getItem(profileKey);
+      const legacy =
+        activeProfileId === "stiletto-s260"
+          ? localStorage.getItem(legacyResultStorageKey)
+          : null;
+      const parsed = JSON.parse(stored ?? legacy ?? "[]");
+      const loaded = Array.isArray(parsed) ? parsed : [];
+      setCageResults(loaded);
+      if (!stored && legacy) {
+        localStorage.setItem(profileKey, JSON.stringify(loaded));
+      }
+    } catch {
+      setCageResults([]);
+      setResultError("Saved results could not be read for this profile.");
+    } finally {
+      setResultsProfileId(activeProfileId);
+      setResultsLoaded(true);
+    }
+  }, [activeProfileId, profilesLoaded]);
+
+  useEffect(() => {
+    if (!resultsLoaded || resultsProfileId !== activeProfileId) return;
+    localStorage.setItem(
+      resultStorageKey(activeProfileId),
+      JSON.stringify(cageResults),
+    );
+  }, [activeProfileId, cageResults, resultsLoaded, resultsProfileId]);
 
   const seasonHeroes = useMemo(
     () => heroes.filter((h) => h.season === 0 || h.season <= season),
@@ -226,6 +330,83 @@ export default function Home() {
     setAvailableTroops((current) => ({ ...current, [key]: value }));
     setGenerated(false);
   };
+  const currentProfileSnapshot = (): MemberProfile => ({
+    id: activeProfileId,
+    playerName: profileName.trim() || "Unnamed Member",
+    server: profileServer.trim(),
+    role: mode,
+    season,
+    ownedHeroes: owned,
+    warSkillLevels,
+    ownedRobots,
+    ownedFelons,
+    rallyFills,
+    joinerCapacity,
+    leaderCapacity,
+    joinerRatios,
+    leaderRatios,
+    troopTiers,
+    availableTroops,
+    troopPreset,
+    joinCount,
+    updatedAt: Date.now(),
+  });
+  const saveActiveProfile = () => {
+    const saved = currentProfileSnapshot();
+    const next = profiles.map((profile) =>
+      profile.id === activeProfileId ? saved : profile,
+    );
+    setProfiles(next);
+    localStorage.setItem(profileStorageKey, JSON.stringify(next));
+    setProfileNotice(`${saved.playerName}'s account profile is saved.`);
+  };
+  const switchProfile = (profileId: string) => {
+    const current = currentProfileSnapshot();
+    const next = profiles.map((profile) =>
+      profile.id === activeProfileId ? current : profile,
+    );
+    const profile = next.find((entry) => entry.id === profileId);
+    if (!profile) return;
+    setProfiles(next);
+    localStorage.setItem(profileStorageKey, JSON.stringify(next));
+    setActiveProfileId(profile.id);
+    localStorage.setItem(activeProfileStorageKey, profile.id);
+    applyProfile(profile);
+    setProfileNotice(`Loaded ${profile.playerName}'s account settings.`);
+  };
+  const createProfile = () => {
+    const createdAt = Date.now();
+    const id =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `member-${createdAt}`;
+    const profile = createBlankProfile(id);
+    const current = currentProfileSnapshot();
+    const savedProfiles = profiles.map((entry) =>
+      entry.id === activeProfileId ? current : entry,
+    );
+    const next = [...savedProfiles, profile];
+    setProfiles(next);
+    localStorage.setItem(profileStorageKey, JSON.stringify(next));
+    setActiveProfileId(profile.id);
+    localStorage.setItem(activeProfileStorageKey, profile.id);
+    applyProfile(profile);
+    setProfileNotice("Created an empty CCW member profile.");
+  };
+  const deleteActiveProfile = () => {
+    if (profiles.length <= 1) {
+      setProfileNotice("At least one member profile must remain.");
+      return;
+    }
+    const next = profiles.filter((profile) => profile.id !== activeProfileId);
+    const replacement = next[0];
+    setProfiles(next);
+    localStorage.setItem(profileStorageKey, JSON.stringify(next));
+    setActiveProfileId(replacement.id);
+    localStorage.setItem(activeProfileStorageKey, replacement.id);
+    applyProfile(replacement);
+    setProfileNotice("Member profile deleted from this browser.");
+  };
   const addCageResult = () => {
     const damage = Number(resultDamage.replaceAll(",", ""));
     if (!resultDate || !testName.trim() || !resultLeftHero.trim()) {
@@ -273,8 +454,78 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.8</div>
+        <div className="badge">BETA v0.9</div>
       </header>
+
+      <section className="panel profile-panel">
+        <div className="title">
+          <div>
+            <label>CCW MEMBER PROFILE</label>
+            <h2>Generate from this member&apos;s actual account</h2>
+          </div>
+          <span>{profiles.length} saved locally</span>
+        </div>
+        <div className="profile-grid">
+          <label>
+            ACTIVE MEMBER
+            <select
+              value={activeProfileId}
+              onChange={(event) => switchProfile(event.target.value)}
+              disabled={!profilesLoaded}
+            >
+              {profiles.map((profile) => (
+                <option key={profile.id} value={profile.id}>
+                  {profile.playerName}
+                  {profile.server ? ` — Server ${profile.server}` : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            PLAYER NAME
+            <input
+              value={profileName}
+              onChange={(event) => {
+                setProfileName(event.target.value);
+                setProfileNotice("");
+              }}
+            />
+          </label>
+          <label>
+            SERVER
+            <input
+              inputMode="numeric"
+              value={profileServer}
+              onChange={(event) => {
+                setProfileServer(event.target.value);
+                setProfileNotice("");
+              }}
+              placeholder="260"
+            />
+          </label>
+          <div className="profile-role">
+            <label>SAVED ROLE</label>
+            <strong>
+              {mode === "leader" ? "Rally Leader" : "Rally Joiner"}
+            </strong>
+          </div>
+        </div>
+        <div className="profile-actions">
+          <button className="profile-save" onClick={saveActiveProfile}>
+            SAVE PROFILE
+          </button>
+          <button onClick={createProfile}>NEW EMPTY MEMBER</button>
+          <button className="profile-delete" onClick={deleteActiveProfile}>
+            DELETE PROFILE
+          </button>
+        </div>
+        {profileNotice && <p className="profile-notice">{profileNotice}</p>}
+        <p className="helper">
+          Profiles and Cage results stay in this browser. New members begin with
+          no owned heroes, robots or Felons selected, so Marvin&apos;s Server
+          260 settings are never used as their account data.
+        </p>
+      </section>
 
       <section className="panel controls">
         <div>

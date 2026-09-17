@@ -2,7 +2,7 @@
 
 An evidence-based Trial Cage formation generator inspired by the workflow of the Whiteout Survival Bear Trap formation tools, but designed specifically around Lands of Jail mechanics and real Cage testing.
 
-## Current Beta v0.8
+## Current Beta v0.9
 
 - Rally Leader / Rally Joiner modes
 - Season filter through S6
@@ -30,6 +30,10 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - Controlled A/B tests with LEFT hero, damage, date and notes
 - Variant hit counts, averages, best hits and percentage comparison
 - RNG warning until both variants have at least three recorded hits
+- Browser-local CCW member profiles with player, server and role
+- Per-member heroes, War skills, troops, robots, Felons and formation settings
+- Empty safe defaults for new members instead of inheriting Marvin's account
+- Separate Cage result history for every saved member profile
 
 ## Planned
 
