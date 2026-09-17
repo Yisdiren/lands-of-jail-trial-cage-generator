@@ -1,0 +1,26 @@
+name: Restore page and set beta version
+
+on:
+  push:
+    paths:
+      - '.github/workflows/restore-page-version.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore page and update beta
+        run: |
+          git show af6a4cc95c7dcb99f70209a465f5fa414d6b6c60:app/page.tsx > app/page.tsx
+          sed -i 's/BETA v0\.23/BETA v0.27/g' app/page.tsx
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/page.tsx
+          git commit -m 'Restore generator and bump beta to v0.27'
+          git push
