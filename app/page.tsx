@@ -34,6 +34,8 @@ import Image from "next/image";
 
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
 
+import { downloadFormationImage } from "../lib/formation-image";
+
 type Mode = MemberRole;
 const troopClasses: { key: TroopClassKey; label: string }[] = [
   { key: "shield", label: "Shieldbearers" },
@@ -460,6 +462,18 @@ export default function Home() {
     verifiedOnly,
     updatedAt: Date.now(),
   });
+  const [exportingImage, setExportingImage] = useState(false);
+  const exportFormationImage = async () => {
+    setExportingImage(true);
+    try {
+      await downloadFormationImage(mode === "leader" ? (leaderFormation ? [leaderFormation] : []) : joinerFormations,
+        profileName || "Member", heroStarLevels,
+        name => heroIconNames.has(name) ? "/icons/" + heroIconSlug(name) + ".png" : null);
+      setProfileNotice("Formation image downloaded.");
+    } catch (error) {
+      setProfileNotice(error instanceof Error ? error.message : "Image download failed.");
+    } finally { setExportingImage(false); }
+  };
   const copyAllianceInstructions = async () => {
     const lines = [
       `CCW TRIAL CAGE — ${profileName || "Member"}`,
@@ -719,7 +733,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.30</div>
+        <div className="badge">BETA v0.31</div>
       </header>
 
       <section className="panel profile-panel">
@@ -1376,6 +1390,12 @@ export default function Home() {
               : "This member is not marked as a seat holder; no seat modifier is applied."}
           </span>
         </div>
+      )}
+
+      {generated && !lockError && (
+        <button className="copy-button" disabled={exportingImage || (mode === "leader" ? !leaderFormation : !joinerFormations.length)} onClick={exportFormationImage}>
+          {exportingImage ? "CREATING IMAGE…" : "DOWNLOAD FORMATION IMAGE"}
+        </button>
       )}
 
       {generated &&
