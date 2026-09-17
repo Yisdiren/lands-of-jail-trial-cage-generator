@@ -2,7 +2,7 @@
 
 An evidence-based Trial Cage formation generator inspired by the workflow of the Whiteout Survival Bear Trap formation tools, but designed specifically around Lands of Jail mechanics and real Cage testing.
 
-## Current Beta v0.28
+## Current Beta v0.29
 
 - Rally Leader / Rally Joiner modes
 - Compact portraits in leader and joiner formation cards

@@ -697,7 +697,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.28</div>
+        <div className="badge">BETA v0.29</div>
       </header>
 
       <section className="panel profile-panel">
@@ -1353,7 +1353,7 @@ export default function Home() {
                         src={`/icons/${heroIconSlug(leaderFormation.left.name)}.png`}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{leaderFormation.left.name}</b>
+                    <b>{leaderFormation.left.name}</b><small>{heroStarLevels[leaderFormation.left.name] ? "★".repeat(heroStarLevels[leaderFormation.left.name]) : "Stars not set"}</small>
               </div>
               <div className="slot">
                 <span>BOMBER</span>
@@ -1362,7 +1362,7 @@ export default function Home() {
                         src={`/icons/${heroIconSlug(leaderFormation.middle.name)}.png`}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{leaderFormation.middle.name}</b>
+                    <b>{leaderFormation.middle.name}</b><small>{heroStarLevels[leaderFormation.middle.name] ? "★".repeat(heroStarLevels[leaderFormation.middle.name]) : "Stars not set"}</small>
               </div>
               <div className="slot">
                 <span>SHIELD</span>
@@ -1371,7 +1371,7 @@ export default function Home() {
                         src={`/icons/${heroIconSlug(leaderFormation.right.name)}.png`}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{leaderFormation.right.name}</b>
+                    <b>{leaderFormation.right.name}</b><small>{heroStarLevels[leaderFormation.right.name] ? "★".repeat(heroStarLevels[leaderFormation.right.name]) : "Stars not set"}</small>
               </div>
             </div>
             <div className="ratio">
@@ -1481,7 +1481,7 @@ export default function Home() {
                 : "Not enough compatible heroes to build a legal joiner formation."}
             </div>
           )}
-          <div className="formation-list">
+          <p className="helper">Leader heroes are reserved. Each joiner uses different heroes; supporting slots preserve priority LEFT skills for other marches.</p><div className="formation-list">
             {joinerFormations.map((f) => (
               <article className="formation-card" key={f.id}>
                 <div className="formation-head">
@@ -1501,8 +1501,9 @@ export default function Home() {
                         src={`/icons/${heroIconSlug(f.left.name)}.png`}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{f.left.name}</b>
+                    <b>{f.left.name}</b><small>{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
+                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. Selected at skill Lv{f.leftSkillLevel}; skill priority comes first, with stars as a secondary preference. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
                   </div>
                   <div className="slot">
                     <span>MIDDLE • {f.middle.cls}</span>
@@ -1511,7 +1512,7 @@ export default function Home() {
                         src={`/icons/${heroIconSlug(f.middle.name)}.png`}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{f.middle.name}</b>
+                    <b>{f.middle.name}</b><small>{heroStarLevels[f.middle.name] ? "★".repeat(heroStarLevels[f.middle.name]) : "Stars not set"}</small>
                   </div>
                   <div className="slot">
                     <span>RIGHT • {f.right.cls}</span>
@@ -1520,7 +1521,7 @@ export default function Home() {
                         src={`/icons/${heroIconSlug(f.right.name)}.png`}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{f.right.name}</b>
+                    <b>{f.right.name}</b><small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
                   </div>
                 </div>
                 <div
