@@ -244,6 +244,13 @@ export default function Home() {
     () => seasonHeroes.filter((h) => owned.includes(h.name) && h.cageAllowed),
     [seasonHeroes, owned],
   );
+  const evidenceCounts = useMemo(() => {
+    const leftSkills = available.filter((hero) => hero.leftSkill);
+    return {
+      total: leftSkills.length,
+      verified: leftSkills.filter((hero) => hero.leftSkillVerified).length,
+    };
+  }, [available]);
   const availableRobots = useMemo(
     () => robots.filter((robot) => ownedRobots.includes(robot)),
     [ownedRobots],
@@ -878,6 +885,10 @@ export default function Home() {
             <span>
               <b>VERIFIED SKILLS ONLY</b>
               <small>Use screenshot-confirmed LEFT War progressions only</small>
+              <small>
+                {evidenceCounts.verified}/{evidenceCounts.total} available LEFT
+                skills verified
+              </small>
             </span>
           </label>
         )}
@@ -1419,9 +1430,9 @@ export default function Home() {
           {joinerFormations.length < joinCount &&
             joinerFormations.length > 0 && (
               <div className="warning-box">
-                Only {joinerFormations.length} legal non-repeating formation
-                {joinerFormations.length === 1 ? "" : "s"} could be built from
-                the selected roster.
+                {verifiedOnly
+                  ? `Verified-only mode produced ${joinerFormations.length} of ${joinCount} legal non-repeating formations. Add more screenshot-verified LEFT heroes or turn the filter off.`
+                  : `Only ${joinerFormations.length} legal non-repeating formation${joinerFormations.length === 1 ? "" : "s"} could be built from the selected roster.`}
               </div>
             )}
           {availableRobots.length < joinerFormations.length && (
