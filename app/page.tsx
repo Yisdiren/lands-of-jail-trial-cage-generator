@@ -45,7 +45,7 @@ const activeProfileStorageKey = "loj-active-profile-v1";
 const resultStorageKey = (profileId: string) =>
   `loj-cage-results-v1:${profileId}`;
 const formatDamage = (value: number) => value.toLocaleString("en-US");
-const createMarvinProfile = (): MemberProfile => ({
+const createStilettoProfile = (): MemberProfile => ({
   id: "stiletto-s260",
   playerName: "Stiletto",
   server: "260",
@@ -167,7 +167,7 @@ export default function Home() {
               ...profile,
               seatHolder: profile.seatHolder ?? profile.id === "stiletto-s260",
             }))
-          : [createMarvinProfile()];
+          : [createStilettoProfile()];
       const storedActive = localStorage.getItem(activeProfileStorageKey);
       const active =
         loadedProfiles.find((profile) => profile.id === storedActive) ??
@@ -178,7 +178,7 @@ export default function Home() {
       localStorage.setItem(profileStorageKey, JSON.stringify(loadedProfiles));
       localStorage.setItem(activeProfileStorageKey, active.id);
     } catch {
-      const fallback = createMarvinProfile();
+      const fallback = createStilettoProfile();
       setProfiles([fallback]);
       applyProfile(fallback);
       setProfileNotice("Saved member profiles could not be read.");
@@ -531,7 +531,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.12</div>
+        <div className="badge">BETA v0.12.1</div>
       </header>
 
       <section className="panel profile-panel">
@@ -623,7 +623,7 @@ export default function Home() {
         {profileNotice && <p className="profile-notice">{profileNotice}</p>}
         <p className="helper">
           Profiles and Cage results stay in this browser. New members begin with
-          no owned heroes, robots or Felons selected, so Marvin&apos;s Server
+          no owned heroes, robots or Felons selected, so Stiletto&apos;s Server
           260 settings are never used as their account data. Exported profile
           files contain account settings, but not saved Cage-hit history.
         </p>
