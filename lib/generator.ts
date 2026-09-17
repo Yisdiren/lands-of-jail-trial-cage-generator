@@ -1,6 +1,23 @@
 import type { Felon, Hero, HeroClass } from "../data/heroes";
 export type TroopPreset = "shooters" | "10-90";
 export type WarSkillLevels = Record<string, number>;
+export type TroopClassKey = "shield" | "bomber" | "shooter";
+export type TroopTier = `T${number}`;
+export type TroopValues = Record<TroopClassKey, number>;
+export type TroopTiers = Record<TroopClassKey, TroopTier>;
+export type TroopConfig = {
+  capacity: number;
+  ratios: TroopValues;
+  tiers: TroopTiers;
+  available: TroopValues;
+};
+export type TroopPlan = {
+  counts: TroopValues;
+  ratioTotal: number;
+  assignedTotal: number;
+  text: string;
+  warnings: string[];
+};
 export type Formation = {
   id: string;
   left: Hero;
@@ -18,6 +35,60 @@ export type FelonPlan = {
   warning?: string;
 };
 const classOrder: HeroClass[] = ["Shield", "Bomber", "Shooter"];
+const troopClassLabels: Record<TroopClassKey, string> = {
+  shield: "Shieldbearers",
+  bomber: "Bombers",
+  shooter: "Shooters",
+};
+const safeWhole = (value: number) =>
+  Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+const formatNumber = (value: number) => value.toLocaleString("en-US");
+
+export function calculateTroopPlan(config: TroopConfig): TroopPlan {
+  const capacity = safeWhole(config.capacity);
+  const ratios: TroopValues = {
+    shield: safeWhole(config.ratios.shield),
+    bomber: safeWhole(config.ratios.bomber),
+    shooter: safeWhole(config.ratios.shooter),
+  };
+  const ratioTotal = ratios.shield + ratios.bomber + ratios.shooter;
+  const counts: TroopValues = {
+    shield: Math.floor((capacity * ratios.shield) / 100),
+    bomber: Math.floor((capacity * ratios.bomber) / 100),
+    shooter: Math.floor((capacity * ratios.shooter) / 100),
+  };
+  if (ratioTotal === 100) {
+    counts.shooter = capacity - counts.shield - counts.bomber;
+  }
+  const assignedTotal = counts.shield + counts.bomber + counts.shooter;
+  const warnings: string[] = [];
+
+  if (capacity < 1) warnings.push("March capacity must be at least 1.");
+  if (ratioTotal !== 100)
+    warnings.push(`Troop ratios total ${ratioTotal}%; they must total 100%.`);
+  (Object.keys(counts) as TroopClassKey[]).forEach((key) => {
+    const available = safeWhole(config.available[key]);
+    if (counts[key] > available) {
+      warnings.push(
+        `Need ${formatNumber(counts[key])} ${config.tiers[key]} ${troopClassLabels[key]}, but only ${formatNumber(available)} are available.`,
+      );
+    }
+  });
+
+  const parts = (Object.keys(counts) as TroopClassKey[])
+    .filter((key) => counts[key] > 0)
+    .map(
+      (key) =>
+        `${formatNumber(counts[key])} ${config.tiers[key]} ${troopClassLabels[key]}`,
+    );
+  return {
+    counts,
+    ratioTotal,
+    assignedTotal,
+    text: `${ratios.shield} / ${ratios.bomber} / ${ratios.shooter} — ${parts.join(" + ") || "No troops assigned"}`,
+    warnings,
+  };
+}
 const tier = (h: Hero) =>
   h.leftTier === "top"
     ? 300
@@ -74,7 +145,7 @@ const pickFiller = (
 export function generateJoinerFormations(
   availableHeroes: Hero[],
   count = 6,
-  troopPreset: TroopPreset = "shooters",
+  troopPlan: TroopPlan,
   warSkillLevels: WarSkillLevels = {},
   ownedRobots: string[] = [],
 ): Formation[] {
@@ -119,10 +190,7 @@ export function generateJoinerFormations(
       robot,
       leftSkillLevel: lv,
       leftSkillPercent: left.leftSkillValues?.[lv - 1],
-      troopText:
-        troopPreset === "shooters"
-          ? "0 / 0 / 100 — 100k Shooters"
-          : "0 / 10 / 90 — 10k Bombers + 90k Shooters",
+      troopText: troopPlan.text,
       warning:
         left.leftTier === "filler"
           ? "Filler LEFT skill — use only after stronger LEFT heroes are exhausted."
@@ -133,6 +201,7 @@ export function generateJoinerFormations(
 }
 export function generateLeaderFormation(
   availableHeroes: Hero[],
+  troopPlan: TroopPlan,
   ownedRobots: string[] = [],
 ): Formation | null {
   const eligible = availableHeroes.filter((h) => h.cageAllowed),
@@ -146,7 +215,7 @@ export function generateLeaderFormation(
       middle: baseline[1]!,
       right: baseline[2]!,
       robot,
-      troopText: "0 / 10 / 90 — current controlled-test baseline",
+      troopText: troopPlan.text,
     };
   const shield = pickBest(eligible, "Shield", new Set()),
     bomber = pickBest(eligible, "Bomber", new Set()),
@@ -158,8 +227,7 @@ export function generateLeaderFormation(
     middle: bomber,
     right: shield,
     robot,
-    troopText:
-      "0 / 10 / 90 — provisional legal formation; verify by controlled Cage testing",
+    troopText: troopPlan.text,
   };
 }
 

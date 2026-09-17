@@ -19,7 +19,8 @@ body {
   );
 }
 button,
-select {
+select,
+input {
   font: inherit;
 }
 main {
@@ -436,6 +437,73 @@ footer {
 .rally-condition {
   margin-top: 17px;
 }
+.troop-capacity {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) 1fr;
+  gap: 8px 16px;
+  align-items: center;
+  margin: 8px 0 20px;
+}
+.troop-capacity label {
+  grid-column: 1;
+}
+.troop-capacity input {
+  grid-column: 1;
+}
+.troop-capacity small {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  color: #8ea5bb;
+  line-height: 1.45;
+}
+.troop-grid {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.5fr) repeat(4, minmax(100px, 1fr));
+  gap: 10px;
+  align-items: center;
+  padding: 9px 0;
+  border-top: 1px solid #1f3449;
+}
+.troop-grid-head {
+  border-top: 0;
+  color: #8da4ba;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.troop-grid select {
+  margin-top: 0;
+}
+.troop-grid input,
+.troop-capacity input {
+  width: 100%;
+  padding: 11px 12px;
+  background: #111f30;
+  border: 1px solid #304a64;
+  color: #d9e7f6;
+  border-radius: 9px;
+  font-weight: 700;
+}
+.troop-grid > b:last-child {
+  color: #ffbd2e;
+  text-align: right;
+}
+.troop-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: #07121e;
+  border-radius: 10px;
+}
+.troop-summary span {
+  color: #8da4ba;
+  white-space: nowrap;
+}
+.troop-summary strong {
+  color: #ffbd2e;
+  text-align: right;
+}
 @media (max-width: 900px) {
   .controls {
     grid-template-columns: 1fr 1fr;
@@ -478,5 +546,31 @@ footer {
   }
   .felons {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .troop-capacity {
+    grid-template-columns: 1fr;
+  }
+  .troop-capacity small {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .troop-grid {
+    grid-template-columns: 1fr 1fr;
+    padding: 14px 0;
+  }
+  .troop-grid-head {
+    display: none;
+  }
+  .troop-grid strong {
+    grid-column: 1 / 3;
+  }
+  .troop-grid > b:last-child {
+    text-align: left;
+  }
+  .troop-summary {
+    flex-direction: column;
+  }
+  .troop-summary strong {
+    text-align: left;
   }
 }

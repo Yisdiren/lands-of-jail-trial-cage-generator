@@ -3,14 +3,28 @@
 import { useMemo, useState } from "react";
 import { felons, heroes, robots } from "../data/heroes";
 import {
+  calculateTroopPlan,
   generateJoinerFormations,
   generateLeaderFormation,
   optimizeFelons,
   type TroopPreset,
+  type TroopClassKey,
+  type TroopTier,
+  type TroopTiers,
+  type TroopValues,
   type WarSkillLevels,
 } from "../lib/generator";
 
 type Mode = "leader" | "joiner";
+const troopClasses: { key: TroopClassKey; label: string }[] = [
+  { key: "shield", label: "Shieldbearers" },
+  { key: "bomber", label: "Bombers" },
+  { key: "shooter", label: "Shooters" },
+];
+const troopTierOptions = Array.from(
+  { length: 11 },
+  (_, index) => `T${index + 1}` as TroopTier,
+);
 
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner");
@@ -19,6 +33,28 @@ export default function Home() {
     heroes.filter((h) => h.cageAllowed).map((h) => h.name),
   );
   const [troopPreset, setTroopPreset] = useState<TroopPreset>("shooters");
+  const [joinerCapacity, setJoinerCapacity] = useState(100000);
+  const [leaderCapacity, setLeaderCapacity] = useState(188662);
+  const [joinerRatios, setJoinerRatios] = useState<TroopValues>({
+    shield: 0,
+    bomber: 0,
+    shooter: 100,
+  });
+  const [leaderRatios, setLeaderRatios] = useState<TroopValues>({
+    shield: 0,
+    bomber: 10,
+    shooter: 90,
+  });
+  const [troopTiers, setTroopTiers] = useState<TroopTiers>({
+    shield: "T10",
+    bomber: "T10",
+    shooter: "T11",
+  });
+  const [availableTroops, setAvailableTroops] = useState<TroopValues>({
+    shield: 188662,
+    bomber: 188662,
+    shooter: 188662,
+  });
   const [joinCount, setJoinCount] = useState(6);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>(() =>
     Object.fromEntries(
@@ -44,20 +80,40 @@ export default function Home() {
     () => robots.filter((robot) => ownedRobots.includes(robot)),
     [ownedRobots],
   );
+  const joinerTroopPlan = useMemo(
+    () =>
+      calculateTroopPlan({
+        capacity: joinerCapacity,
+        ratios: joinerRatios,
+        tiers: troopTiers,
+        available: availableTroops,
+      }),
+    [joinerCapacity, joinerRatios, troopTiers, availableTroops],
+  );
+  const leaderTroopPlan = useMemo(
+    () =>
+      calculateTroopPlan({
+        capacity: leaderCapacity,
+        ratios: leaderRatios,
+        tiers: troopTiers,
+        available: availableTroops,
+      }),
+    [leaderCapacity, leaderRatios, troopTiers, availableTroops],
+  );
   const joinerFormations = useMemo(
     () =>
       generateJoinerFormations(
         available,
         joinCount,
-        troopPreset,
+        joinerTroopPlan,
         warSkillLevels,
         availableRobots,
       ),
-    [available, joinCount, troopPreset, warSkillLevels, availableRobots],
+    [available, joinCount, joinerTroopPlan, warSkillLevels, availableRobots],
   );
   const leaderFormation = useMemo(
-    () => generateLeaderFormation(available, availableRobots),
-    [available, availableRobots],
+    () => generateLeaderFormation(available, leaderTroopPlan, availableRobots),
+    [available, leaderTroopPlan, availableRobots],
   );
   const felonPlan = useMemo(
     () => optimizeFelons(felons, ownedFelons, rallyFills),
@@ -100,6 +156,28 @@ export default function Home() {
     );
     setGenerated(false);
   };
+  const applyTroopPreset = (preset: TroopPreset) => {
+    setTroopPreset(preset);
+    setJoinerRatios(
+      preset === "shooters"
+        ? { shield: 0, bomber: 0, shooter: 100 }
+        : { shield: 0, bomber: 10, shooter: 90 },
+    );
+    setGenerated(false);
+  };
+  const updateRatio = (key: TroopClassKey, value: number) => {
+    const setter = mode === "leader" ? setLeaderRatios : setJoinerRatios;
+    setter((current) => ({ ...current, [key]: value }));
+    setGenerated(false);
+  };
+  const updateTier = (key: TroopClassKey, value: TroopTier) => {
+    setTroopTiers((current) => ({ ...current, [key]: value }));
+    setGenerated(false);
+  };
+  const updateAvailable = (key: TroopClassKey, value: number) => {
+    setAvailableTroops((current) => ({ ...current, [key]: value }));
+    setGenerated(false);
+  };
 
   return (
     <main>
@@ -114,7 +192,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.5</div>
+        <div className="badge">BETA v0.6</div>
       </header>
 
       <section className="panel controls">
@@ -164,12 +242,11 @@ export default function Home() {
               <select
                 value={troopPreset}
                 onChange={(e) => {
-                  setTroopPreset(e.target.value as TroopPreset);
-                  setGenerated(false);
+                  applyTroopPreset(e.target.value as TroopPreset);
                 }}
               >
-                <option value="shooters">100k Shooters</option>
-                <option value="10-90">10k Bomber / 90k Shooter</option>
+                <option value="shooters">0 / 0 / 100</option>
+                <option value="10-90">0 / 10 / 90</option>
               </select>
             </div>
             <div>
@@ -189,6 +266,113 @@ export default function Home() {
               </select>
             </div>
           </>
+        )}
+      </section>
+
+      <section className="panel troop-panel">
+        <div className="title">
+          <div>
+            <label>TROOP SETUP</label>
+            <h2>{mode === "leader" ? "Leader march" : "Joiner marches"}</h2>
+          </div>
+          <span>
+            {(mode === "leader"
+              ? leaderTroopPlan.assignedTotal
+              : joinerTroopPlan.assignedTotal
+            ).toLocaleString("en-US")}{" "}
+            assigned
+          </span>
+        </div>
+        <div className="troop-capacity">
+          <label htmlFor="march-capacity">MARCH CAPACITY</label>
+          <input
+            id="march-capacity"
+            type="number"
+            min="1"
+            step="1"
+            value={mode === "leader" ? leaderCapacity : joinerCapacity}
+            onChange={(event) => {
+              const value = Number(event.target.value);
+              if (mode === "leader") setLeaderCapacity(value);
+              else setJoinerCapacity(value);
+              setGenerated(false);
+            }}
+          />
+          <small>
+            {mode === "leader"
+              ? "Your personal maximum march size; this is separate from total rally capacity."
+              : "CCW default is 100,000 troops per joiner march."}
+          </small>
+        </div>
+        <div className="troop-grid troop-grid-head">
+          <b>CLASS</b>
+          <b>RATIO %</b>
+          <b>TIER</b>
+          <b>AVAILABLE</b>
+          <b>REQUIRED</b>
+        </div>
+        {troopClasses.map(({ key, label }) => {
+          const ratios = mode === "leader" ? leaderRatios : joinerRatios;
+          const plan = mode === "leader" ? leaderTroopPlan : joinerTroopPlan;
+          return (
+            <div className="troop-grid" key={key}>
+              <strong>{label}</strong>
+              <input
+                aria-label={`${label} ratio`}
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                value={ratios[key]}
+                onChange={(event) =>
+                  updateRatio(key, Number(event.target.value))
+                }
+              />
+              <select
+                aria-label={`${label} tier`}
+                value={troopTiers[key]}
+                onChange={(event) =>
+                  updateTier(key, event.target.value as TroopTier)
+                }
+              >
+                {troopTierOptions.map((tier) => (
+                  <option key={tier} value={tier}>
+                    {tier}
+                  </option>
+                ))}
+              </select>
+              <input
+                aria-label={`${label} available`}
+                type="number"
+                min="0"
+                step="1"
+                value={availableTroops[key]}
+                onChange={(event) =>
+                  updateAvailable(key, Number(event.target.value))
+                }
+              />
+              <b>{plan.counts[key].toLocaleString("en-US")}</b>
+            </div>
+          );
+        })}
+        <div className="troop-summary">
+          <span>
+            Ratio total:{" "}
+            {mode === "leader"
+              ? leaderTroopPlan.ratioTotal
+              : joinerTroopPlan.ratioTotal}
+            %
+          </span>
+          <strong>
+            {mode === "leader" ? leaderTroopPlan.text : joinerTroopPlan.text}
+          </strong>
+        </div>
+        {(mode === "leader" ? leaderTroopPlan : joinerTroopPlan).warnings.map(
+          (warning) => (
+            <div className="warning-box" key={warning}>
+              {warning}
+            </div>
+          ),
         )}
       </section>
 
@@ -446,6 +630,11 @@ export default function Home() {
             {felonPlan.warning && (
               <div className="warning-box">{felonPlan.warning}</div>
             )}
+            {leaderTroopPlan.warnings.map((warning) => (
+              <div className="warning-box" key={warning}>
+                {warning}
+              </div>
+            ))}
           </section>
         ) : (
           <section className="result warning">
@@ -520,6 +709,11 @@ export default function Home() {
               complete every march.
             </div>
           )}
+          {joinerTroopPlan.warnings.map((warning) => (
+            <div className="warning-box" key={warning}>
+              {warning}
+            </div>
+          ))}
         </section>
       )}
 
@@ -529,7 +723,8 @@ export default function Home() {
           <p>
             ✓ 1 Shield + 1 Bomber + 1 Shooter &nbsp; ✓ LEFT-slot skill priority
             &nbsp; ✓ LEFT War skill level &nbsp; ✓ no hero or robot reuse across
-            J1–J6 &nbsp; ✓ 100k joiner presets &nbsp; ✓ KOF excluded
+            J1–J6 &nbsp; ✓ configurable capacity, ratios and troop tiers &nbsp;
+            ✓ KOF excluded
           </p>
         </div>
       </section>
