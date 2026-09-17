@@ -65,6 +65,10 @@ const createStilettoSkillLevels = (): WarSkillLevels =>
       .filter((hero) => hero.leftSkill)
       .map((hero) => [hero.name, hero.name === "Tyronn" ? 4 : 5]),
   );
+const createStilettoStarLevels = (): Record<string, number> =>
+  Object.fromEntries(
+    heroes.filter((hero) => hero.cageAllowed).map((hero) => [hero.name, 5]),
+  );
 const createStilettoProfile = (): MemberProfile => ({
   id: "stiletto-s260",
   playerName: "Stiletto",
@@ -74,6 +78,7 @@ const createStilettoProfile = (): MemberProfile => ({
   ownedHeroes: heroes
     .filter((hero) => hero.cageAllowed)
     .map((hero) => hero.name),
+  heroStarLevels: createStilettoStarLevels(),
   warSkillLevels: createStilettoSkillLevels(),
   ownedRobots: [...robots],
   ownedFelons: felons.map((felon) => felon.name),
@@ -123,6 +128,9 @@ export default function Home() {
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>(
     createStilettoSkillLevels,
   );
+  const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>(
+    createStilettoStarLevels,
+  );
   const [ownedRobots, setOwnedRobots] = useState<string[]>(robots);
   const [ownedFelons, setOwnedFelons] = useState<string[]>(
     felons.map((felon) => felon.name),
@@ -158,6 +166,7 @@ export default function Home() {
     setMode(profile.role);
     setSeason(profile.season);
     setOwned(profile.ownedHeroes);
+    setHeroStarLevels(profile.heroStarLevels ?? {});
     setWarSkillLevels(profile.warSkillLevels);
     setOwnedRobots(profile.ownedRobots);
     setOwnedFelons(profile.ownedFelons);
@@ -347,6 +356,10 @@ export default function Home() {
     setWarSkillLevels((current) => ({ ...current, [name]: level }));
     setGenerated(false);
   };
+  const setStarLevel = (name: string, level: number) => {
+    setHeroStarLevels((current) => ({ ...current, [name]: level }));
+    setGenerated(false);
+  };
   const toggleRobot = (name: string) => {
     setOwnedRobots((current) =>
       current.includes(name)
@@ -392,6 +405,7 @@ export default function Home() {
     role: mode,
     season,
     ownedHeroes: owned,
+    heroStarLevels,
     warSkillLevels,
     ownedRobots,
     ownedFelons,
@@ -667,7 +681,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.21</div>
+        <div className="badge">BETA v0.22</div>
       </header>
 
       <section className="panel profile-panel">
@@ -1242,6 +1256,25 @@ export default function Home() {
                   )}
                   {!hero.cageAllowed && <em>EXCLUDED</em>}
                 </button>
+                {selected && !disabled && (
+                  <label
+                    style={{ display: "block", marginTop: 6, fontSize: 12 }}
+                  >
+                    Hero stars{" "}
+                    <select
+                      aria-label={`${hero.name} star level`}
+                      value={heroStarLevels[hero.name] ?? 1}
+                      onChange={(e) => setStarLevel(hero.name, +e.target.value)}
+                      style={{ marginLeft: 6 }}
+                    >
+                      {[1, 2, 3, 4, 5].map((l) => (
+                        <option key={l} value={l}>
+                          {"★".repeat(l)} ({l})
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
                 {mode === "joiner" &&
                   selected &&
                   hero.leftSkill &&

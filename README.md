@@ -2,7 +2,7 @@
 
 An evidence-based Trial Cage formation generator inspired by the workflow of the Whiteout Survival Bear Trap formation tools, but designed specifically around Lands of Jail mechanics and real Cage testing.
 
-## Current Beta v0.16
+## Current Beta v0.22
 
 - Rally Leader / Rally Joiner modes
 - Season filter through S6
@@ -14,6 +14,7 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - Responsive desktop/mobile interface
 - Complete non-overlapping J1–J6 formation generation
 - Per-hero LEFT War skill levels and verified percentage scaling
+- Per-hero 1–5 star levels saved with each member profile (ranks excluded)
 - Global LEFT-hero optimization that protects valuable rally skills from filler slots
 - Robot ownership selection and non-repeating priority assignment
 - Clear incomplete-roster and incomplete-robot warnings
@@ -45,6 +46,7 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - Evidence coverage count and verified-only formation limits are shown inline
 - Empty verified-only rosters receive a clear recovery message
 - Copy-ready alliance instructions for generated joiner formations
+- Compact in-game hero icons in the S1–S5 hero selector
 
 ## Planned
 

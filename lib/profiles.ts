@@ -14,6 +14,7 @@ export type MemberProfile = {
   role: MemberRole;
   season: number;
   ownedHeroes: string[];
+  heroStarLevels: Record<string, number>;
   warSkillLevels: WarSkillLevels;
   ownedRobots: string[];
   ownedFelons: string[];
@@ -114,6 +115,19 @@ export function parseProfileExport(
     });
   }
 
+  const heroStarLevels: Record<string, number> = {};
+  if (isRecord(source.heroStarLevels)) {
+    Object.entries(source.heroStarLevels).forEach(([name, level]) => {
+      if (
+        name.length > 0 &&
+        typeof level === "number" &&
+        Number.isFinite(level)
+      ) {
+        heroStarLevels[name] = Math.min(5, Math.max(1, Math.floor(level)));
+      }
+    });
+  }
+
   return {
     id,
     playerName: source.playerName.trim(),
@@ -121,6 +135,7 @@ export function parseProfileExport(
     role: source.role === "leader" ? "leader" : "joiner",
     season: finiteNumber(source.season, fallback.season),
     ownedHeroes: stringArray(source.ownedHeroes),
+    heroStarLevels,
     warSkillLevels,
     ownedRobots: stringArray(source.ownedRobots),
     ownedFelons: stringArray(source.ownedFelons),
@@ -168,6 +183,7 @@ export function createBlankProfile(id: string): MemberProfile {
     role: "joiner",
     season: 6,
     ownedHeroes: [],
+    heroStarLevels: {},
     warSkillLevels: {},
     ownedRobots: [],
     ownedFelons: [],
