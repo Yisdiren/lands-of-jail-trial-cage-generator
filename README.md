@@ -2,7 +2,7 @@
 
 An evidence-based Trial Cage formation generator inspired by the workflow of the Whiteout Survival Bear Trap formation tools, but designed specifically around Lands of Jail mechanics and real Cage testing.
 
-## Current Beta v0.11
+## Current Beta v0.12
 
 - Rally Leader / Rally Joiner modes
 - Season filter through S6
@@ -36,12 +36,12 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - Separate Cage result history for every saved member profile
 - Per-member Seat Holder flag for the +10% ATK bonus against Imprisoned Scarlet Butcher
 - Versioned JSON profile export/import for browser and device transfers
+- CCW alliance readiness dashboard with READY / REVIEW / BLOCKED roster status
 
 ## Planned
 
 - Complete and verify the S1–S6 hero database and remaining War skill progressions
 - Empirical optimizer using real hit history rather than an assumed hidden damage formula
-- Alliance mode for CCW members
 
 ## Known evidence rules
 

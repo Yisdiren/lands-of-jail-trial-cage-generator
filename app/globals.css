@@ -600,6 +600,116 @@ footer {
   color: #85e6aa;
   font-weight: 700;
 }
+.alliance-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.alliance-summary > div {
+  padding: 14px;
+  border: 1px solid #304a64;
+  border-radius: 10px;
+  background: #0b1724;
+}
+.alliance-summary strong,
+.alliance-summary span {
+  display: block;
+}
+.alliance-summary strong {
+  color: #d9e7f6;
+  font-size: 26px;
+}
+.alliance-summary span {
+  margin-top: 3px;
+  color: #8ea5bb;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+}
+.alliance-summary .ready {
+  border-color: #367b52;
+}
+.alliance-summary .review {
+  border-color: #a76d0b;
+}
+.alliance-summary .blocked {
+  border-color: #713333;
+}
+.alliance-roster {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+.member-card {
+  padding: 16px;
+  border: 1px solid #29435d;
+  border-radius: 12px;
+  background: #08131f;
+}
+.member-card.active {
+  border-color: #ffb51e;
+  box-shadow: inset 0 0 0 1px #ffb51e33;
+}
+.member-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+.member-card-head b,
+.member-card-head span {
+  display: block;
+}
+.member-card-head b {
+  font-size: 18px;
+}
+.member-card-head span {
+  margin-top: 4px;
+  color: #8ea5bb;
+  font-size: 12px;
+}
+.member-facts {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  margin-top: 14px;
+}
+.member-facts span {
+  min-width: 0;
+  color: #7f97ae;
+  font-size: 10px;
+}
+.member-facts b {
+  display: block;
+  overflow: hidden;
+  color: #d9e7f6;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.member-card p {
+  min-height: 36px;
+  margin: 13px 0;
+  color: #9fb1c3;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.member-card > button {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid #304a64;
+  border-radius: 8px;
+  background: #111f30;
+  color: #d9e7f6;
+  font-weight: 850;
+  cursor: pointer;
+}
+.member-card.active > button {
+  border-color: #8d6519;
+  color: #ffbd2e;
+}
 .seat-bonus {
   display: flex;
   gap: 10px 18px;
@@ -882,6 +992,9 @@ footer {
   .profile-grid {
     grid-template-columns: 1fr;
   }
+  .alliance-roster {
+    grid-template-columns: 1fr;
+  }
   .seat-bonus {
     align-items: flex-start;
     flex-direction: column;
@@ -928,5 +1041,13 @@ footer {
   .comparison-grid,
   .result-row {
     grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .alliance-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+  .member-facts {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

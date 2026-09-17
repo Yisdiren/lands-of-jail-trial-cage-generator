@@ -27,6 +27,7 @@ import {
   type MemberProfile,
   type MemberRole,
 } from "../lib/profiles";
+import { evaluateMemberReadiness } from "../lib/readiness";
 
 type Mode = MemberRole;
 const troopClasses: { key: TroopClassKey; label: string }[] = [
@@ -501,6 +502,21 @@ export default function Home() {
     setResultNotes("");
     setResultError("");
   };
+  const profileSnapshot = currentProfileSnapshot();
+  const rosterProfiles = profiles.map((profile) =>
+    profile.id === activeProfileId ? profileSnapshot : profile,
+  );
+  const roster = rosterProfiles.map((profile) => ({
+    profile,
+    readiness: evaluateMemberReadiness(profile, heroes),
+  }));
+  const readinessCounts = {
+    ready: roster.filter((entry) => entry.readiness.status === "ready").length,
+    review: roster.filter((entry) => entry.readiness.status === "review")
+      .length,
+    blocked: roster.filter((entry) => entry.readiness.status === "blocked")
+      .length,
+  };
 
   return (
     <main>
@@ -515,7 +531,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.11</div>
+        <div className="badge">BETA v0.12</div>
       </header>
 
       <section className="panel profile-panel">
@@ -611,6 +627,97 @@ export default function Home() {
           260 settings are never used as their account data. Exported profile
           files contain account settings, but not saved Cage-hit history.
         </p>
+      </section>
+
+      <section className="panel alliance-panel">
+        <div className="title">
+          <div>
+            <label>CCW ALLIANCE READINESS</label>
+            <h2>See who is ready before Trial Cage opens</h2>
+          </div>
+          <span>{roster.length} member profiles</span>
+        </div>
+        <div className="alliance-summary">
+          <div className="ready">
+            <strong>{readinessCounts.ready}</strong>
+            <span>READY</span>
+          </div>
+          <div className="review">
+            <strong>{readinessCounts.review}</strong>
+            <span>REVIEW</span>
+          </div>
+          <div className="blocked">
+            <strong>{readinessCounts.blocked}</strong>
+            <span>BLOCKED</span>
+          </div>
+          <div>
+            <strong>
+              {roster.filter((entry) => entry.profile.seatHolder).length}
+            </strong>
+            <span>SEAT HOLDERS</span>
+          </div>
+        </div>
+        <div className="alliance-roster">
+          {roster.map(({ profile, readiness }) => (
+            <article
+              className={`member-card ${
+                profile.id === activeProfileId ? "active" : ""
+              }`}
+              key={profile.id}
+            >
+              <div className="member-card-head">
+                <div>
+                  <b>{profile.playerName}</b>
+                  <span>
+                    {profile.server ? `Server ${profile.server}` : "No server"}
+                    {profile.seatHolder ? " • Seat +10% ATK" : ""}
+                  </span>
+                </div>
+                <em className={`status status-${readiness.status}`}>
+                  {readiness.status.toUpperCase()}
+                </em>
+              </div>
+              <div className="member-facts">
+                <span>
+                  <b>{profile.role === "leader" ? "Leader" : "Joiner"}</b>
+                  Role
+                </span>
+                <span>
+                  <b>{readiness.capacity.toLocaleString("en-US")}</b>
+                  Capacity
+                </span>
+                <span>
+                  <b>
+                    {readiness.possibleMarches}/{readiness.requestedMarches}
+                  </b>
+                  Marches
+                </span>
+                <span>
+                  <b>
+                    {readiness.classCounts.Shield}/
+                    {readiness.classCounts.Bomber}/
+                    {readiness.classCounts.Shooter}
+                  </b>
+                  S / B / S heroes
+                </span>
+                <span>
+                  <b>{profile.ownedRobots.length}</b>
+                  Robots
+                </span>
+              </div>
+              <p>
+                {readiness.issues.length
+                  ? readiness.issues.slice(0, 2).join(" • ")
+                  : "Profile has the required heroes, troops and support setup."}
+              </p>
+              <button onClick={() => switchProfile(profile.id)}>
+                {profile.id === activeProfileId
+                  ? "ACTIVE MEMBER"
+                  : "OPEN MEMBER PROFILE"}
+              </button>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="panel controls">
