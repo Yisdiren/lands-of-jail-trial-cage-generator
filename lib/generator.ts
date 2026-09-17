@@ -41,7 +41,14 @@ export type FelonPlan = {
   warning?: string;
 };
 const classOrder: HeroClass[] = ["Shield", "Bomber", "Shooter"];
-const approvedNonSsr = new Set(["Lunarl", "Lofili"]);
+// CCW joiners are SSR-only except these three proven first-War-skill exceptions.
+const approvedNonSsr = new Set(["Lunarl", "Lofili", "Samir"]);
+// The controlled rally-leader baseline is reserved and must never be reused in J1-J6.
+const reservedLeaderHeroes = new Set(["Ada", "Ryuichi", "Tyronn"]);
+const isJoinerEligible = (hero: Hero) =>
+  hero.cageAllowed &&
+  !reservedLeaderHeroes.has(hero.name) &&
+  (hero.rarity === "SSR" || approvedNonSsr.has(hero.name));
 const troopClassLabels: Record<TroopClassKey, string> = {
   shield: "Shieldbearers",
   bomber: "Bombers",
@@ -240,7 +247,7 @@ export function generateJoinerFormations(
   ownedRobots: string[] = [],
   verifiedOnly = false,
 ): Formation[] {
-  const eligible = availableHeroes.filter((h) => h.cageAllowed),
+  const eligible = availableHeroes.filter(isJoinerEligible),
     planned = chooseLeft(eligible, count, warSkillLevels, verifiedOnly),
     protectedNames = new Set(planned.map((h) => h.name)),
     used = new Set<string>(),
