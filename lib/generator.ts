@@ -1,4 +1,4 @@
-import type { Hero, HeroClass } from "../data/heroes";
+import type { Felon, Hero, HeroClass } from "../data/heroes";
 export type TroopPreset = "shooters" | "10-90";
 export type WarSkillLevels = Record<string, number>;
 export type Formation = {
@@ -10,6 +10,11 @@ export type Formation = {
   robot?: string;
   leftSkillLevel?: number;
   leftSkillPercent?: number;
+  warning?: string;
+};
+export type FelonPlan = {
+  selected: Felon[];
+  preferredThird: "Rage Fist" | "Devil";
   warning?: string;
 };
 const classOrder: HeroClass[] = ["Shield", "Bomber", "Shooter"];
@@ -155,5 +160,45 @@ export function generateLeaderFormation(
     robot,
     troopText:
       "0 / 10 / 90 — provisional legal formation; verify by controlled Cage testing",
+  };
+}
+
+export function optimizeFelons(
+  felons: Felon[],
+  ownedNames: string[],
+  rallyFills: boolean,
+): FelonPlan {
+  const owned = felons.filter((felon) => ownedNames.includes(felon.name));
+  const byName = new Map(owned.map((felon) => [felon.name, felon]));
+  const preferredThird = rallyFills ? "Rage Fist" : "Devil";
+  const alternateThird = rallyFills ? "Devil" : "Rage Fist";
+  const order = ["Scorpion", "Cobra", preferredThird, alternateThird];
+  const selected = order
+    .map((name) => byName.get(name))
+    .filter((felon): felon is Felon => Boolean(felon))
+    .slice(0, 3);
+  const missingCore = ["Scorpion", "Cobra"].filter((name) => !byName.has(name));
+  const warnings: string[] = [];
+
+  if (missingCore.length) {
+    warnings.push(
+      `Missing core Yard Time felon${missingCore.length === 1 ? "" : "s"}: ${missingCore.join(" + ")}.`,
+    );
+  }
+  if (!byName.has(preferredThird)) {
+    warnings.push(
+      `${preferredThird} is preferred for this rally condition${byName.has(alternateThird) ? `; using ${alternateThird} instead` : ""}.`,
+    );
+  }
+  if (selected.length < 3) {
+    warnings.push(
+      `Only ${selected.length} owned Yard Time felon${selected.length === 1 ? " is" : "s are"} available.`,
+    );
+  }
+
+  return {
+    selected,
+    preferredThird,
+    warning: warnings.length ? warnings.join(" ") : undefined,
   };
 }

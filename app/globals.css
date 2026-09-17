@@ -404,6 +404,38 @@ footer {
 .robot-assignment.missing b {
   color: #ffd98a;
 }
+.felons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.felon {
+  min-height: 86px;
+  padding: 13px;
+  text-align: left;
+  background: #101e2e;
+  border: 1px solid #2b4055;
+  color: #eaf2ff;
+  border-radius: 11px;
+  opacity: 0.45;
+  cursor: pointer;
+}
+.felon.selected {
+  opacity: 1;
+  border-color: #ffb51e;
+}
+.felon strong,
+.felon small {
+  display: block;
+}
+.felon small {
+  margin-top: 7px;
+  color: #8ea5bb;
+  line-height: 1.35;
+}
+.rally-condition {
+  margin-top: 17px;
+}
 @media (max-width: 900px) {
   .controls {
     grid-template-columns: 1fr 1fr;
@@ -443,5 +475,8 @@ footer {
   .robot-assignment {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .felons {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

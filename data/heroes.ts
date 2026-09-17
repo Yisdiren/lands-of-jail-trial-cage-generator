@@ -46,4 +46,5 @@ export const heroes: Hero[] = [
 ];
 
 export const robots=['Musashimaru','Phantom Cat','Ranger','Infercore','Hercules α','Halo','Light Cone','Atlax','Yokozuna'];
-export const felons=[{name:'Scorpion',effect:'Yard Time: Troops ATK +45%'},{name:'Cobra',effect:'Yard Time: Troops Lethality +45%'},{name:'Rage Fist',effect:'Yard Time: Rally Capacity +90,000'},{name:'Devil',effect:'Yard Time: Expedition Capacity +9,000'}];
+export type Felon = { name: string; effect: string };
+export const felons: Felon[]=[{name:'Scorpion',effect:'Yard Time: Troops ATK +45%'},{name:'Cobra',effect:'Yard Time: Troops Lethality +45%'},{name:'Rage Fist',effect:'Yard Time: Rally Capacity +90,000'},{name:'Devil',effect:'Yard Time: Expedition Capacity +9,000'}];

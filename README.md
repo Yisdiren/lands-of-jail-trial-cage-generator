@@ -2,7 +2,7 @@
 
 An evidence-based Trial Cage formation generator inspired by the workflow of the Whiteout Survival Bear Trap formation tools, but designed specifically around Lands of Jail mechanics and real Cage testing.
 
-## Current Beta v0.4
+## Current Beta v0.5
 
 - Rally Leader / Rally Joiner modes
 - Season filter through S6
@@ -17,11 +17,13 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - Global LEFT-hero optimization that protects valuable rally skills from filler slots
 - Robot ownership selection and non-repeating priority assignment
 - Clear incomplete-roster and incomplete-robot warnings
+- Felon ownership selection and leader-only Yard Time optimization
+- Scorpion/Cobra core locks with rally-aware Rage Fist/Devil selection
+- Missing-core and missing-capacity-felon warnings
 
 ## Planned
 
 - Complete and verify the S1–S6 hero database and remaining War skill progressions
-- Felon / Yard Time optimizer
 - Configurable troop capacity and troop tiers
 - Formation warnings
 - Cage result logging and controlled A/B comparisons

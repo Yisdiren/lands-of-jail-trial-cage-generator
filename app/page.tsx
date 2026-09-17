@@ -5,6 +5,7 @@ import { felons, heroes, robots } from "../data/heroes";
 import {
   generateJoinerFormations,
   generateLeaderFormation,
+  optimizeFelons,
   type TroopPreset,
   type WarSkillLevels,
 } from "../lib/generator";
@@ -25,6 +26,10 @@ export default function Home() {
     ),
   );
   const [ownedRobots, setOwnedRobots] = useState<string[]>(robots);
+  const [ownedFelons, setOwnedFelons] = useState<string[]>(
+    felons.map((felon) => felon.name),
+  );
+  const [rallyFills, setRallyFills] = useState(true);
   const [generated, setGenerated] = useState(false);
 
   const seasonHeroes = useMemo(
@@ -53,6 +58,10 @@ export default function Home() {
   const leaderFormation = useMemo(
     () => generateLeaderFormation(available, availableRobots),
     [available, availableRobots],
+  );
+  const felonPlan = useMemo(
+    () => optimizeFelons(felons, ownedFelons, rallyFills),
+    [ownedFelons, rallyFills],
   );
 
   const toggle = (name: string) => {
@@ -83,6 +92,14 @@ export default function Home() {
     );
     setGenerated(false);
   };
+  const toggleFelon = (name: string) => {
+    setOwnedFelons((current) =>
+      current.includes(name)
+        ? current.filter((x) => x !== name)
+        : [...current, name],
+    );
+    setGenerated(false);
+  };
 
   return (
     <main>
@@ -97,7 +114,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.4</div>
+        <div className="badge">BETA v0.5</div>
       </header>
 
       <section className="panel controls">
@@ -174,6 +191,78 @@ export default function Home() {
           </>
         )}
       </section>
+
+      {mode === "leader" && (
+        <section className="panel">
+          <div className="title">
+            <div>
+              <label>YARD TIME FELONS</label>
+              <h2>Select owned felons and rally condition</h2>
+            </div>
+            <span>{ownedFelons.length} owned</span>
+          </div>
+          <div className="quick-actions">
+            <button
+              onClick={() => {
+                setOwnedFelons(felons.map((felon) => felon.name));
+                setGenerated(false);
+              }}
+            >
+              Select all
+            </button>
+            <button
+              onClick={() => {
+                setOwnedFelons([]);
+                setGenerated(false);
+              }}
+            >
+              Clear
+            </button>
+          </div>
+          <div className="felons">
+            {felons.map((felon) => (
+              <button
+                key={felon.name}
+                className={
+                  ownedFelons.includes(felon.name) ? "felon selected" : "felon"
+                }
+                onClick={() => toggleFelon(felon.name)}
+              >
+                <strong>{felon.name}</strong>
+                <small>{felon.effect}</small>
+              </button>
+            ))}
+          </div>
+          <div className="rally-condition">
+            <label>EXPECTED RALLY</label>
+            <div className="tabs">
+              <button
+                className={rallyFills ? "active" : ""}
+                onClick={() => {
+                  setRallyFills(true);
+                  setGenerated(false);
+                }}
+              >
+                Fills capacity
+              </button>
+              <button
+                className={!rallyFills ? "active" : ""}
+                onClick={() => {
+                  setRallyFills(false);
+                  setGenerated(false);
+                }}
+              >
+                Has open space
+              </button>
+            </div>
+          </div>
+          <p className="helper">
+            The optimizer keeps Scorpion and Cobra for attack and lethality,
+            then chooses Rage Fist for a full rally or Devil when personal
+            expedition capacity would otherwise be wasted.
+          </p>
+        </section>
+      )}
 
       <section className="panel">
         <div className="title">
@@ -328,15 +417,24 @@ export default function Home() {
                 </span>
               </div>
               <div>
-                <b>Yard Time locks</b>
+                <b>Yard Time core</b>
                 <span>
-                  {felons[0].name} + {felons[1].name}
+                  {felonPlan.selected
+                    .filter(
+                      (felon) =>
+                        felon.name === "Scorpion" || felon.name === "Cobra",
+                    )
+                    .map((felon) => felon.name)
+                    .join(" + ") || "No owned core felons"}
                 </span>
               </div>
               <div>
-                <b>3rd felon</b>
+                <b>3rd felon • {rallyFills ? "full rally" : "open space"}</b>
                 <span>
-                  Rage Fist if rally fills; Devil if capacity would be wasted
+                  {felonPlan.selected.find(
+                    (felon) =>
+                      felon.name !== "Scorpion" && felon.name !== "Cobra",
+                  )?.name ?? `Missing ${felonPlan.preferredThird}`}
                 </span>
               </div>
             </div>
@@ -344,6 +442,9 @@ export default function Home() {
               <div className="warning-box">
                 Select at least one owned robot to complete the leader setup.
               </div>
+            )}
+            {felonPlan.warning && (
+              <div className="warning-box">{felonPlan.warning}</div>
             )}
           </section>
         ) : (
