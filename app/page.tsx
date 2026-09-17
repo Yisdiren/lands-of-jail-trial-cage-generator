@@ -1372,7 +1372,9 @@ export default function Home() {
           </p>
           {joinerFormations.length === 0 && (
             <div className="warning-box">
-              Not enough compatible heroes to build a legal joiner formation.
+              {verifiedOnly
+                ? "No legal formation uses a screenshot-verified LEFT skill from this roster. Add verified LEFT heroes or turn the filter off."
+                : "Not enough compatible heroes to build a legal joiner formation."}
             </div>
           )}
           <div className="formation-list">

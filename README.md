@@ -43,6 +43,7 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - Optional verified-skills-only mode for joiner recommendations
 - Verified-skills preference saved separately for each member profile
 - Evidence coverage count and verified-only formation limits are shown inline
+- Empty verified-only rosters receive a clear recovery message
 
 ## Planned
 
