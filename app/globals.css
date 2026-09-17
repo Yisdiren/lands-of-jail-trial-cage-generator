@@ -642,6 +642,13 @@ footer {
   gap: 12px;
   margin-top: 14px;
 }
+.alliance-actions {
+  align-items: center;
+}
+.alliance-actions span {
+  color: #8ea5bb;
+  font-size: 12px;
+}
 .member-card {
   padding: 16px;
   border: 1px solid #29435d;

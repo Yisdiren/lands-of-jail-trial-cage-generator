@@ -28,6 +28,7 @@ import {
   type MemberRole,
 } from "../lib/profiles";
 import { evaluateMemberReadiness } from "../lib/readiness";
+import { parseAllianceBackup, serializeAllianceBackup } from "../lib/backup";
 
 type Mode = MemberRole;
 const troopClasses: { key: TroopClassKey; label: string }[] = [
@@ -121,6 +122,7 @@ export default function Home() {
   const [profilesLoaded, setProfilesLoaded] = useState(false);
   const [profileNotice, setProfileNotice] = useState("");
   const importProfileInput = useRef<HTMLInputElement>(null);
+  const importAllianceInput = useRef<HTMLInputElement>(null);
   const [cageResults, setCageResults] = useState<CageResult[]>([]);
   const [resultsLoaded, setResultsLoaded] = useState(false);
   const [resultsProfileId, setResultsProfileId] = useState("");
@@ -422,6 +424,80 @@ export default function Home() {
       );
     }
   };
+  const exportAllianceBackup = () => {
+    const current = currentProfileSnapshot();
+    const savedProfiles = profiles.map((profile) =>
+      profile.id === activeProfileId ? current : profile,
+    );
+    const results = Object.fromEntries(
+      savedProfiles.map((profile) => {
+        if (profile.id === activeProfileId) {
+          return [profile.id, cageResults];
+        }
+        try {
+          const stored = localStorage.getItem(resultStorageKey(profile.id));
+          const parsed = stored ? JSON.parse(stored) : [];
+          return [profile.id, Array.isArray(parsed) ? parsed : []];
+        } catch {
+          return [profile.id, []];
+        }
+      }),
+    );
+    setProfiles(savedProfiles);
+    localStorage.setItem(profileStorageKey, JSON.stringify(savedProfiles));
+    const blob = new Blob([serializeAllianceBackup(savedProfiles, results)], {
+      type: "application/json",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `loj-ccw-alliance-backup-${new Date()
+      .toISOString()
+      .slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    setProfileNotice("Full CCW alliance backup downloaded.");
+  };
+  const importAllianceBackup = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      const createdAt = Date.now();
+      const restored = parseAllianceBackup(
+        await file.text(),
+        (_sourceId, index) =>
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `member-${createdAt}-${index}`,
+      );
+      const current = currentProfileSnapshot();
+      const savedProfiles = profiles.map((profile) =>
+        profile.id === activeProfileId ? current : profile,
+      );
+      const next = [...savedProfiles, ...restored.profiles];
+      Object.entries(restored.results).forEach(([profileId, results]) => {
+        localStorage.setItem(
+          resultStorageKey(profileId),
+          JSON.stringify(results),
+        );
+      });
+      const first = restored.profiles[0];
+      setProfiles(next);
+      localStorage.setItem(profileStorageKey, JSON.stringify(next));
+      setActiveProfileId(first.id);
+      localStorage.setItem(activeProfileStorageKey, first.id);
+      applyProfile(first);
+      setProfileNotice(
+        `Restored ${restored.profiles.length} member profiles with their Cage histories.`,
+      );
+    } catch (error) {
+      setProfileNotice(
+        error instanceof Error
+          ? error.message
+          : "The selected alliance backup could not be restored.",
+      );
+    }
+  };
   const switchProfile = (profileId: string) => {
     const current = currentProfileSnapshot();
     const next = profiles.map((profile) =>
@@ -531,7 +607,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.12.1</div>
+        <div className="badge">BETA v0.13</div>
       </header>
 
       <section className="panel profile-panel">
@@ -656,6 +732,25 @@ export default function Home() {
             </strong>
             <span>SEAT HOLDERS</span>
           </div>
+        </div>
+        <div className="profile-actions alliance-actions">
+          <button className="profile-save" onClick={exportAllianceBackup}>
+            EXPORT FULL ALLIANCE
+          </button>
+          <button onClick={() => importAllianceInput.current?.click()}>
+            RESTORE ALLIANCE BACKUP
+          </button>
+          <input
+            ref={importAllianceInput}
+            className="profile-file-input"
+            type="file"
+            accept="application/json,.json"
+            onChange={importAllianceBackup}
+          />
+          <span>
+            Includes every member profile and each member&apos;s Cage-hit
+            history.
+          </span>
         </div>
         <div className="alliance-roster">
           {roster.map(({ profile, readiness }) => (
