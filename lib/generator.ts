@@ -201,9 +201,14 @@ const sorter = (l: WarSkillLevels) => (a: Hero, b: Hero) =>
   score(b, l) - score(a, l) || a.name.localeCompare(b.name);
 const pickBest = (hs: Hero[], c: HeroClass, u: Set<string>) =>
   hs.filter((h) => h.cls === c && !u.has(h.name)).sort(sorter({}))[0];
-const chooseLeft = (e: Hero[], n: number, l: WarSkillLevels) =>
+const chooseLeft = (
+  e: Hero[],
+  n: number,
+  l: WarSkillLevels,
+  verifiedOnly = false,
+) =>
   e
-    .filter((h) => !!h.leftSkill)
+    .filter((h) => !!h.leftSkill && (!verifiedOnly || h.leftSkillVerified))
     .sort(sorter(l))
     .slice(0, n);
 const pickFiller = (
@@ -233,9 +238,10 @@ export function generateJoinerFormations(
   troopPlan: TroopPlan,
   warSkillLevels: WarSkillLevels = {},
   ownedRobots: string[] = [],
+  verifiedOnly = false,
 ): Formation[] {
   const eligible = availableHeroes.filter((h) => h.cageAllowed),
-    planned = chooseLeft(eligible, count, warSkillLevels),
+    planned = chooseLeft(eligible, count, warSkillLevels, verifiedOnly),
     protectedNames = new Set(planned.map((h) => h.name)),
     used = new Set<string>(),
     results: Formation[] = [];

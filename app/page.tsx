@@ -119,6 +119,7 @@ export default function Home() {
   const [rallyFills, setRallyFills] = useState(true);
   const [seatHolder, setSeatHolder] = useState(true);
   const [generated, setGenerated] = useState(false);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [profiles, setProfiles] = useState<MemberProfile[]>([]);
   const [activeProfileId, setActiveProfileId] = useState("stiletto-s260");
   const [profileName, setProfileName] = useState("Stiletto");
@@ -274,8 +275,16 @@ export default function Home() {
         joinerTroopPlan,
         warSkillLevels,
         availableRobots,
+        verifiedOnly,
       ),
-    [available, joinCount, joinerTroopPlan, warSkillLevels, availableRobots],
+    [
+      available,
+      joinCount,
+      joinerTroopPlan,
+      warSkillLevels,
+      availableRobots,
+      verifiedOnly,
+    ],
   );
   const leaderFormation = useMemo(
     () => generateLeaderFormation(available, leaderTroopPlan, availableRobots),
@@ -622,7 +631,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.15</div>
+        <div className="badge">BETA v0.16</div>
       </header>
 
       <section className="panel profile-panel">
@@ -854,6 +863,22 @@ export default function Home() {
             </button>
           </div>
         </div>
+        {mode === "joiner" && (
+          <label className="verified-toggle">
+            <input
+              type="checkbox"
+              checked={verifiedOnly}
+              onChange={(event) => {
+                setVerifiedOnly(event.target.checked);
+                setGenerated(false);
+              }}
+            />
+            <span>
+              <b>VERIFIED SKILLS ONLY</b>
+              <small>Use screenshot-confirmed LEFT War progressions only</small>
+            </span>
+          </label>
+        )}
         <div>
           <label>SERVER SEASON</label>
           <select

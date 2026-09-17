@@ -78,6 +78,36 @@ label {
   gap: 18px;
   align-items: flex-end;
 }
+.verified-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 190px;
+  padding: 10px 12px;
+  border: 1px solid #304a64;
+  border-radius: 9px;
+  background: #0b1724;
+  cursor: pointer;
+}
+.verified-toggle input {
+  width: 17px;
+  height: 17px;
+  accent-color: #ffb51e;
+}
+.verified-toggle span,
+.verified-toggle small {
+  display: block;
+}
+.verified-toggle b {
+  color: #d9e7f6;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+.verified-toggle small {
+  margin-top: 3px;
+  color: #8ea5bb;
+  font-size: 10px;
+}
 .tabs {
   display: flex;
   gap: 8px;
