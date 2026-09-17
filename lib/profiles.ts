@@ -18,6 +18,7 @@ export type MemberProfile = {
   ownedRobots: string[];
   ownedFelons: string[];
   rallyFills: boolean;
+  seatHolder: boolean;
   joinerCapacity: number;
   leaderCapacity: number;
   joinerRatios: TroopValues;
@@ -41,6 +42,7 @@ export function createBlankProfile(id: string): MemberProfile {
     ownedRobots: [],
     ownedFelons: [],
     rallyFills: true,
+    seatHolder: false,
     joinerCapacity: 100000,
     leaderCapacity: 100000,
     joinerRatios: { shield: 0, bomber: 0, shooter: 100 },

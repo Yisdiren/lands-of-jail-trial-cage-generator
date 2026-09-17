@@ -57,6 +57,7 @@ const createMarvinProfile = (): MemberProfile => ({
   ownedRobots: [...robots],
   ownedFelons: felons.map((felon) => felon.name),
   rallyFills: true,
+  seatHolder: true,
   joinerCapacity: 100000,
   leaderCapacity: 188662,
   joinerRatios: { shield: 0, bomber: 0, shooter: 100 },
@@ -108,6 +109,7 @@ export default function Home() {
     felons.map((felon) => felon.name),
   );
   const [rallyFills, setRallyFills] = useState(true);
+  const [seatHolder, setSeatHolder] = useState(true);
   const [generated, setGenerated] = useState(false);
   const [profiles, setProfiles] = useState<MemberProfile[]>([]);
   const [activeProfileId, setActiveProfileId] = useState("stiletto-s260");
@@ -138,6 +140,7 @@ export default function Home() {
     setOwnedRobots(profile.ownedRobots);
     setOwnedFelons(profile.ownedFelons);
     setRallyFills(profile.rallyFills);
+    setSeatHolder(profile.seatHolder ?? profile.id === "stiletto-s260");
     setJoinerCapacity(profile.joinerCapacity);
     setLeaderCapacity(profile.leaderCapacity);
     setJoinerRatios(profile.joinerRatios);
@@ -156,7 +159,10 @@ export default function Home() {
       const parsedProfiles = storedProfiles ? JSON.parse(storedProfiles) : null;
       const loadedProfiles: MemberProfile[] =
         Array.isArray(parsedProfiles) && parsedProfiles.length
-          ? parsedProfiles
+          ? parsedProfiles.map((profile: MemberProfile) => ({
+              ...profile,
+              seatHolder: profile.seatHolder ?? profile.id === "stiletto-s260",
+            }))
           : [createMarvinProfile()];
       const storedActive = localStorage.getItem(activeProfileStorageKey);
       const active =
@@ -341,6 +347,7 @@ export default function Home() {
     ownedRobots,
     ownedFelons,
     rallyFills,
+    seatHolder,
     joinerCapacity,
     leaderCapacity,
     joinerRatios,
@@ -454,7 +461,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.9</div>
+        <div className="badge">BETA v0.10</div>
       </header>
 
       <section className="panel profile-panel">
@@ -508,6 +515,19 @@ export default function Home() {
             <strong>
               {mode === "leader" ? "Rally Leader" : "Rally Joiner"}
             </strong>
+          </div>
+          <div className="profile-seat">
+            <label>SCARLET BUTCHER SEAT</label>
+            <button
+              className={seatHolder ? "active" : ""}
+              onClick={() => {
+                setSeatHolder((current) => !current);
+                setGenerated(false);
+                setProfileNotice("");
+              }}
+            >
+              {seatHolder ? "SEAT HOLDER • +10% ATK" : "NO SEAT BONUS"}
+            </button>
           </div>
         </div>
         <div className="profile-actions">
@@ -896,6 +916,17 @@ export default function Home() {
       <button className="generate" onClick={() => setGenerated(true)}>
         GENERATE CAGE FORMATION{mode === "joiner" ? "S" : ""}
       </button>
+
+      {generated && (
+        <div className={`seat-bonus ${seatHolder ? "active" : "inactive"}`}>
+          <b>{seatHolder ? "+10% ATK ACTIVE" : "NO SEAT ATK BONUS"}</b>
+          <span>
+            {seatHolder
+              ? "This member is a seat holder: +10% ATK against Imprisoned Scarlet Butcher."
+              : "This member is not marked as a seat holder; no seat modifier is applied."}
+          </span>
+        </div>
+      )}
 
       {generated &&
         mode === "leader" &&
