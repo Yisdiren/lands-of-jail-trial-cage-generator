@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { felons, heroes, robots } from "../data/heroes";
 import {
   calculateTroopPlan,
@@ -14,6 +14,12 @@ import {
   type TroopValues,
   type WarSkillLevels,
 } from "../lib/generator";
+import {
+  compareResults,
+  type CageName,
+  type CageResult,
+  type TestVariant,
+} from "../lib/results";
 
 type Mode = "leader" | "joiner";
 const troopClasses: { key: TroopClassKey; label: string }[] = [
@@ -25,6 +31,8 @@ const troopTierOptions = Array.from(
   { length: 11 },
   (_, index) => `T${index + 1}` as TroopTier,
 );
+const resultStorageKey = "loj-cage-results-v1";
+const formatDamage = (value: number) => value.toLocaleString("en-US");
 
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner");
@@ -67,6 +75,37 @@ export default function Home() {
   );
   const [rallyFills, setRallyFills] = useState(true);
   const [generated, setGenerated] = useState(false);
+  const [cageResults, setCageResults] = useState<CageResult[]>([]);
+  const [resultsLoaded, setResultsLoaded] = useState(false);
+  const [resultCage, setResultCage] = useState<CageName>("Cage 1");
+  const [resultDate, setResultDate] = useState("");
+  const [testName, setTestName] = useState("Main baseline");
+  const [testVariant, setTestVariant] = useState<TestVariant>("A");
+  const [resultLeftHero, setResultLeftHero] = useState("Ryuichi");
+  const [resultDamage, setResultDamage] = useState("");
+  const [resultNotes, setResultNotes] = useState("");
+  const [resultError, setResultError] = useState("");
+  const [comparisonName, setComparisonName] = useState("");
+
+  useEffect(() => {
+    setResultDate(new Date().toISOString().slice(0, 10));
+    try {
+      const stored = localStorage.getItem(resultStorageKey);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setCageResults(parsed);
+      }
+    } catch {
+      setResultError("Saved results could not be read in this browser.");
+    } finally {
+      setResultsLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!resultsLoaded) return;
+    localStorage.setItem(resultStorageKey, JSON.stringify(cageResults));
+  }, [cageResults, resultsLoaded]);
 
   const seasonHeroes = useMemo(
     () => heroes.filter((h) => h.season === 0 || h.season <= season),
@@ -118,6 +157,15 @@ export default function Home() {
   const felonPlan = useMemo(
     () => optimizeFelons(felons, ownedFelons, rallyFills),
     [ownedFelons, rallyFills],
+  );
+  const testNames = useMemo(
+    () => [...new Set(cageResults.map((result) => result.testName))].sort(),
+    [cageResults],
+  );
+  const activeComparisonName = comparisonName || testNames[0] || "";
+  const comparison = useMemo(
+    () => compareResults(cageResults, activeComparisonName),
+    [cageResults, activeComparisonName],
   );
 
   const toggle = (name: string) => {
@@ -178,6 +226,39 @@ export default function Home() {
     setAvailableTroops((current) => ({ ...current, [key]: value }));
     setGenerated(false);
   };
+  const addCageResult = () => {
+    const damage = Number(resultDamage.replaceAll(",", ""));
+    if (!resultDate || !testName.trim() || !resultLeftHero.trim()) {
+      setResultError("Date, test name and LEFT hero are required.");
+      return;
+    }
+    if (!Number.isFinite(damage) || damage <= 0) {
+      setResultError("Enter a damage result greater than zero.");
+      return;
+    }
+    const createdAt = Date.now();
+    setCageResults((current) => [
+      {
+        id:
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `${createdAt}-${current.length}`,
+        cage: resultCage,
+        date: resultDate,
+        testName: testName.trim(),
+        variant: testVariant,
+        leftHero: resultLeftHero.trim(),
+        damage,
+        notes: resultNotes.trim(),
+        createdAt,
+      },
+      ...current,
+    ]);
+    setComparisonName(testName.trim());
+    setResultDamage("");
+    setResultNotes("");
+    setResultError("");
+  };
 
   return (
     <main>
@@ -192,7 +273,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.7</div>
+        <div className="badge">BETA v0.8</div>
       </header>
 
       <section className="panel controls">
@@ -766,6 +847,188 @@ export default function Home() {
           ))}
         </section>
       )}
+
+      <section className="panel results-panel">
+        <div className="title">
+          <div>
+            <label>CAGE RESULT LAB</label>
+            <h2>Log controlled hits and compare A vs B</h2>
+          </div>
+          <span>{cageResults.length} saved hits</span>
+        </div>
+        <p className="helper">
+          Change one variable at a time and keep team, troops, robot and buffs
+          identical. Results are saved in this browser.
+        </p>
+        <div className="result-form">
+          <label>
+            CAGE
+            <select
+              value={resultCage}
+              onChange={(event) =>
+                setResultCage(event.target.value as CageName)
+              }
+            >
+              <option>Cage 1</option>
+              <option>Cage 2</option>
+            </select>
+          </label>
+          <label>
+            DATE
+            <input
+              type="date"
+              value={resultDate}
+              onChange={(event) => setResultDate(event.target.value)}
+            />
+          </label>
+          <label>
+            TEST NAME
+            <input
+              value={testName}
+              onChange={(event) => setTestName(event.target.value)}
+              placeholder="Example: Flameborne vs Ryuichi"
+            />
+          </label>
+          <label>
+            VARIANT
+            <select
+              value={testVariant}
+              onChange={(event) =>
+                setTestVariant(event.target.value as TestVariant)
+              }
+            >
+              <option value="A">A</option>
+              <option value="B">B</option>
+            </select>
+          </label>
+          <label>
+            LEFT HERO
+            <input
+              value={resultLeftHero}
+              onChange={(event) => setResultLeftHero(event.target.value)}
+              placeholder="Ryuichi"
+            />
+          </label>
+          <label>
+            DAMAGE
+            <input
+              inputMode="numeric"
+              value={resultDamage}
+              onChange={(event) => setResultDamage(event.target.value)}
+              placeholder="903641965"
+            />
+          </label>
+          <label className="result-notes">
+            NOTES
+            <textarea
+              value={resultNotes}
+              onChange={(event) => setResultNotes(event.target.value)}
+              placeholder="Keep team, ratio, robot and buffs identical."
+            />
+          </label>
+          <button className="save-result" onClick={addCageResult}>
+            SAVE CAGE HIT
+          </button>
+        </div>
+        {resultError && <div className="warning-box">{resultError}</div>}
+
+        <div className="comparison-panel">
+          <div className="comparison-head">
+            <div>
+              <label>A/B COMPARISON</label>
+              <h3>Average damage decides the current leader</h3>
+            </div>
+            <select
+              value={activeComparisonName}
+              disabled={!testNames.length}
+              onChange={(event) => setComparisonName(event.target.value)}
+            >
+              {!testNames.length && <option value="">No saved tests</option>}
+              {testNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="comparison-grid">
+            {(["A", "B"] as const).map((variant) => {
+              const variantStats =
+                comparison[variant.toLowerCase() as "a" | "b"];
+              return (
+                <div className="variant-card" key={variant}>
+                  <b>VARIANT {variant}</b>
+                  <strong>
+                    {formatDamage(Math.round(variantStats.average))}
+                  </strong>
+                  <span>Average • {variantStats.hits} hits</span>
+                  <small>Best: {formatDamage(variantStats.best)}</small>
+                </div>
+              );
+            })}
+            <div className="variant-card comparison-winner">
+              <b>CURRENT RESULT</b>
+              <strong>
+                {comparison.leader
+                  ? comparison.leader === "tie"
+                    ? "TIE"
+                    : `${comparison.leader} LEADS`
+                  : "NEED A + B"}
+              </strong>
+              <span>
+                {comparison.differencePercent === null
+                  ? "Record both variants"
+                  : `${Math.abs(comparison.differencePercent).toFixed(2)}% average difference`}
+              </span>
+            </div>
+          </div>
+          {comparison.warning && (
+            <div className="warning-box">{comparison.warning}</div>
+          )}
+        </div>
+
+        <div className="result-history">
+          <div className="comparison-head">
+            <div>
+              <label>RECENT HITS</label>
+              <h3>Saved Cage history</h3>
+            </div>
+          </div>
+          {!cageResults.length && (
+            <p className="helper">
+              No hits saved yet. Add the first controlled result above.
+            </p>
+          )}
+          {cageResults.map((result) => (
+            <article className="result-row" key={result.id}>
+              <div>
+                <b>{result.variant}</b>
+                <span>
+                  {result.cage} • {result.date}
+                </span>
+              </div>
+              <div>
+                <strong>{result.testName}</strong>
+                <span>LEFT: {result.leftHero}</span>
+              </div>
+              <div>
+                <strong>{formatDamage(result.damage)}</strong>
+                <span>{result.notes || "No notes"}</span>
+              </div>
+              <button
+                onClick={() =>
+                  setCageResults((current) =>
+                    current.filter((entry) => entry.id !== result.id),
+                  )
+                }
+                aria-label={`Delete ${result.testName} ${result.variant} result`}
+              >
+                Delete
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="panel notes">
         <div>
