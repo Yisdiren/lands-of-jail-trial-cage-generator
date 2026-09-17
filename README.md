@@ -2,9 +2,13 @@
 
 An evidence-based Trial Cage formation generator inspired by the workflow of the Whiteout Survival Bear Trap formation tools, but designed specifically around Lands of Jail mechanics and real Cage testing.
 
-## Current Beta v0.23
+## Current Beta v0.28
 
 - Rally Leader / Rally Joiner modes
+- Compact portraits in leader and joiner formation cards
+- Generator-focused interface; Cage Result Lab removed (saved history retained for backups)
+- Current profile star levels update recommendations immediately
+- Leader heroes reserved from joiner formations; joiners use SSR plus Lunarl, Lofili and Samir
 - Season filter through S6
 - Hero ownership selector
 - Class-aware formation generation
@@ -28,10 +32,6 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - READY / REVIEW / BLOCKED validation status for every formation
 - Warnings for missing robots, filler or low-level LEFT skills and unverified progressions
 - CCW rarity warnings with Lunarl and Lofili retained as approved exceptions
-- Browser-persistent Cage 1 / Cage 2 hit logging
-- Controlled A/B tests with LEFT hero, damage, date and notes
-- Variant hit counts, averages, best hits and percentage comparison
-- RNG warning until both variants have at least three recorded hits
 - Browser-local CCW member profiles with player, server and role
 - Per-member heroes, War skills, troops, robots, Felons and formation settings
 - Empty safe defaults for new members instead of inheriting Stiletto's account
@@ -40,7 +40,6 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - Versioned JSON profile export/import for browser and device transfers
 - CCW alliance readiness dashboard with READY / REVIEW / BLOCKED roster status
 - Full-alliance JSON backup and safe restore for all profiles and Cage histories
-- Empirical LEFT-hero rankings by Cage and controlled test, with sample confidence
 - Screenshot-verified Lv1–Lv5 War skill progressions for eight priority LEFT heroes
 - Optional verified-skills-only mode for joiner recommendations
 - Verified-skills preference saved separately for each member profile

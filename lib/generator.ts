@@ -82,42 +82,18 @@ export function validateFormation(
   };
 }
 
-function savedStarLevels(): HeroStarLevels {
-  if (typeof window === "undefined") return {};
-  try {
-    const activeId = localStorage.getItem("loj-active-profile-v1");
-    const profiles = JSON.parse(localStorage.getItem("loj-member-profiles-v1") ?? "[]");
-    const active = Array.isArray(profiles) ? profiles.find((profile) => profile?.id === activeId) : null;
-    return active?.heroStarLevels ?? {};
-  } catch { return {}; }
-}
-
-function leaderNamesForRoster(availableHeroes: Hero[]): Set<string> {
-  const eligible = availableHeroes.filter((hero) => hero.cageAllowed);
-  const byName = new Map(eligible.map((hero) => [hero.name, hero]));
-  const baseline = ["Ada", "Ryuichi", "Tyronn"].filter((name) => byName.has(name));
-  if (baseline.length === 3) return new Set(baseline);
-  const stars = savedStarLevels();
-  const best = (cls: Hero["cls"]) => eligible.filter((hero) => hero.cls === cls).sort((a, b) => (stars[b.name] ?? 1) - (stars[a.name] ?? 1) || a.name.localeCompare(b.name))[0]?.name;
-  return new Set([best("Shield"), best("Bomber"), best("Shooter")].filter((name): name is string => Boolean(name)));
-}
-
 export function generateJoinerFormations(
   availableHeroes: Hero[], count = 6, troopPlan: TroopPlan,
-  warSkillLevels: WarSkillLevels = {}, ownedRobots: string[] = [], verifiedOnly = false,
+  warSkillLevels: WarSkillLevels = {}, ownedRobots: string[] = [], verifiedOnly = false, heroStarLevels: HeroStarLevels = {},
 ): Formation[] {
-  const reserved = leaderNamesForRoster(availableHeroes);
-  const leaderHeroes = availableHeroes.filter((hero) => reserved.has(hero.name));
-  const leaderFormation = leaderHeroes.length === 3
-    ? ({ left: leaderHeroes[0], middle: leaderHeroes[1], right: leaderHeroes[2] } as Formation)
-    : null;
-  return generateJoinerFormationsSmart(availableHeroes, count, troopPlan, warSkillLevels, ownedRobots, verifiedOnly, savedStarLevels(), leaderFormation);
+  const leaderFormation = generateLeaderFormationSmart(availableHeroes, troopPlan, ownedRobots, heroStarLevels);
+  return generateJoinerFormationsSmart(availableHeroes, count, troopPlan, warSkillLevels, ownedRobots, verifiedOnly, heroStarLevels, leaderFormation);
 }
 
 export function generateLeaderFormation(
-  availableHeroes: Hero[], troopPlan: TroopPlan, ownedRobots: string[] = [],
+  availableHeroes: Hero[], troopPlan: TroopPlan, ownedRobots: string[] = [], heroStarLevels: HeroStarLevels = {},
 ): Formation | null {
-  return generateLeaderFormationSmart(availableHeroes, troopPlan, ownedRobots, savedStarLevels());
+  return generateLeaderFormationSmart(availableHeroes, troopPlan, ownedRobots, heroStarLevels);
 }
 
 export function optimizeFelons(felons: Felon[], ownedNames: string[], rallyFills: boolean): FelonPlan {
