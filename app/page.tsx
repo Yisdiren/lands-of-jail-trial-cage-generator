@@ -32,6 +32,8 @@ import { evaluateMemberReadiness } from "../lib/readiness";
 import { parseAllianceBackup, serializeAllianceBackup } from "../lib/backup";
 import Image from "next/image";
 
+import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
+
 type Mode = MemberRole;
 const troopClasses: { key: TroopClassKey; label: string }[] = [
   { key: "shield", label: "Shieldbearers" },
@@ -144,6 +146,8 @@ export default function Home() {
   );
   const [rallyFills, setRallyFills] = useState(true);
   const [seatHolder, setSeatHolder] = useState(true);
+  const [locks, setLocks] = useState<Locks>({});
+  const [leaderLocks, setLeaderLocks] = useState<Locks>({});
   const [generated, setGenerated] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [profiles, setProfiles] = useState<MemberProfile[]>([]);
@@ -168,6 +172,8 @@ export default function Home() {
   const [comparisonName, setComparisonName] = useState("");
 
   function applyProfile(profile: MemberProfile) {
+    setLocks({});
+    setLeaderLocks({});
     setProfileName(profile.playerName);
     setProfileServer(profile.server);
     setMode(profile.role);
@@ -309,7 +315,7 @@ export default function Home() {
       }),
     [leaderCapacity, leaderRatios, troopTiers, availableTroops],
   );
-  const joinerFormations = useMemo(
+  const automaticJoiners = useMemo(
     () =>
       generateJoinerFormations(
         available,
@@ -330,10 +336,26 @@ export default function Home() {
       heroStarLevels,
     ],
   );
-  const leaderFormation = useMemo(
+  const automaticLeader = useMemo(
     () => generateLeaderFormation(available, leaderTroopPlan, availableRobots, heroStarLevels),
     [available, leaderTroopPlan, availableRobots, heroStarLevels],
   );
+  let lockError = "";
+  let leaderFormation = automaticLeader;
+  let joinerFormations = automaticJoiners;
+  try {
+    if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, leaderTroopPlan, warSkillLevels, availableRobots, false, null, "leader")[0] ?? null;
+    if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(available, joinCount, locks, joinerTroopPlan, warSkillLevels, availableRobots, verifiedOnly, leaderFormation, "joiner");
+  } catch (error) {
+    lockError = error instanceof Error ? error.message : "Check your hero locks.";
+    joinerFormations = [];
+    if (mode === "leader") leaderFormation = null;
+  }
+  const currentLocks = mode === "leader" ? leaderLocks : locks;
+  const updateLock = (key: string, name: string) => {
+    (mode === "leader" ? setLeaderLocks : setLocks)(value => ({...value, [key]: name}));
+    setGenerated(false);
+  };
   const felonPlan = useMemo(
     () => optimizeFelons(felons, ownedFelons, rallyFills),
     [ownedFelons, rallyFills],
@@ -697,7 +719,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.29</div>
+        <div className="badge">BETA v0.30</div>
       </header>
 
       <section className="panel profile-panel">
@@ -1320,6 +1342,27 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="panel">
+        <h2>Hero locks &amp; replacements</h2>
+        <p>Choose an owned hero to lock a slot. Other slots fill automatically. To replace a hero you do not own, clear that hero in your roster and choose an eligible alternative here.</p>
+        <button onClick={() => { (mode === "leader" ? setLeaderLocks : setLocks)({}); setGenerated(false); }}>Clear locks</button>
+        {Array.from({length: mode === "leader" ? 1 : joinCount}, (_, i) => (
+          <div className="slots" key={i}>
+            {slots.map(slot => {
+              const key = i + ":" + slot;
+              const reserved = mode === "joiner" && leaderFormation ? slots.map(s => leaderFormation![s].name) : [];
+              return <label key={slot}>{mode === "leader" ? "MAIN" : "J" + (i+1)} · {slot.toUpperCase()}
+                <select value={currentLocks[key] ?? ""} onChange={e => updateLock(key, e.target.value)}>
+                  <option value="">Automatic / best available</option>
+                  {available.filter(h => !reserved.includes(h.name) && (mode === "leader" || h.rarity === "SSR" || ["Lunarl","Lofili","Samir"].includes(h.name)) && (mode === "leader" || slot !== "left" || (h.leftSkill && (!verifiedOnly || h.leftSkillVerified)))).map(h => <option key={h.name} value={h.name}>{h.name} · {h.cls}</option>)}
+                </select>
+              </label>;
+            })}
+          </div>
+        ))}
+        {lockError && <p role="alert" className="warning-box">{lockError}</p>}
+        <p className="helper">Locks apply to this session and reset when switching profiles. Every march requires one Shield, Bomber and Shooter. Leader heroes remain reserved.</p>
+      </section>
       <button className="generate" onClick={() => setGenerated(true)}>
         GENERATE CAGE FORMATION{mode === "joiner" ? "S" : ""}
       </button>
@@ -1347,7 +1390,7 @@ export default function Home() {
             </div>
             <div className="slots">
               <div className="slot">
-                <span>SHOOTER</span>
+                <span>{leaderFormation.left.cls}</span>
                 {heroIconNames.has(leaderFormation.left.name) && (
                       <Image className="formation-hero-icon"
                         src={`/icons/${heroIconSlug(leaderFormation.left.name)}.png`}
@@ -1356,7 +1399,7 @@ export default function Home() {
                     <b>{leaderFormation.left.name}</b><small>{heroStarLevels[leaderFormation.left.name] ? "★".repeat(heroStarLevels[leaderFormation.left.name]) : "Stars not set"}</small>
               </div>
               <div className="slot">
-                <span>BOMBER</span>
+                <span>{leaderFormation.middle.cls}</span>
                 {heroIconNames.has(leaderFormation.middle.name) && (
                       <Image className="formation-hero-icon"
                         src={`/icons/${heroIconSlug(leaderFormation.middle.name)}.png`}
@@ -1365,7 +1408,7 @@ export default function Home() {
                     <b>{leaderFormation.middle.name}</b><small>{heroStarLevels[leaderFormation.middle.name] ? "★".repeat(heroStarLevels[leaderFormation.middle.name]) : "Stars not set"}</small>
               </div>
               <div className="slot">
-                <span>SHIELD</span>
+                <span>{leaderFormation.right.cls}</span>
                 {heroIconNames.has(leaderFormation.right.name) && (
                       <Image className="formation-hero-icon"
                         src={`/icons/${heroIconSlug(leaderFormation.right.name)}.png`}
@@ -1503,7 +1546,7 @@ export default function Home() {
                     )}
                     <b>{f.left.name}</b><small>{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
-                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. Selected at skill Lv{f.leftSkillLevel}; skill priority comes first, with stars as a secondary preference. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
+                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. {locks[(Number(f.id.slice(1))-1)+":left"] ? "Manually locked" : "Selected"} at skill Lv{f.leftSkillLevel}; skill priority comes first, with stars as a secondary preference. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
                   </div>
                   <div className="slot">
                     <span>MIDDLE • {f.middle.cls}</span>
