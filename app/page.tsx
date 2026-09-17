@@ -44,9 +44,16 @@ const troopTierOptions = Array.from(
 const legacyResultStorageKey = "loj-cage-results-v1";
 const profileStorageKey = "loj-member-profiles-v1";
 const activeProfileStorageKey = "loj-active-profile-v1";
+const evidenceMigrationKey = "loj-evidence-migration-v015";
 const resultStorageKey = (profileId: string) =>
   `loj-cage-results-v1:${profileId}`;
 const formatDamage = (value: number) => value.toLocaleString("en-US");
+const createStilettoSkillLevels = (): WarSkillLevels =>
+  Object.fromEntries(
+    heroes
+      .filter((hero) => hero.leftSkill)
+      .map((hero) => [hero.name, hero.name === "Tyronn" ? 4 : 5]),
+  );
 const createStilettoProfile = (): MemberProfile => ({
   id: "stiletto-s260",
   playerName: "Stiletto",
@@ -56,9 +63,7 @@ const createStilettoProfile = (): MemberProfile => ({
   ownedHeroes: heroes
     .filter((hero) => hero.cageAllowed)
     .map((hero) => hero.name),
-  warSkillLevels: Object.fromEntries(
-    heroes.filter((hero) => hero.leftSkill).map((hero) => [hero.name, 5]),
-  ),
+  warSkillLevels: createStilettoSkillLevels(),
   ownedRobots: [...robots],
   ownedFelons: felons.map((felon) => felon.name),
   rallyFills: true,
@@ -104,10 +109,8 @@ export default function Home() {
     shooter: 188662,
   });
   const [joinCount, setJoinCount] = useState(6);
-  const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>(() =>
-    Object.fromEntries(
-      heroes.filter((h) => h.leftSkill).map((h) => [h.name, 5]),
-    ),
+  const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>(
+    createStilettoSkillLevels,
   );
   const [ownedRobots, setOwnedRobots] = useState<string[]>(robots);
   const [ownedFelons, setOwnedFelons] = useState<string[]>(
@@ -164,11 +167,17 @@ export default function Home() {
     try {
       const storedProfiles = localStorage.getItem(profileStorageKey);
       const parsedProfiles = storedProfiles ? JSON.parse(storedProfiles) : null;
+      const needsEvidenceMigration =
+        !localStorage.getItem(evidenceMigrationKey);
       const loadedProfiles: MemberProfile[] =
         Array.isArray(parsedProfiles) && parsedProfiles.length
           ? parsedProfiles.map((profile: MemberProfile) => ({
               ...profile,
               seatHolder: profile.seatHolder ?? profile.id === "stiletto-s260",
+              warSkillLevels:
+                needsEvidenceMigration && profile.id === "stiletto-s260"
+                  ? { ...profile.warSkillLevels, Tyronn: 4 }
+                  : profile.warSkillLevels,
             }))
           : [createStilettoProfile()];
       const storedActive = localStorage.getItem(activeProfileStorageKey);
@@ -180,6 +189,7 @@ export default function Home() {
       applyProfile(active);
       localStorage.setItem(profileStorageKey, JSON.stringify(loadedProfiles));
       localStorage.setItem(activeProfileStorageKey, active.id);
+      localStorage.setItem(evidenceMigrationKey, "complete");
     } catch {
       const fallback = createStilettoProfile();
       setProfiles([fallback]);
@@ -612,7 +622,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.14</div>
+        <div className="badge">BETA v0.15</div>
       </header>
 
       <section className="panel profile-panel">
