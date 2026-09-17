@@ -21,41 +21,59 @@ const leftTierScore = (hero: Hero) => {
 };
 
 const heroScore = (hero: Hero) => leftTierScore(hero) + (hero.leftValue ?? 0);
+const isValuableLeft = (hero: Hero) => hero.leftTier === 'top' || hero.leftTier === 'strong';
+const sortByLeftStrength = (a: Hero, b: Hero) => heroScore(b) - heroScore(a) || a.name.localeCompare(b.name);
 
-const sortByLeftStrength = (a: Hero, b: Hero) =>
-  heroScore(b) - heroScore(a) || a.name.localeCompare(b.name);
+const pickBestUnused = (heroes: Hero[], cls: HeroClass, used: Set<string>) =>
+  heroes.filter(h => h.cls === cls && !used.has(h.name)).sort(sortByLeftStrength)[0];
 
 /**
- * Pick a filler for MIDDLE/RIGHT without wasting a hero reserved for a
- * future LEFT slot. Non-LEFT heroes are preferred, then unreserved LEFT
- * heroes, and reserved LEFT heroes are used only as a last resort.
+ * Choose the strongest set of LEFT leaders that can actually be completed
+ * into legal 1 Shield + 1 Bomber + 1 Shooter marches without hero reuse.
+ * We reserve valuable TOP/STRONG LEFT heroes globally before assigning any
+ * filler slots.
  */
+const chooseLeftLeaders = (eligible: Hero[], count: number) => {
+  const candidates = eligible.filter(h => !!h.leftSkill).sort(sortByLeftStrength);
+  const valuable = candidates.filter(isValuableLeft);
+  const filler = candidates.filter(h => !isValuableLeft(h));
+
+  // Prefer TOP/STRONG LEFT heroes. Filler LEFT heroes only enter when fewer
+  // than the requested number of valuable leaders are available.
+  return [...valuable, ...filler].slice(0, count);
+};
+
 const pickFiller = (
-  heroes: Hero[],
+  eligible: Hero[],
   cls: HeroClass,
   used: Set<string>,
-  reservedLeftNames: Set<string>
+  protectedLeftNames: Set<string>
 ) => {
-  const candidates = heroes.filter(h => h.cls === cls && !used.has(h.name));
+  const candidates = eligible.filter(h => h.cls === cls && !used.has(h.name));
 
   return candidates.sort((a, b) => {
-    const aReserved = reservedLeftNames.has(a.name) ? 1 : 0;
-    const bReserved = reservedLeftNames.has(b.name) ? 1 : 0;
-    if (aReserved !== bReserved) return aReserved - bReserved;
+    // Never consume a planned LEFT leader if any alternative exists.
+    const aProtected = protectedLeftNames.has(a.name) ? 1 : 0;
+    const bProtected = protectedLeftNames.has(b.name) ? 1 : 0;
+    if (aProtected !== bProtected) return aProtected - bProtected;
 
-    // For filler positions, preserve valuable LEFT skills where possible.
+    // Also protect every other TOP/STRONG LEFT hero, even if it missed the
+    // initial leader cutoff. This prevents valuable LEFT skills being used
+    // as MIDDLE/RIGHT simply because they ranked 7th or 8th overall.
+    const aValuable = isValuableLeft(a) ? 1 : 0;
+    const bValuable = isValuableLeft(b) ? 1 : 0;
+    if (aValuable !== bValuable) return aValuable - bValuable;
+
+    // Prefer heroes with no LEFT skill at all over filler LEFT heroes.
     const aHasLeft = a.leftSkill ? 1 : 0;
     const bHasLeft = b.leftSkill ? 1 : 0;
     if (aHasLeft !== bHasLeft) return aHasLeft - bHasLeft;
 
+    // Filler positions do not need rally-skill strength, so use the least
+    // valuable LEFT option first and preserve better options for later.
     return heroScore(a) - heroScore(b) || a.name.localeCompare(b.name);
   })[0];
 };
-
-const pickBestUnused = (heroes: Hero[], cls: HeroClass, used: Set<string>) =>
-  heroes
-    .filter(h => h.cls === cls && !used.has(h.name))
-    .sort(sortByLeftStrength)[0];
 
 export function generateJoinerFormations(
   availableHeroes: Hero[],
@@ -63,18 +81,13 @@ export function generateJoinerFormations(
   troopPreset: TroopPreset = 'shooters'
 ): Formation[] {
   const eligible = availableHeroes.filter(h => h.cageAllowed);
-  const leftCandidates = eligible.filter(h => !!h.leftSkill).sort(sortByLeftStrength);
-
-  // Reserve the strongest LEFT candidates up front. This prevents, for
-  // example, Phoenix or Veronica being consumed as filler before they can
-  // lead a later joiner march.
-  const reservedLefts = leftCandidates.slice(0, count);
-  const reservedLeftNames = new Set(reservedLefts.map(h => h.name));
+  const plannedLefts = chooseLeftLeaders(eligible, count);
+  const protectedLeftNames = new Set(plannedLefts.map(h => h.name));
 
   const used = new Set<string>();
   const results: Formation[] = [];
 
-  for (const left of reservedLefts) {
+  for (const left of plannedLefts) {
     if (results.length >= count) break;
     if (used.has(left.name)) continue;
 
@@ -82,11 +95,11 @@ export function generateJoinerFormations(
     const localUsed = new Set(used);
     localUsed.add(left.name);
 
-    const middle = pickFiller(eligible, missingClasses[0], localUsed, reservedLeftNames);
+    const middle = pickFiller(eligible, missingClasses[0], localUsed, protectedLeftNames);
     if (!middle) continue;
     localUsed.add(middle.name);
 
-    const right = pickFiller(eligible, missingClasses[1], localUsed, reservedLeftNames);
+    const right = pickFiller(eligible, missingClasses[1], localUsed, protectedLeftNames);
     if (!right) continue;
 
     used.add(left.name);
