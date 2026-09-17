@@ -160,6 +160,7 @@ export default function Home() {
     setAvailableTroops(profile.availableTroops);
     setTroopPreset(profile.troopPreset);
     setJoinCount(profile.joinCount);
+    setVerifiedOnly(profile.verifiedOnly ?? false);
     setGenerated(false);
   }
 
@@ -386,6 +387,7 @@ export default function Home() {
     availableTroops,
     troopPreset,
     joinCount,
+    verifiedOnly,
     updatedAt: Date.now(),
   });
   const saveActiveProfile = () => {

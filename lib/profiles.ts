@@ -27,6 +27,7 @@ export type MemberProfile = {
   availableTroops: TroopValues;
   troopPreset: TroopPreset;
   joinCount: number;
+  verifiedOnly?: boolean;
   updatedAt: number;
 };
 
@@ -151,6 +152,10 @@ export function parseProfileExport(
         ? source.troopPreset
         : fallback.troopPreset,
     joinCount: finiteNumber(source.joinCount, fallback.joinCount),
+    verifiedOnly:
+      typeof source.verifiedOnly === "boolean"
+        ? source.verifiedOnly
+        : fallback.verifiedOnly,
     updatedAt: Date.now(),
   };
 }
@@ -176,6 +181,7 @@ export function createBlankProfile(id: string): MemberProfile {
     availableTroops: { shield: 0, bomber: 0, shooter: 0 },
     troopPreset: "shooters",
     joinCount: 6,
+    verifiedOnly: false,
     updatedAt: Date.now(),
   };
 }

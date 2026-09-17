@@ -41,6 +41,7 @@ An evidence-based Trial Cage formation generator inspired by the workflow of the
 - Empirical LEFT-hero rankings by Cage and controlled test, with sample confidence
 - Screenshot-verified Lv1–Lv5 War skill progressions for eight priority LEFT heroes
 - Optional verified-skills-only mode for joiner recommendations
+- Verified-skills preference saved separately for each member profile
 
 ## Planned
 
