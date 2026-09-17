@@ -192,7 +192,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.6</div>
+        <div className="badge">BETA v0.7</div>
       </header>
 
       <section className="panel controls">
@@ -569,7 +569,12 @@ export default function Home() {
         mode === "leader" &&
         (leaderFormation ? (
           <section className="result">
-            <label>RECOMMENDED LEADER BASELINE</label>
+            <div className="result-title">
+              <label>RECOMMENDED LEADER BASELINE</label>
+              <span className={`status status-${leaderFormation.status}`}>
+                {leaderFormation.status.toUpperCase()}
+              </span>
+            </div>
             <div className="slots">
               <div className="slot">
                 <span>SHOOTER</span>
@@ -635,6 +640,19 @@ export default function Home() {
                 {warning}
               </div>
             ))}
+            {leaderFormation.alerts
+              .filter(
+                (alert) => !leaderTroopPlan.warnings.includes(alert.message),
+              )
+              .map((alert) => (
+                <div
+                  className={`formation-alert alert-${alert.severity}`}
+                  key={`${alert.severity}-${alert.message}`}
+                >
+                  <b>{alert.severity.toUpperCase()}</b>
+                  <span>{alert.message}</span>
+                </div>
+              ))}
           </section>
         ) : (
           <section className="result warning">
@@ -645,7 +663,23 @@ export default function Home() {
 
       {generated && mode === "joiner" && (
         <section className="result">
-          <label>GENERATED JOINER FORMATIONS</label>
+          <div className="result-title">
+            <label>GENERATED JOINER FORMATIONS</label>
+            <div className="status-summary">
+              <span className="status status-ready">
+                {joinerFormations.filter((f) => f.status === "ready").length}{" "}
+                READY
+              </span>
+              <span className="status status-review">
+                {joinerFormations.filter((f) => f.status === "review").length}{" "}
+                REVIEW
+              </span>
+              <span className="status status-blocked">
+                {joinerFormations.filter((f) => f.status === "blocked").length}{" "}
+                BLOCKED
+              </span>
+            </div>
+          </div>
           <p className="result-intro">
             Every march uses exactly one Shield, one Bomber and one Shooter. The
             first hero shown is physically LEFT. LEFT War skill levels affect
@@ -663,6 +697,9 @@ export default function Home() {
                 <div className="formation-head">
                   <b>{f.id}</b>
                   <span>{f.troopText}</span>
+                  <em className={`status status-${f.status}`}>
+                    {f.status.toUpperCase()}
+                  </em>
                 </div>
                 <div className="slots">
                   <div className="slot left">
@@ -689,7 +726,20 @@ export default function Home() {
                   <span>ROBOT</span>
                   <b>{f.robot ?? "No owned robot available"}</b>
                 </div>
-                {f.warning && <p className="warn">⚠ {f.warning}</p>}
+                {f.alerts
+                  .filter(
+                    (alert) =>
+                      !joinerTroopPlan.warnings.includes(alert.message),
+                  )
+                  .map((alert) => (
+                    <div
+                      className={`formation-alert alert-${alert.severity}`}
+                      key={`${f.id}-${alert.severity}-${alert.message}`}
+                    >
+                      <b>{alert.severity.toUpperCase()}</b>
+                      <span>{alert.message}</span>
+                    </div>
+                  ))}
               </article>
             ))}
           </div>

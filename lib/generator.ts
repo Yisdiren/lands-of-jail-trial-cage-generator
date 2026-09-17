@@ -18,6 +18,11 @@ export type TroopPlan = {
   text: string;
   warnings: string[];
 };
+export type FormationAlert = {
+  severity: "error" | "warning" | "info";
+  message: string;
+};
+export type FormationStatus = "blocked" | "review" | "ready";
 export type Formation = {
   id: string;
   left: Hero;
@@ -27,7 +32,8 @@ export type Formation = {
   robot?: string;
   leftSkillLevel?: number;
   leftSkillPercent?: number;
-  warning?: string;
+  alerts: FormationAlert[];
+  status: FormationStatus;
 };
 export type FelonPlan = {
   selected: Felon[];
@@ -35,6 +41,7 @@ export type FelonPlan = {
   warning?: string;
 };
 const classOrder: HeroClass[] = ["Shield", "Bomber", "Shooter"];
+const approvedNonSsr = new Set(["Lunarl", "Lofili"]);
 const troopClassLabels: Record<TroopClassKey, string> = {
   shield: "Shieldbearers",
   bomber: "Bombers",
@@ -87,6 +94,84 @@ export function calculateTroopPlan(config: TroopConfig): TroopPlan {
     assignedTotal,
     text: `${ratios.shield} / ${ratios.bomber} / ${ratios.shooter} — ${parts.join(" + ") || "No troops assigned"}`,
     warnings,
+  };
+}
+
+export function validateFormation(
+  formation: Omit<Formation, "alerts" | "status">,
+  troopPlan: TroopPlan,
+  mode: "leader" | "joiner",
+): Pick<Formation, "alerts" | "status"> {
+  const alerts: FormationAlert[] = troopPlan.warnings.map((message) => ({
+    severity: "error",
+    message,
+  }));
+  const formationHeroes = [formation.left, formation.middle, formation.right];
+  const classes = new Set(formationHeroes.map((hero) => hero.cls));
+
+  if (classes.size !== 3) {
+    alerts.push({
+      severity: "error",
+      message:
+        "Formation must contain exactly one Shield, one Bomber and one Shooter hero.",
+    });
+  }
+  formationHeroes.forEach((hero) => {
+    if (hero.rarity === "KOF") {
+      alerts.push({
+        severity: "error",
+        message: `${hero.name} is a KOF hero and is excluded from Trial Cage.`,
+      });
+    } else if (hero.rarity !== "SSR" && !approvedNonSsr.has(hero.name)) {
+      alerts.push({
+        severity: "warning",
+        message: `${hero.name} is ${hero.rarity}; CCW prefers SSR heroes for Cage formations.`,
+      });
+    }
+  });
+  if (!formation.robot) {
+    alerts.push({
+      severity: "warning",
+      message: "No owned robot is assigned to this march.",
+    });
+  }
+  if (mode === "joiner") {
+    if (!formation.left.leftSkill) {
+      alerts.push({
+        severity: "error",
+        message:
+          "The LEFT hero has no confirmed first War skill for rally joining.",
+      });
+    } else {
+      if (formation.left.leftTier === "filler") {
+        alerts.push({
+          severity: "warning",
+          message:
+            "Filler LEFT skill — use only after stronger LEFT heroes are exhausted.",
+        });
+      }
+      if ((formation.leftSkillLevel ?? 5) < 5) {
+        alerts.push({
+          severity: "warning",
+          message: `${formation.left.name}'s LEFT War skill is only Lv${formation.leftSkillLevel}.`,
+        });
+      }
+      if (!formation.left.leftSkillVerified) {
+        alerts.push({
+          severity: "info",
+          message: `${formation.left.name}'s exact War skill percentage progression is not yet verified.`,
+        });
+      }
+    }
+  }
+
+  return {
+    alerts,
+    status: alerts.some((alert) => alert.severity === "error")
+      ? "blocked"
+      : alerts.some((alert) => alert.severity === "warning")
+        ? "review"
+        : "ready",
   };
 }
 const tier = (h: Hero) =>
@@ -182,7 +267,7 @@ export function generateJoinerFormations(
     used.add(right.name);
     const lv = levelOf(left, warSkillLevels),
       robot = ownedRobots[results.length];
-    results.push({
+    const formationBase: Omit<Formation, "alerts" | "status"> = {
       id: `J${results.length + 1}`,
       left,
       middle,
@@ -191,10 +276,10 @@ export function generateJoinerFormations(
       leftSkillLevel: lv,
       leftSkillPercent: left.leftSkillValues?.[lv - 1],
       troopText: troopPlan.text,
-      warning:
-        left.leftTier === "filler"
-          ? "Filler LEFT skill — use only after stronger LEFT heroes are exhausted."
-          : undefined,
+    };
+    results.push({
+      ...formationBase,
+      ...validateFormation(formationBase, troopPlan, "joiner"),
     });
   }
   return results;
@@ -208,8 +293,8 @@ export function generateLeaderFormation(
     byName = new Map(eligible.map((h) => [h.name, h])),
     baseline = ["Ada", "Ryuichi", "Tyronn"].map((n) => byName.get(n)),
     robot = ownedRobots[0];
-  if (baseline.every(Boolean))
-    return {
+  if (baseline.every(Boolean)) {
+    const formationBase: Omit<Formation, "alerts" | "status"> = {
       id: "MAIN",
       left: baseline[0]!,
       middle: baseline[1]!,
@@ -217,17 +302,26 @@ export function generateLeaderFormation(
       robot,
       troopText: troopPlan.text,
     };
+    return {
+      ...formationBase,
+      ...validateFormation(formationBase, troopPlan, "leader"),
+    };
+  }
   const shield = pickBest(eligible, "Shield", new Set()),
     bomber = pickBest(eligible, "Bomber", new Set()),
     shooter = pickBest(eligible, "Shooter", new Set());
   if (!shield || !bomber || !shooter) return null;
-  return {
+  const formationBase: Omit<Formation, "alerts" | "status"> = {
     id: "MAIN",
     left: shooter,
     middle: bomber,
     right: shield,
     robot,
     troopText: troopPlan.text,
+  };
+  return {
+    ...formationBase,
+    ...validateFormation(formationBase, troopPlan, "leader"),
   };
 }
 
