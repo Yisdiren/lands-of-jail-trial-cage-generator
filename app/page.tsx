@@ -46,6 +46,7 @@ const legacyResultStorageKey = "loj-cage-results-v1";
 const profileStorageKey = "loj-member-profiles-v1";
 const activeProfileStorageKey = "loj-active-profile-v1";
 const evidenceMigrationKey = "loj-evidence-migration-v015";
+const starLevelsMigrationKey = "loj-star-levels-migration-v023";
 const resultStorageKey = (profileId: string) =>
   `loj-cage-results-v1:${profileId}`;
 const formatDamage = (value: number) => value.toLocaleString("en-US");
@@ -65,10 +66,16 @@ const createStilettoSkillLevels = (): WarSkillLevels =>
       .filter((hero) => hero.leftSkill)
       .map((hero) => [hero.name, hero.name === "Tyronn" ? 4 : 5]),
   );
-const createStilettoStarLevels = (): Record<string, number> =>
-  Object.fromEntries(
-    heroes.filter((hero) => hero.cageAllowed).map((hero) => [hero.name, 5]),
-  );
+const createStilettoStarLevels = (): Record<string, number> => ({
+  Durga: 5, Harton: 5, Gerd: 5, Iwado: 4, Vesaryon: 4,
+  Tyronn: 3, Phoenix: 4, Caesar: 3, Xuanming: 4, Zoltan: 3, Marcus: 3,
+  "Omega Rugal": 3, Pasino: 5, Gimes: 5, Lunarl: 5, Samir: 4,
+  Flameborne: 4, Ekko: 4, Tormund: 5, Vivian: 4, Alph: 4, Lanchester: 3,
+  Whisper: 4, Ryuichi: 4, Koschevoi: 4, Lee: 3, "Terry Bogard": 3,
+  Aiksen: 5, Flora: 4, Platos: 4, Lofili: 5, Inata: 3, Devilian: 3,
+  "Mia Scarlet Pyros": 5, Mireya: 5, Sawyer: 4, Veronica: 4, Drake: 3,
+  Edwin: 4, Ada: 4, "Mai Shiranui": 3,
+});
 const createStilettoProfile = (): MemberProfile => ({
   id: "stiletto-s260",
   playerName: "Stiletto",
@@ -191,11 +198,17 @@ export default function Home() {
       const parsedProfiles = storedProfiles ? JSON.parse(storedProfiles) : null;
       const needsEvidenceMigration =
         !localStorage.getItem(evidenceMigrationKey);
+      const needsStarLevelsMigration =
+        !localStorage.getItem(starLevelsMigrationKey);
       const loadedProfiles: MemberProfile[] =
         Array.isArray(parsedProfiles) && parsedProfiles.length
           ? parsedProfiles.map((profile: MemberProfile) => ({
               ...profile,
               seatHolder: profile.seatHolder ?? profile.id === "stiletto-s260",
+              heroStarLevels:
+                needsStarLevelsMigration && profile.id === "stiletto-s260"
+                  ? createStilettoStarLevels()
+                  : profile.heroStarLevels ?? {},
               warSkillLevels:
                 needsEvidenceMigration && profile.id === "stiletto-s260"
                   ? { ...profile.warSkillLevels, Tyronn: 4 }
@@ -212,6 +225,7 @@ export default function Home() {
       localStorage.setItem(profileStorageKey, JSON.stringify(loadedProfiles));
       localStorage.setItem(activeProfileStorageKey, active.id);
       localStorage.setItem(evidenceMigrationKey, "complete");
+      localStorage.setItem(starLevelsMigrationKey, "complete");
     } catch {
       const fallback = createStilettoProfile();
       setProfiles([fallback]);
@@ -681,7 +695,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.22</div>
+        <div className="badge">BETA v0.23</div>
       </header>
 
       <section className="panel profile-panel">
