@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { felons, heroes, robots } from "../data/heroes";
 import {
   calculateTroopPlan,
@@ -22,6 +22,8 @@ import {
 } from "../lib/results";
 import {
   createBlankProfile,
+  parseProfileExport,
+  serializeProfile,
   type MemberProfile,
   type MemberRole,
 } from "../lib/profiles";
@@ -117,6 +119,7 @@ export default function Home() {
   const [profileServer, setProfileServer] = useState("260");
   const [profilesLoaded, setProfilesLoaded] = useState(false);
   const [profileNotice, setProfileNotice] = useState("");
+  const importProfileInput = useRef<HTMLInputElement>(null);
   const [cageResults, setCageResults] = useState<CageResult[]>([]);
   const [resultsLoaded, setResultsLoaded] = useState(false);
   const [resultsProfileId, setResultsProfileId] = useState("");
@@ -367,6 +370,57 @@ export default function Home() {
     localStorage.setItem(profileStorageKey, JSON.stringify(next));
     setProfileNotice(`${saved.playerName}'s account profile is saved.`);
   };
+  const exportActiveProfile = () => {
+    const saved = currentProfileSnapshot();
+    const next = profiles.map((profile) =>
+      profile.id === activeProfileId ? saved : profile,
+    );
+    setProfiles(next);
+    localStorage.setItem(profileStorageKey, JSON.stringify(next));
+    const blob = new Blob([serializeProfile(saved)], {
+      type: "application/json",
+    });
+    const link = document.createElement("a");
+    const safeName = saved.playerName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    link.href = URL.createObjectURL(blob);
+    link.download = `loj-profile-${safeName || "member"}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    setProfileNotice(`${saved.playerName}'s profile backup was downloaded.`);
+  };
+  const importMemberProfile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      const createdAt = Date.now();
+      const id =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `member-${createdAt}`;
+      const imported = parseProfileExport(await file.text(), id);
+      const current = currentProfileSnapshot();
+      const savedProfiles = profiles.map((profile) =>
+        profile.id === activeProfileId ? current : profile,
+      );
+      const next = [...savedProfiles, imported];
+      setProfiles(next);
+      localStorage.setItem(profileStorageKey, JSON.stringify(next));
+      setActiveProfileId(imported.id);
+      localStorage.setItem(activeProfileStorageKey, imported.id);
+      applyProfile(imported);
+      setProfileNotice(`Imported ${imported.playerName}'s account profile.`);
+    } catch (error) {
+      setProfileNotice(
+        error instanceof Error
+          ? error.message
+          : "The selected profile could not be imported.",
+      );
+    }
+  };
   const switchProfile = (profileId: string) => {
     const current = currentProfileSnapshot();
     const next = profiles.map((profile) =>
@@ -461,7 +515,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.10</div>
+        <div className="badge">BETA v0.11</div>
       </header>
 
       <section className="panel profile-panel">
@@ -535,6 +589,17 @@ export default function Home() {
             SAVE PROFILE
           </button>
           <button onClick={createProfile}>NEW EMPTY MEMBER</button>
+          <button onClick={exportActiveProfile}>EXPORT PROFILE</button>
+          <button onClick={() => importProfileInput.current?.click()}>
+            IMPORT PROFILE
+          </button>
+          <input
+            ref={importProfileInput}
+            className="profile-file-input"
+            type="file"
+            accept="application/json,.json"
+            onChange={importMemberProfile}
+          />
           <button className="profile-delete" onClick={deleteActiveProfile}>
             DELETE PROFILE
           </button>
@@ -543,7 +608,8 @@ export default function Home() {
         <p className="helper">
           Profiles and Cage results stay in this browser. New members begin with
           no owned heroes, robots or Felons selected, so Marvin&apos;s Server
-          260 settings are never used as their account data.
+          260 settings are never used as their account data. Exported profile
+          files contain account settings, but not saved Cage-hit history.
         </p>
       </section>
 
