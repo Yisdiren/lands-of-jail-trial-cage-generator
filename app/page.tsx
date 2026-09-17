@@ -16,6 +16,7 @@ import {
 } from "../lib/generator";
 import {
   compareResults,
+  rankLeftHeroes,
   type CageName,
   type CageResult,
   type TestVariant,
@@ -282,6 +283,10 @@ export default function Home() {
   const comparison = useMemo(
     () => compareResults(cageResults, activeComparisonName),
     [cageResults, activeComparisonName],
+  );
+  const heroRanking = useMemo(
+    () => rankLeftHeroes(cageResults, resultCage, activeComparisonName),
+    [activeComparisonName, cageResults, resultCage],
   );
 
   const toggle = (name: string) => {
@@ -607,7 +612,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.13</div>
+        <div className="badge">BETA v0.14</div>
       </header>
 
       <section className="panel profile-panel">
@@ -1535,6 +1540,55 @@ export default function Home() {
           {comparison.warning && (
             <div className="warning-box">{comparison.warning}</div>
           )}
+        </div>
+
+        <div className="evidence-panel">
+          <div className="comparison-head">
+            <div>
+              <label>EMPIRICAL LEFT-HERO OPTIMIZER</label>
+              <h3>
+                {resultCage} • {activeComparisonName || "No selected test"}
+              </h3>
+            </div>
+            <strong className="evidence-winner">
+              {heroRanking.recommendation
+                ? `RECOMMENDED: ${heroRanking.recommendation}`
+                : "MORE CONTROLLED HITS NEEDED"}
+            </strong>
+          </div>
+          <p className="helper">{heroRanking.warning}</p>
+          <div className="evidence-list">
+            {heroRanking.entries.map((entry, index) => (
+              <article className="evidence-row" key={entry.hero}>
+                <b>#{index + 1}</b>
+                <div>
+                  <strong>{entry.hero}</strong>
+                  <span>
+                    {entry.confidence === "usable"
+                      ? "Usable evidence"
+                      : "Still testing"}
+                  </span>
+                </div>
+                <div>
+                  <strong>{formatDamage(Math.round(entry.average))}</strong>
+                  <span>Average</span>
+                </div>
+                <div>
+                  <strong>{formatDamage(entry.best)}</strong>
+                  <span>Best hit</span>
+                </div>
+                <div>
+                  <strong>{entry.hits}</strong>
+                  <span>Hits</span>
+                </div>
+              </article>
+            ))}
+            {!heroRanking.entries.length && (
+              <p className="helper">
+                Save controlled hits above to begin the evidence ranking.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="result-history">

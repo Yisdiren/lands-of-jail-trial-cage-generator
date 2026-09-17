@@ -850,10 +850,37 @@ footer {
   cursor: pointer;
 }
 .comparison-panel,
+.evidence-panel,
 .result-history {
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid #29435d;
+}
+.evidence-winner {
+  color: #ffbd2e;
+  font-size: 13px;
+}
+.evidence-list {
+  margin-top: 12px;
+}
+.evidence-row {
+  display: grid;
+  grid-template-columns: 36px minmax(150px, 1.3fr) repeat(3, minmax(100px, 1fr));
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid #1f3449;
+}
+.evidence-row > b {
+  color: #ffbd2e;
+}
+.evidence-row div > * {
+  display: block;
+}
+.evidence-row div > span {
+  margin-top: 3px;
+  color: #8199b0;
+  font-size: 11px;
 }
 .comparison-head {
   display: flex;
@@ -1046,7 +1073,8 @@ footer {
     max-width: none;
   }
   .comparison-grid,
-  .result-row {
+  .result-row,
+  .evidence-row {
     grid-template-columns: 1fr;
   }
 }
