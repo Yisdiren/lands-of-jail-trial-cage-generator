@@ -1,4 +1,5 @@
 import './globals.css';
+import FormationIconEnhancer from './FormationIconEnhancer';
 
 export const metadata = {
   title: 'Lands of Jail Trial Cage Generator',
@@ -8,7 +9,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <FormationIconEnhancer />
+      </body>
     </html>
   );
 }
