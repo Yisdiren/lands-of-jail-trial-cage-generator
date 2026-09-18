@@ -25,7 +25,7 @@ function readiness(p:SavedProfile){
   if(p.role!=="leader"&&lefts.length<wanted)issues.push(`only ${lefts.length} LEFT-skill heroes for ${wanted} joiner marches`);
   if(robots<wanted)issues.push(`only ${robots} robot${robots===1?"":"s"} for ${wanted} march${wanted===1?"":"es"}`);
   const lowWar=lefts.filter(h=>(p.warSkillLevels?.[h.name]??1)<5).length;if(lowWar)issues.push(`${lowWar} LEFT War skill${lowWar===1?"":"s"} below Lv5`);
-  const troops=p.availableTroops??{shield:0,bomber:0,shooter:0},plan=planFor(p),need=(plan.shield+plan.bomber+plan.shooter)*wanted,total=troops.shield+troops.bomber+troops.shooter;if(total<need)issues.push(`troop inventory is ${(need-total).toLocaleString()} short for all marches`);
+  const troops=p.availableTroops??{shield:0,bomber:0,shooter:0},plan=planFor(p),need=plan.assignedTotal*wanted,total=troops.shield+troops.bomber+troops.shooter;if(total<need)issues.push(`troop inventory is ${(need-total).toLocaleString()} short for all marches`);
   return{label:issues.length?"CHECK SETUP":"READY",issues}
 }
 function formationConflicts(p:SavedProfile,fs:Formation[]){
