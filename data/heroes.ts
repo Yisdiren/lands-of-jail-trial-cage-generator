@@ -180,10 +180,8 @@ export const heroes: Hero[] = [
     cls: "Bomber",
     season: 0,
     rarity: "SSR",
-    leftSkill: "Filler/Decent LEFT skill",
-    leftValue: 20,
-    leftTier: "filler",
     cageAllowed: true,
+    notes: "First War skill Curse reduces enemy troop DEF (4%/8%/12%/14%/20%); not used as a Trial Cage LEFT damage skill.",
   },
   {
     name: "Lee",
