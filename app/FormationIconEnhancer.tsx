@@ -94,13 +94,30 @@ function addSetupWizard(){
 function guideRosterAfterWizard(){
   if(sessionStorage.getItem("loj-guide-roster")!=="1")return;
   sessionStorage.removeItem("loj-guide-roster");
-  setTimeout(()=>{
-    const headings=[...document.querySelectorAll<HTMLElement>("h2,h3,label")];
-    const target=headings.find(el=>/hero|roster/i.test(el.textContent??""));
-    if(target){target.scrollIntoView({behavior:"smooth",block:"start"});target.style.outline="2px solid currentColor";target.style.outlineOffset="8px";setTimeout(()=>{target.style.outline="";target.style.outlineOffset=""},5000)}
-  },700);
+  const ps=savedProfiles(),activeId=localStorage.getItem("loj-active-profile-v1")??ps[0]?.id,index=ps.findIndex(p=>p.id===activeId);
+  if(index<0||document.querySelector(".loj-roster-wizard"))return;
+  const p=ps[index],available=heroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&(h.season===0||h.season<=(p.season??99)));
+  const selected=new Set(p.ownedHeroes??[]),stars={...(p.heroStarLevels??{})},war={...(p.warSkillLevels??{})};
+  let step=0;
+  const overlay=document.createElement("div");overlay.className="loj-roster-wizard";overlay.style.cssText="position:fixed;inset:0;z-index:100000;background:rgba(5,8,14,.9);backdrop-filter:blur(7px);display:grid;place-items:center;padding:20px";
+  const card=document.createElement("div");card.style.cssText="width:min(850px,100%);max-height:90vh;overflow:auto;border:1px solid rgba(255,255,255,.15);border-radius:16px;background:#111722;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.5)";overlay.append(card);document.body.append(overlay);
+  const save=()=>{ps[index]={...p,ownedHeroes:[...selected],heroStarLevels:stars,warSkillLevels:war,updatedAt:Date.now()};localStorage.setItem("loj-member-profiles-v1",JSON.stringify(ps));localStorage.setItem(`loj-roster-onboarding-v035:${p.id??"player"}`,"complete");window.location.reload()};
+  const render=()=>{
+    if(step===0){
+      card.innerHTML=`<div style="font-size:12px;opacity:.65">ROSTER SETUP 1 OF 2</div><h2>Choose your heroes</h2><p style="opacity:.76">Showing Cage-eligible heroes through Season ${p.season??"?"}. Select every hero you actually own.</p><div style="display:flex;gap:8px;margin:12px 0"><button data-all type="button">SELECT ALL</button><button data-none type="button">CLEAR ALL</button><b style="margin-left:auto">${selected.size} selected</b></div><div data-grid style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px"></div><div style="display:flex;justify-content:space-between;margin-top:18px"><button data-skip type="button">SKIP</button><button data-next type="button" style="font-weight:800">NEXT: ★ & WAR SKILLS</button></div>`;
+      const grid=card.querySelector<HTMLElement>("[data-grid]")!;
+      available.forEach(h=>{const label=document.createElement("label");label.style.cssText="display:flex;align-items:center;gap:8px;padding:9px;border:1px solid rgba(255,255,255,.12);border-radius:8px;font-size:12px";const cb=document.createElement("input");cb.type="checkbox";cb.checked=selected.has(h.name);cb.onchange=()=>{cb.checked?selected.add(h.name):selected.delete(h.name);render()};label.append(cb,document.createTextNode(`${h.name} • ${h.cls}`));grid.append(label)});
+      card.querySelector<HTMLButtonElement>("[data-all]")!.onclick=()=>{available.forEach(h=>selected.add(h.name));render()};card.querySelector<HTMLButtonElement>("[data-none]")!.onclick=()=>{selected.clear();render()};card.querySelector<HTMLButtonElement>("[data-skip]")!.onclick=save;card.querySelector<HTMLButtonElement>("[data-next]")!.onclick=()=>{step=1;render()};
+    }else{
+      const owned=available.filter(h=>selected.has(h.name));
+      card.innerHTML=`<div style="font-size:12px;opacity:.65">ROSTER SETUP 2 OF 2</div><h2>Set ★ and War skills</h2><p style="opacity:.76">Set each hero’s current star level. Heroes with a first War skill also get a War-skill level.</p><div data-levels style="display:grid;gap:8px"></div><div style="display:flex;justify-content:space-between;margin-top:18px"><button data-back type="button">BACK</button><button data-save type="button" style="font-weight:800">SAVE ROSTER</button></div>`;
+      const host=card.querySelector<HTMLElement>("[data-levels]")!;
+      owned.forEach(h=>{const row=document.createElement("div");row.style.cssText="display:grid;grid-template-columns:minmax(150px,1fr) 120px 140px;gap:8px;align-items:center;padding:9px;border:1px solid rgba(255,255,255,.1);border-radius:8px";row.innerHTML=`<b style="font-size:12px">${h.name}</b><label style="font-size:11px">★ <select data-star="${h.name}" style="padding:6px;background:#18202d;color:inherit">${[1,2,3,4,5].map(n=>`<option value="${n}" ${(stars[h.name]??1)===n?"selected":""}>${n}</option>`).join("")}</select></label>${h.leftSkill?`<label style="font-size:11px">War Lv <select data-war="${h.name}" style="padding:6px;background:#18202d;color:inherit">${[1,2,3,4,5].map(n=>`<option value="${n}" ${(war[h.name]??1)===n?"selected":""}>${n}</option>`).join("")}</select></label>`:"<span></span>"}`;host.append(row)});
+      host.querySelectorAll<HTMLSelectElement>("[data-star]").forEach(el=>el.onchange=()=>stars[el.dataset.star!]=Number(el.value));host.querySelectorAll<HTMLSelectElement>("[data-war]").forEach(el=>el.onchange=()=>war[el.dataset.war!]=Number(el.value));card.querySelector<HTMLButtonElement>("[data-back]")!.onclick=()=>{step=0;render()};card.querySelector<HTMLButtonElement>("[data-save]")!.onclick=save;
+    }
+  };render();
 }
 
-function generalizeStaticCopy(){document.querySelectorAll<HTMLElement>("h1,h2,h3,label,p,button").forEach(el=>{if(!el.childElementCount&&el.textContent?.includes("CCW"))el.textContent=el.textContent.replace(/CCW\s*/g,"")});const badge=document.querySelector<HTMLElement>(".badge");if(badge)badge.textContent="BETA v0.34"}
+function generalizeStaticCopy(){document.querySelectorAll<HTMLElement>("h1,h2,h3,label,p,button").forEach(el=>{if(!el.childElementCount&&el.textContent?.includes("CCW"))el.textContent=el.textContent.replace(/CCW\s*/g,"")});const badge=document.querySelector<HTMLElement>(".badge");if(badge)badge.textContent="BETA v0.35"}
 function enhanceGenerator(){generalizeStaticCopy();document.querySelectorAll<HTMLElement>(".formation-card .slot").forEach(addHeroIcon);document.querySelectorAll<HTMLElement>(".formation-card").forEach(addFormationReason);document.querySelectorAll<HTMLElement>(".result > .slots > .slot").forEach(addHeroIcon);document.querySelectorAll<HTMLElement>(".results-panel").forEach(p=>{p.hidden=true;p.setAttribute("aria-hidden","true")});addMemberOverview();addBatchGenerator();addCurrentFormationCopy();addSetupWizard()}
 export default function FormationIconEnhancer(){useEffect(()=>{enhanceGenerator();guideRosterAfterWizard();const observer=new MutationObserver(enhanceGenerator);observer.observe(document.body,{childList:true,subtree:true});return()=>observer.disconnect()},[]);return null}
