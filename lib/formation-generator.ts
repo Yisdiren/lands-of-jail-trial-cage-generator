@@ -38,8 +38,10 @@ export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:Tr
     ? preferredShieldPool.sort((a,b)=>starOf(b,heroStarLevels)-starOf(a,heroStarLevels)||a.name.localeCompare(b.name))[0]
     : pickBest(leaderPool,"Shield",used,heroStarLevels);
   if(shield)used.add(shield.name);
-  const bomber=pickBest(leaderPool,"Bomber",used,heroStarLevels);if(bomber)used.add(bomber.name);
-  const shooter=pickBest(leaderPool,"Shooter",used,heroStarLevels);if(!shield||!bomber||!shooter)return null;
+  const preferredBomber=leaderPool.find(h=>h.cls==="Bomber"&&h.name==="Ryuichi");
+  const bomber=preferredBomber??pickBest(leaderPool,"Bomber",used,heroStarLevels);if(bomber)used.add(bomber.name);
+  const preferredShooter=leaderPool.find(h=>h.cls==="Shooter"&&h.name==="Ada");
+  const shooter=preferredShooter??pickBest(leaderPool,"Shooter",used,heroStarLevels);if(!shield||!bomber||!shooter)return null;
   const base:Omit<Formation,"alerts"|"status">={id:"MAIN",left:shooter,middle:bomber,right:shield,robot:ownedRobots[0],troopText:troopPlan.text};
   return {...base,...validateFormation(base,troopPlan,"leader")};
 }
