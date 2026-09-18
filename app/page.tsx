@@ -1650,6 +1650,8 @@ export default function Home() {
       <footer>
         Community tool • Not affiliated with Lands of Jail. Unknown season
         numbers are marked “Legacy” instead of being guessed.
+        <br />
+        Problems, incorrect formations, or website issues? Contact <b>Stiletto</b> on <b>Server 260</b>.
       </footer>
     </main>
   );
