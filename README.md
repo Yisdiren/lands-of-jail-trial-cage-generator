@@ -1,63 +1,83 @@
 # Lands of Jail — Trial Cage Formation Generator
 
-An evidence-based Trial Cage formation generator inspired by the workflow of the Whiteout Survival Bear Trap formation tools, but designed specifically around Lands of Jail mechanics and real Cage testing.
+A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.31
+## Current Beta v0.37
 
-- Rally Leader / Rally Joiner modes
-- Hero stars and LEFT-skill explanations in formation cards
-- Session hero locks and eligible replacement choices with class/duplicate validation
-- Downloadable PNG formation sheets with portraits, stars, robots and troop counts
-- Compact portraits in leader and joiner formation cards
-- Generator-focused interface; Cage Result Lab removed (saved history retained for backups)
-- Current profile star levels update recommendations immediately
-- Leader heroes reserved from joiner formations; joiners use SSR plus Lunarl, Lofili and Samir
-- Season filter through S6
-- Hero ownership selector
-- Class-aware formation generation
-- LEFT-slot rally-skill emphasis for joiners
-- 100k pure-Shooter joiner baseline
-- Current 0/10/90 leader baseline
+### Generator
+- Rally Leader and Rally Joiner modes
+- Season-aware hero roster filtering
+- Hero ownership, 1–5 star levels and LEFT War-skill levels
+- Class-aware Shieldbearer / Bomber / Shooter formation generation
+- LEFT-slot War-skill priority for joiner formations
+- Global LEFT-hero optimization to preserve stronger rally heroes
+- Player-specific leader generation instead of a hardcoded leader trio
+- Leader heroes reserved from joiner formations
+- Non-overlapping generated joiner marches
+- Robot ownership and non-repeating robot assignment
+- Editable leader and joiner march capacities
+- Configurable troop ratios, T1–T11 tiers and available troop counts
+- Exact troop-plan calculation
+- Formation explanations showing why a LEFT hero was selected
+- Hero portraits/icons in generated formations
+- Copy-ready individual and group formation output
+
+### Player profiles and onboarding
+- General player profiles for any alliance or server
+- New visitors begin with a clean **New Player** profile
+- Existing saved profiles, including older Stiletto data, are preserved
+- Guided first-time setup for player name, server, season, role, capacity and join count
+- Guided hero ownership selection
+- Guided ★ and War-skill setup for selected heroes
+- Guided robot and troop-tier/count setup
+- Player profiles store heroes, stars, War skills, robots and troop settings
+- Member Generator for switching between saved players
+- Alliance Batch Generator calculates every selected player independently
+- Versioned browser-local profile storage
+
+### Validation and readiness
+- Detects missing hero classes
+- Checks whether enough eligible heroes exist for the requested marches
+- Checks whether enough LEFT-skill heroes exist for requested joiner marches
+- Checks robot availability against requested marches
+- Flags LEFT War skills below Lv5
+- Checks troop inventory against requested marches
+- Detects hero reuse across generated formations
+- Detects robot reuse
+- Detects duplicate hero classes within a formation
+- Detects generated heroes or robots not owned by the player
+- Warns when fewer formations are generated than requested
+- KOF event heroes are excluded from Trial Cage generation
+
+### Other current features
+- Season filtering through currently entered hero data
+- Felon ownership and leader Yard Time support
+- Scorpion/Cobra core locks and rally-aware core selection
+- Formation sharing/copy tools
+- Browser-local saved data
 - Responsive desktop/mobile interface
-- Complete non-overlapping J1–J6 formation generation
-- Per-hero LEFT War skill levels and verified percentage scaling
-- Per-hero 1–5 star levels saved with each member profile (ranks excluded)
-- Stiletto Server 260 star baseline populated from the supplied roster
-- Global LEFT-hero optimization that protects valuable rally skills from filler slots
-- Robot ownership selection and non-repeating priority assignment
-- Clear incomplete-roster and incomplete-robot warnings
-- Felon ownership selection and leader-only Yard Time optimization
-- Scorpion/Cobra core locks with rally-aware Rage Fist/Devil selection
-- Missing-core and missing-capacity-felon warnings
-- Separate editable leader and joiner march capacities
-- Configurable Shieldbearer, Bomber and Shooter ratios and T1–T11 tiers
-- Exact class troop-count calculation with availability warnings
-- READY / REVIEW / BLOCKED validation status for every formation
-- Warnings for missing robots, filler or low-level LEFT skills and unverified progressions
-- CCW rarity warnings with Lunarl and Lofili retained as approved exceptions
-- Browser-local CCW member profiles with player, server and role
-- Per-member heroes, War skills, troops, robots, Felons and formation settings
-- Empty safe defaults for new members instead of inheriting Stiletto's account
-- Separate Cage result history for every saved member profile
-- Per-member Seat Holder flag for the +10% ATK bonus against Imprisoned Scarlet Butcher
-- Versioned JSON profile export/import for browser and device transfers
-- CCW alliance readiness dashboard with READY / REVIEW / BLOCKED roster status
-- Full-alliance JSON backup and safe restore for all profiles and Cage histories
-- Screenshot-verified Lv1–Lv5 War skill progressions for eight priority LEFT heroes
-- Optional verified-skills-only mode for joiner recommendations
-- Verified-skills preference saved separately for each member profile
-- Evidence coverage count and verified-only formation limits are shown inline
-- Empty verified-only rosters receive a clear recovery message
-- Copy-ready alliance instructions for generated joiner formations
-- Compact in-game hero icons in the S1–S5 hero selector
+- Cage Result Lab hidden from the generator interface while historical saved data remains intact
+- General Trial Cage branding; CCW-specific recommendation rules are no longer used as global rules
 
-## Planned
+## What is next
 
-- Complete and verify the S1–S6 hero database and remaining War skill progressions
+Development is continuing in this order:
 
-## Known evidence rules
+1. **Validation UI improvements** — make readiness/conflict problems easier to see directly on each generated march and provide specific fixes.
+2. **Star-aware manual/locked formations** — make locked and manually edited formations use the same ★-aware scoring as automatic generation.
+3. **Formation recovery suggestions** — when a requested march cannot be built, explain exactly which class, LEFT hero, robot or troop resource is missing.
+4. **Profile setup dashboard** — show setup completion and let players quickly return to Heroes, War Skills, Robots or Troops without rerunning onboarding.
+5. **Generator cleanup** — remove remaining historical CCW/Stiletto source defaults and old compatibility UI where it is no longer required, while preserving existing saved data.
+6. **S6 hero/icon completion** — add and verify remaining Season 6 hero information, icons and exact War-skill progression when clean game screenshots/assets are available.
+7. **Hero database verification** — continue verifying S1–S6 Cage heroes and exact War-skill values from game evidence.
+8. **Result/formation polish** — improve formation cards, mobile readability, sharing output and alliance overview.
+9. **Build/deployment checks** — continue testing releases and keep the displayed beta, package version and README synchronized.
 
-The initial recommendation engine is intentionally conservative. Trial Cage has RNG and incomplete public mechanics, so recommendations should distinguish confirmed account testing from theory. Joiner recommendations prioritize the first War skill of the hero placed physically in the LEFT slot based on alliance testing.
+## Evidence rules
+
+Trial Cage has RNG and some mechanics still require direct game verification. The generator distinguishes known game/account information from assumptions where possible. Joiner recommendations prioritize the first War skill of the hero physically placed in the **LEFT** slot, based on the Trial Cage testing used to build this project.
+
+Exact hero skill values or mechanics that have not been verified should not be invented. When additional evidence is required, development will pause for a clean in-game screenshot or other source information.
 
 ## Development
 
@@ -66,6 +86,6 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Then open `http://localhost:3000`.
 
 This community project is not affiliated with Lands of Jail or its publisher.
