@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.39
+## Current Beta v0.40
 
 ### Visual theme
 - Lands of Jail-inspired Trial Cage fortress background
@@ -33,7 +33,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - New visitors begin with a clean **New Player** profile
 - Existing saved profiles, including older Stiletto data, are preserved
 - Guided first-time setup for player name, server, season, role, capacity and join count
-- Guided hero ownership selection
+- Guided hero ownership selection\n- Hero roster import from pasted text or .txt files, with ★ detection, merge/replace modes and alias matching
 - Guided ★ and War-skill setup for selected heroes
 - Guided robot and troop-tier/count setup
 - Player profiles store heroes, stars, War skills, robots and troop settings
