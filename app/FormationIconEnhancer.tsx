@@ -14,7 +14,7 @@ type SavedProfile={id?:string;playerName?:string;server?:string;role?:string;sea
 function savedProfiles():SavedProfile[]{try{const p=JSON.parse(localStorage.getItem("loj-member-profiles-v1")??"[]");return Array.isArray(p)?p:[]}catch{return[]}}
 const defaults={ratios:{shield:0,bomber:0,shooter:100}as TroopValues,tiers:{shield:"T10",bomber:"T10",shooter:"T10"}as TroopTiers,available:{shield:9999999,bomber:9999999,shooter:9999999}as TroopValues};
 function rosterFor(p:SavedProfile){const season=p.season??99;return heroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&(h.season===0||h.season<=season)&&(p.ownedHeroes??[]).includes(h.name))}
-function planFor(p:SavedProfile){const leader=p.role==="leader",capacity=leader?(p.leaderCapacity??100000):(p.joinerCapacity??100000),ratios=leader?(p.leaderRatios??defaults.ratios):(p.joinerRatios??defaults.ratios);return calculateTroopPlan({capacity,ratios,tiers:p.troopTiers??defaults.tiers,available:p.availableTroops??defaults.available})}
+function planFor(p:SavedProfile){const leader=p.role==="leader",capacity=leader?(p.leaderCapacity??100000):100000,ratios=leader?(p.leaderRatios??defaults.ratios):(p.joinerRatios??defaults.ratios);return calculateTroopPlan({capacity,ratios,tiers:p.troopTiers??defaults.tiers,available:p.availableTroops??defaults.available})}
 function formationsFor(p:SavedProfile):Formation[]{const roster=rosterFor(p),plan=planFor(p),stars=p.heroStarLevels??{},war=p.warSkillLevels??{},robots=p.ownedRobots??[];try{const leader=generateLeaderFormation(roster,plan,robots,stars);if(p.role==="leader")return leader?[leader]:[];return generateJoinerFormations(roster,p.joinCount??6,plan,war,robots,p.verifiedOnly??false,stars)}catch{return[]}}
 function bestLeft(p:SavedProfile){const fs=formationsFor(p);return fs[0]?.left??rosterFor(p).filter(h=>h.leftSkill).sort((a,b)=>(b.leftValue??0)-(a.leftValue??0))[0]}
 function readiness(p:SavedProfile){
@@ -25,7 +25,7 @@ function readiness(p:SavedProfile){
   if(p.role!=="leader"&&lefts.length<wanted)issues.push(`only ${lefts.length} LEFT-skill heroes for ${wanted} joiner marches`);
   if(robots<wanted)issues.push(`only ${robots} robot${robots===1?"":"s"} for ${wanted} march${wanted===1?"":"es"}`);
   const lowWar=lefts.filter(h=>(p.warSkillLevels?.[h.name]??1)<5).length;if(lowWar)issues.push(`${lowWar} LEFT War skill${lowWar===1?"":"s"} below Lv5`);
-  const troops=p.availableTroops??{shield:0,bomber:0,shooter:0},plan=planFor(p),need=plan.assignedTotal*wanted,total=troops.shield+troops.bomber+troops.shooter;if(total<need)issues.push(`troop inventory is ${(need-total).toLocaleString()} short for all marches`);
+  const troops=p.availableTroops??{shield:0,bomber:0,shooter:0},plan=planFor(p);(["shield","bomber","shooter"] as const).forEach(k=>{const need=plan.counts[k]*wanted;if(troops[k]<need)issues.push(`${k==="shield"?"Shieldbearer":k[0].toUpperCase()+k.slice(1)} inventory is ${(need-troops[k]).toLocaleString()} short for all marches`)});
   return{label:issues.length?"CHECK SETUP":"READY",issues}
 }
 function formationConflicts(p:SavedProfile,fs:Formation[]){
@@ -175,7 +175,7 @@ function guideTroopsAfterRoster(){
   card.querySelector<HTMLButtonElement>("[data-save]")!.onclick=save;card.querySelector<HTMLButtonElement>("[data-skip]")!.onclick=()=>{localStorage.setItem(`loj-account-onboarding-v036:${p.id??"player"}`,"complete");overlay.remove()};
 }
 
-function generalizeStaticCopy(){document.querySelectorAll<HTMLElement>("h1,h2,h3,label,p,button").forEach(el=>{if(!el.childElementCount&&el.textContent?.includes("CCW"))el.textContent=el.textContent.replace(/CCW\s*/g,"")});const badge=document.querySelector<HTMLElement>(".badge");if(badge)badge.textContent="BETA v0.39"}
+function generalizeStaticCopy(){document.querySelectorAll<HTMLElement>("h1,h2,h3,label,p,button").forEach(el=>{if(!el.childElementCount&&el.textContent?.includes("CCW"))el.textContent=el.textContent.replace(/CCW\s*/g,"")});const badge=document.querySelector<HTMLElement>(".badge");if(badge)badge.textContent="BETA v0.42"}
 let enhanceQueued=false;
 function enhanceGenerator(){generalizeStaticCopy();document.querySelectorAll<HTMLElement>(".formation-card .slot").forEach(addHeroIcon);document.querySelectorAll<HTMLElement>(".formation-card").forEach(addFormationReason);document.querySelectorAll<HTMLElement>(".result > .slots > .slot").forEach(addHeroIcon);document.querySelectorAll<HTMLElement>(".results-panel").forEach(p=>{if(!p.hidden){p.hidden=true;p.setAttribute("aria-hidden","true")}});addMemberOverview();addBatchGenerator();addCurrentFormationCopy();addSetupWizard()}
 function queueEnhance(){if(enhanceQueued)return;enhanceQueued=true;requestAnimationFrame(()=>{enhanceQueued=false;enhanceGenerator()})}
