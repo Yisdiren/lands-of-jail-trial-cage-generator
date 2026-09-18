@@ -111,6 +111,21 @@ function addSetupWizard(){
   render();
 }
 
+function normalizeHeroImportName(value:string){return value.toLowerCase().replace(/sumo tyrant\s*\/\s*/g,"").replace(/[^a-z0-9]/g,"")}
+function importHeroText(text:string,available:typeof heroes,selected:Set<string>,stars:Record<string,number>){
+  const aliases=new Map<string,string>();available.forEach(h=>{aliases.set(normalizeHeroImportName(h.name),h.name);h.name.split("/").forEach(n=>aliases.set(normalizeHeroImportName(n),h.name))});
+  aliases.set(normalizeHeroImportName("Sumo Tyrant"),"Iwado");aliases.set(normalizeHeroImportName("Sumo Tyrant / Iwado"),"Iwado");
+  const matched:string[]=[],unmatched:string[]=[];
+  text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).forEach(line=>{
+    const starMatch=line.match(/[★☆]?\s*([1-5])(?:\s*(?:star|stars))?/i),star=starMatch?Number(starMatch[1]):undefined;
+    const prefix=line.replace(/[★☆]\s*[1-5].*$/i,"").replace(/\s+(?:SSR|SR|R)\s*$/i,"").trim();
+    const candidates=[prefix,...prefix.split(/\s{2,}|\t/),...prefix.split("/")].map(x=>normalizeHeroImportName(x)).filter(Boolean);
+    let name:string|undefined;for(const key of candidates){name=aliases.get(key);if(name)break}
+    if(!name){for(const [key,val] of aliases){if(candidates.some(x=>x.startsWith(key)||key.startsWith(x))){name=val;break}}}
+    if(name){selected.add(name);if(star)stars[name]=star;matched.push(name)}else unmatched.push(line);
+  });
+  return{matched:[...new Set(matched)],unmatched};
+}
 function guideRosterAfterWizard(){
   if(sessionStorage.getItem("loj-guide-roster")!=="1")return;
   sessionStorage.removeItem("loj-guide-roster");
@@ -124,10 +139,16 @@ function guideRosterAfterWizard(){
   const save=()=>{ps[index]={...p,ownedHeroes:[...selected],heroStarLevels:stars,warSkillLevels:war,updatedAt:Date.now()};localStorage.setItem("loj-member-profiles-v1",JSON.stringify(ps));localStorage.setItem(`loj-roster-onboarding-v035:${p.id??"player"}`,"complete");sessionStorage.setItem("loj-guide-troops","1");window.location.reload()};
   const render=()=>{
     if(step===0){
-      card.innerHTML=`<div style="font-size:12px;opacity:.65">ROSTER SETUP 1 OF 2</div><h2>Choose your heroes</h2><p style="opacity:.76">Showing Cage-eligible heroes through Season ${p.season??"?"}. Select every hero you actually own.</p><div style="display:flex;gap:8px;margin:12px 0"><button data-all type="button">SELECT ALL</button><button data-none type="button">CLEAR ALL</button><b style="margin-left:auto">${selected.size} selected</b></div><div data-grid style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px"></div><div style="display:flex;justify-content:space-between;margin-top:18px"><button data-skip type="button">SKIP</button><button data-next type="button" style="font-weight:800">NEXT: ★ & WAR SKILLS</button></div>`;
+      card.innerHTML=`<div style="font-size:12px;opacity:.65">ROSTER SETUP 1 OF 2</div><h2>Choose your heroes</h2><p style="opacity:.76">Showing Cage-eligible heroes through Season ${p.season??"?"}. Select every hero you actually own.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><button data-all type="button">SELECT ALL</button><button data-none type="button">CLEAR ALL</button><button data-import type="button">IMPORT HERO LIST</button><b style="margin-left:auto">${selected.size} selected</b></div><div data-importer hidden style="margin:10px 0;padding:12px;border:1px solid rgba(213,164,58,.45);border-radius:8px;background:rgba(0,0,0,.22)"><b>Import hero list</b><p style="font-size:12px;opacity:.75">Paste your roster or choose a .txt file. Hero names and ★1–★5 are detected automatically. Existing heroes are kept unless you choose Replace.</p><input data-file type="file" accept=".txt,text/plain" style="margin-bottom:8px"><textarea data-import-text rows="8" placeholder="Tyronn  SSR  ★4&#10;Phoenix  SSR  ★5" style="width:100%;box-sizing:border-box;padding:9px"></textarea><div style="display:flex;gap:8px;margin-top:8px"><button data-merge type="button">MERGE IMPORT</button><button data-replace type="button">REPLACE ROSTER</button></div><div data-import-status style="font-size:12px;margin-top:8px"></div></div><div data-grid style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px"></div><div style="display:flex;justify-content:space-between;margin-top:18px"><button data-skip type="button">SKIP</button><button data-next type="button" style="font-weight:800">NEXT: ★ & WAR SKILLS</button></div>`;
       const grid=card.querySelector<HTMLElement>("[data-grid]")!;
       available.forEach(h=>{const label=document.createElement("label");label.style.cssText="display:flex;align-items:center;gap:8px;padding:9px;border:1px solid rgba(255,255,255,.12);border-radius:8px;font-size:12px";const cb=document.createElement("input");cb.type="checkbox";cb.checked=selected.has(h.name);cb.onchange=()=>{cb.checked?selected.add(h.name):selected.delete(h.name);render()};label.append(cb,document.createTextNode(`${h.name} • ${h.cls}`));grid.append(label)});
-      card.querySelector<HTMLButtonElement>("[data-all]")!.onclick=()=>{available.forEach(h=>selected.add(h.name));render()};card.querySelector<HTMLButtonElement>("[data-none]")!.onclick=()=>{selected.clear();render()};card.querySelector<HTMLButtonElement>("[data-skip]")!.onclick=save;card.querySelector<HTMLButtonElement>("[data-next]")!.onclick=()=>{step=1;render()};
+      card.querySelector<HTMLButtonElement>("[data-all]")!.onclick=()=>{available.forEach(h=>selected.add(h.name));render()};card.querySelector<HTMLButtonElement>("[data-none]")!.onclick=()=>{selected.clear();render()};
+      const importer=card.querySelector<HTMLElement>("[data-importer]")!,ta=card.querySelector<HTMLTextAreaElement>("[data-import-text]")!,status=card.querySelector<HTMLElement>("[data-import-status]")!;
+      card.querySelector<HTMLButtonElement>("[data-import]")!.onclick=()=>{importer.hidden=!importer.hidden};
+      card.querySelector<HTMLInputElement>("[data-file]")!.onchange=async e=>{const file=(e.currentTarget as HTMLInputElement).files?.[0];if(file)ta.value=await file.text()};
+      const runImport=(replace:boolean)=>{if(replace)selected.clear();const result=importHeroText(ta.value,available,selected,stars);status.textContent=result.matched.length?`Imported ${result.matched.length} hero${result.matched.length===1?"":"es"}${result.unmatched.length?`; ${result.unmatched.length} line${result.unmatched.length===1?"":"s"} not recognized: ${result.unmatched.slice(0,4).join(" | ")}`:"."}`:"No heroes recognized. Check the pasted names.";if(result.matched.length)setTimeout(render,1400)};
+      card.querySelector<HTMLButtonElement>("[data-merge]")!.onclick=()=>runImport(false);card.querySelector<HTMLButtonElement>("[data-replace]")!.onclick=()=>runImport(true);
+      card.querySelector<HTMLButtonElement>("[data-skip]")!.onclick=save;card.querySelector<HTMLButtonElement>("[data-next]")!.onclick=()=>{step=1;render()};
     }else{
       const owned=available.filter(h=>selected.has(h.name));
       card.innerHTML=`<div style="font-size:12px;opacity:.65">ROSTER SETUP 2 OF 2</div><h2>Set ★ and War skills</h2><p style="opacity:.76">Set each hero’s current star level. Heroes with a first War skill also get a War-skill level.</p><div data-levels style="display:grid;gap:8px"></div><div style="display:flex;justify-content:space-between;margin-top:18px"><button data-back type="button">BACK</button><button data-save type="button" style="font-weight:800">SAVE ROSTER</button></div>`;
