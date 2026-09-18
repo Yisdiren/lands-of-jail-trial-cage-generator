@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.42
+## Current Beta v0.43
 
 ### Visual theme
 - Lands of Jail-inspired Trial Cage fortress background
@@ -34,7 +34,8 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - New visitors begin with a clean **New Player** profile
 - Existing saved profiles, including older Stiletto data, are preserved
 - Guided first-time setup for player name, server, season, role, capacity and join count
-- Guided hero ownership selection\n- Hero roster import from pasted text or .txt files, with ★ detection, merge/replace modes and alias matching
+- Guided hero ownership selection
+- Hero roster import from pasted text or .txt files, with ★ detection, merge/replace modes and alias matching
 - Guided ★ and War-skill setup for selected heroes
 - Guided robot and troop-tier/count setup
 - Player profiles store heroes, stars, War skills, robots and troop settings
@@ -111,3 +112,11 @@ This community project is not affiliated with Lands of Jail or its publisher.
 - Manual/locked formations are now star-aware.
 - Cage Result Lab remains hidden so the public interface stays focused on Main Rally and Joiner configuration.
 - Existing season-aware profiles, profile export/import, formation comparison and alliance batch tools remain available.
+
+
+### Beta v0.43
+- Public wording cleaned up so the interface is Trial Cage focused instead of CCW branded.
+- Main Rally cards now explain the full-capacity rule and preferred meta selection.
+- Joiner cards now explain the fixed 100,000-troop rule and LEFT-skill/star priority.
+- Failed joiner generation gives a more useful roster-recovery hint.
+- Cage Result Lab remains hidden; the public experience stays focused on Main Rally and Joiner configuration.
