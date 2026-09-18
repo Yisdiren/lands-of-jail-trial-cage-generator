@@ -300,12 +300,12 @@ export default function Home() {
   const joinerTroopPlan = useMemo(
     () =>
       calculateTroopPlan({
-        capacity: joinerCapacity,
+        capacity: 100000,
         ratios: joinerRatios,
         tiers: troopTiers,
         available: availableTroops,
       }),
-    [joinerCapacity, joinerRatios, troopTiers, availableTroops],
+    [joinerRatios, troopTiers, availableTroops],
   );
   const leaderTroopPlan = useMemo(
     () =>
@@ -346,8 +346,8 @@ export default function Home() {
   let leaderFormation = automaticLeader;
   let joinerFormations = automaticJoiners;
   try {
-    if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, leaderTroopPlan, warSkillLevels, availableRobots, false, null, "leader")[0] ?? null;
-    if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(available, joinCount, locks, joinerTroopPlan, warSkillLevels, availableRobots, verifiedOnly, leaderFormation, "joiner");
+    if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, leaderTroopPlan, warSkillLevels, availableRobots, false, null, "leader", heroStarLevels)[0] ?? null;
+    if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(available, joinCount, locks, joinerTroopPlan, warSkillLevels, availableRobots, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
     joinerFormations = [];
@@ -1056,18 +1056,18 @@ export default function Home() {
             type="number"
             min="1"
             step="1"
-            value={mode === "leader" ? leaderCapacity : joinerCapacity}
+            value={mode === "leader" ? leaderCapacity : 100000}
+            disabled={mode === "joiner"}
             onChange={(event) => {
               const value = Number(event.target.value);
               if (mode === "leader") setLeaderCapacity(value);
-              else setJoinerCapacity(value);
               setGenerated(false);
             }}
           />
           <small>
             {mode === "leader"
               ? "Your personal maximum march size; this is separate from total rally capacity."
-              : "CCW default is 100,000 troops per joiner march."}
+              : "Trial Cage joiner marches use 100,000 troops."}
           </small>
         </div>
         <div className="troop-grid troop-grid-head">
