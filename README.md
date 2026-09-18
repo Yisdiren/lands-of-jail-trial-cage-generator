@@ -2,7 +2,12 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.37
+## Current Beta v0.38
+
+### Visual theme
+- Lands of Jail-inspired Trial Cage fortress background
+- Dark readability overlay and translucent glass-style panels
+- Fixed cinematic desktop background with mobile-safe scrolling treatment
 
 ### Generator
 - Rally Leader and Rally Joiner modes
