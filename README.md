@@ -63,7 +63,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Formation sharing/copy tools
 - Browser-local saved data
 - Responsive desktop/mobile interface
-- Cage Result Lab available for saving account-specific damage tests and A/B formation comparisons
+- Clean generator-focused interface for Main Rally and configurable Joiner formations
 - General Trial Cage branding; CCW-specific recommendation rules are no longer used as global rules
 
 ## What is next
@@ -109,5 +109,5 @@ This community project is not affiliated with Lands of Jail or its publisher.
 - Troop readiness now validates Shieldbearers, Bombers and Shooters independently across requested marches.
 - Main Rally meta preferences completed: strongest owned Tyronn/Phoenix/Xuanming Shieldbearer, Ryuichi Bomber when owned, and Ada Shooter when owned, with legal fallbacks.
 - Manual/locked formations are now star-aware.
-- Cage Result Lab restored so players can record account-specific damage tests and compare formations.
+- Cage Result Lab remains hidden so the public interface stays focused on Main Rally and Joiner configuration.
 - Existing season-aware profiles, profile export/import, formation comparison and alliance batch tools remain available.
