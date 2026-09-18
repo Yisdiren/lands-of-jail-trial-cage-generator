@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.41
+## Current Beta v0.42
 
 ### Visual theme
 - Lands of Jail-inspired Trial Cage fortress background
@@ -21,7 +21,8 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Leader heroes reserved from joiner formations
 - Non-overlapping generated joiner marches
 - Robot ownership and non-repeating robot assignment
-- Editable leader and joiner march capacities
+- Main Rally uses the player's saved maximum march capacity
+- Rally Joiners use the Trial Cage 100,000-troop march rule
 - Configurable troop ratios, T1–T11 tiers and available troop counts
 - Exact troop-plan calculation
 - Formation explanations showing why a LEFT hero was selected
@@ -47,7 +48,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Checks whether enough LEFT-skill heroes exist for requested joiner marches
 - Checks robot availability against requested marches
 - Flags LEFT War skills below Lv5
-- Checks troop inventory against requested marches
+- Checks troop inventory per class against requested marches and reports exact Shieldbearer/Bomber/Shooter shortages
 - Detects hero reuse across generated formations
 - Detects robot reuse
 - Detects duplicate hero classes within a formation
@@ -62,7 +63,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Formation sharing/copy tools
 - Browser-local saved data
 - Responsive desktop/mobile interface
-- Cage Result Lab hidden from the generator interface while historical saved data remains intact
+- Cage Result Lab available for saving account-specific damage tests and A/B formation comparisons
 - General Trial Cage branding; CCW-specific recommendation rules are no longer used as global rules
 
 ## What is next
@@ -101,3 +102,12 @@ This community project is not affiliated with Lands of Jail or its publisher.
 - Main Rally prefers the strongest owned Tyronn, Phoenix, or Xuanming for Shieldbearer.
 - Mia and Tormund are excluded from Main Rally selection.
 - Whisper corrected: Curse is not treated as a Trial Cage LEFT damage skill.
+
+
+### Beta v0.42
+- Main Rally now uses the player's maximum saved march capacity; Joiner marches are fixed at 100,000 troops.
+- Troop readiness now validates Shieldbearers, Bombers and Shooters independently across requested marches.
+- Main Rally meta preferences completed: strongest owned Tyronn/Phoenix/Xuanming Shieldbearer, Ryuichi Bomber when owned, and Ada Shooter when owned, with legal fallbacks.
+- Manual/locked formations are now star-aware.
+- Cage Result Lab restored so players can record account-specific damage tests and compare formations.
+- Existing season-aware profiles, profile export/import, formation comparison and alliance batch tools remain available.
