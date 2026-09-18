@@ -476,7 +476,7 @@ export default function Home() {
   };
   const copyAllianceInstructions = async () => {
     const lines = [
-      `CCW TRIAL CAGE — ${profileName || "Member"}`,
+      `TRIAL CAGE — ${profileName || "Player"}`,
       `Server ${profileServer || "—"} • ${verifiedOnly ? "verified LEFT skills only" : "standard LEFT skill priority"}`,
       ...joinerFormations.flatMap((formation) => [
         `${formation.id}: ${formation.left.name} (LEFT Lv${formation.leftSkillLevel}) / ${formation.middle.name} / ${formation.right.name}`,
@@ -655,7 +655,7 @@ export default function Home() {
     setActiveProfileId(profile.id);
     localStorage.setItem(activeProfileStorageKey, profile.id);
     applyProfile(profile);
-    setProfileNotice("Created an empty CCW member profile.");
+    setProfileNotice("Created an empty player profile.");
   };
   const deleteActiveProfile = () => {
     if (profiles.length <= 1) {
@@ -724,7 +724,7 @@ export default function Home() {
     <main>
       <header>
         <div>
-          <span className="eyebrow">CCW TOOLS</span>
+          <span className="eyebrow">TRIAL CAGE TOOLS</span>
           <h1>
             Trial Cage <b>Formation Generator</b>
           </h1>
@@ -739,7 +739,7 @@ export default function Home() {
       <section className="panel profile-panel">
         <div className="title">
           <div>
-            <label>CCW MEMBER PROFILE</label>
+            <label>PLAYER PROFILE</label>
             <h2>Generate from this member&apos;s actual account</h2>
           </div>
           <span>{profiles.length} saved locally</span>
@@ -1532,16 +1532,16 @@ export default function Home() {
             </div>
           </div>
           <p className="result-intro">
-            Every march uses exactly one Shield, one Bomber and one Shooter. The
-            first hero shown is physically LEFT. LEFT War skill levels affect
-            recommendation priority, and owned robots are assigned without
-            reuse.
+            Every joiner uses exactly one Shieldbearer, one Bomber and one Shooter.
+            Each joiner is fixed at 100,000 troops. The first hero shown is physically
+            LEFT; LEFT War skill level and hero stars affect recommendation priority.
+            Owned robots are assigned without reuse.
           </p>
           {joinerFormations.length === 0 && (
             <div className="warning-box">
               {verifiedOnly
                 ? "No legal formation uses a screenshot-verified LEFT skill from this roster. Add verified LEFT heroes or turn the filter off."
-                : "Not enough compatible heroes to build a legal joiner formation."}
+                : `Not enough compatible heroes to build all requested joiners. Check that you have at least ${joinCount} eligible LEFT-skill heroes plus one Shieldbearer, Bomber and Shooter for each march.`}
             </div>
           )}
           <p className="helper">Leader heroes are reserved. Each joiner uses different heroes; supporting slots preserve priority LEFT skills for other marches.</p><div className="formation-list">
