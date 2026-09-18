@@ -27,10 +27,13 @@ const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedName
 })[0];
 
 export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={}):Formation|null{
-  const eligible=availableHeroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF"),used=new Set<string>();
-  const shield=pickBest(eligible,"Shield",used,heroStarLevels);if(shield)used.add(shield.name);
-  const bomber=pickBest(eligible,"Bomber",used,heroStarLevels);if(bomber)used.add(bomber.name);
-  const shooter=pickBest(eligible,"Shooter",used,heroStarLevels);if(!shield||!bomber||!shooter)return null;
+  const eligible=availableHeroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF");
+  const ssr=eligible.filter(h=>h.rarity==="SSR");
+  const hasFullSsr=classOrder.every(cls=>ssr.some(h=>h.cls===cls));
+  const leaderPool=hasFullSsr?ssr:eligible,used=new Set<string>();
+  const shield=pickBest(leaderPool,"Shield",used,heroStarLevels);if(shield)used.add(shield.name);
+  const bomber=pickBest(leaderPool,"Bomber",used,heroStarLevels);if(bomber)used.add(bomber.name);
+  const shooter=pickBest(leaderPool,"Shooter",used,heroStarLevels);if(!shield||!bomber||!shooter)return null;
   const base:Omit<Formation,"alerts"|"status">={id:"MAIN",left:shooter,middle:bomber,right:shield,robot:ownedRobots[0],troopText:troopPlan.text};
   return {...base,...validateFormation(base,troopPlan,"leader")};
 }
