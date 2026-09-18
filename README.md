@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.40
+## Current Beta v0.41
 
 ### Visual theme
 - Lands of Jail-inspired Trial Cage fortress background
@@ -95,3 +95,9 @@ npm run dev
 Then open `http://localhost:3000`.
 
 This community project is not affiliated with Lands of Jail or its publisher.
+
+
+### Beta v0.41
+- Main Rally prefers the strongest owned Tyronn, Phoenix, or Xuanming for Shieldbearer.
+- Mia and Tormund are excluded from Main Rally selection.
+- Whisper corrected: Curse is not treated as a Trial Cage LEFT damage skill.
