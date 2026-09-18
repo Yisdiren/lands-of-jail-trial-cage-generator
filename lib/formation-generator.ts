@@ -27,7 +27,7 @@ const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedName
 })[0];
 
 export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={}):Formation|null{
-  const eligible=availableHeroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF");
+  const leaderExcluded=new Set(["Mia","Tormund"]);\n  const eligible=availableHeroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!leaderExcluded.has(h.name));
   const ssr=eligible.filter(h=>h.rarity==="SSR");
   const hasFullSsr=classOrder.every(cls=>ssr.some(h=>h.cls===cls));
   const leaderPool=hasFullSsr?ssr:eligible,used=new Set<string>();
