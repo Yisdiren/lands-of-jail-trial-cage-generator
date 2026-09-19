@@ -112,10 +112,16 @@ export default function Home() {
       }),
     [leaderCapacity, troopTiers],
   );
+  // War skills unlock one level ahead of hero stars:
+  // 1★ -> max Lv2, 2★ -> max Lv3, 3★ -> max Lv4, 4★+ -> max Lv5.
+  // This matches the in-game upgrade gate shown on Rin (2★ / Lv3; Lv4 requires 3★).
   const automaticWarSkillLevels = useMemo<WarSkillLevels>(() => {
     const levels: WarSkillLevels = {};
     available.forEach((hero) => {
-      if (hero.leftSkill) levels[hero.name] = Math.min(5, Math.max(1, heroStarLevels[hero.name] ?? 1));
+      if (hero.leftSkill) {
+        const stars = Math.min(5, Math.max(1, heroStarLevels[hero.name] ?? 1));
+        levels[hero.name] = Math.min(5, stars + 1);
+      }
     });
     return levels;
   }, [available, heroStarLevels]);
@@ -295,7 +301,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.33 SIMPLE</div>
+        <div className="badge">DEV v1.34 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -716,7 +722,7 @@ export default function Home() {
                     )}
                     <b>{f.left.name}</b><small>{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
-                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. Auto-ranked from the hero star level at Lv{f.leftSkillLevel}; skill priority comes first, with stars used by the generator. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
+                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. War skill auto-ranked to Lv{f.leftSkillLevel} from the hero star unlock: 1★→Lv2, 2★→Lv3, 3★→Lv4, 4★+→Lv5. Skill priority comes first, with stars used by the generator. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
                   </div>
                   <div className="slot">
                     <span>MIDDLE • {f.middle.cls}</span>
