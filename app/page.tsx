@@ -645,6 +645,7 @@ export default function Home() {
           <input id="capacity-displayed" type="number" min="1" placeholder="Displayed capacity" />
           <button type="button" onClick={()=>{const f=document.querySelector<HTMLInputElement>("#capacity-felon");const d=document.querySelector<HTMLInputElement>("#capacity-displayed");const shown=Number(d?.value);if(!shown)return;setCapacityObservations(cur=>[{felon:f?.value.trim()||"Unspecified",baseCapacity:leaderCapacity,selectedBuffIds:[...selectedBuffIds],displayedCapacity:shown,recordedAt:Date.now()},...cur]);if(d)d.value="";}}>RECORD TEST</button>
         </div>
+        {capacityObservations.length > 0 && <button className="clear-capacity-tests" type="button" onClick={()=>setCapacityObservations([])}>CLEAR RECORDED TESTS</button>}
         <div className="capacity-test-list">{capacityObservations.slice(0,5).map((o,i)=><div key={o.recordedAt+"-"+i}>{capacityObservationLabel(o)}</div>)}</div>
       </section>
 
