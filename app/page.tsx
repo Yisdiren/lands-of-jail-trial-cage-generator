@@ -874,7 +874,6 @@ export default function Home() {
             expedition capacity would otherwise be wasted.
           </p>
         </section>
-      )}
 
       <section className="panel">
         <div className="title">
