@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.24
+## Development Beta v1.25
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -249,3 +249,6 @@ Vercel Git deployments are enabled for the v1.23 release. Commits to the product
 
 ## Beta v1.24 — Remove player profiles
 Removed profile management, member overview, alliance readiness and batch panels, and onboarding. The generator uses the selections on the page directly. Existing browser profile data is left untouched but is no longer read or written.
+
+## Beta v1.25 — Remove Capacity Test Recorder
+Removed the capacity recording panel, recording controls and page state. Main Rally capacity and the pre-Cage capacity preview remain available.

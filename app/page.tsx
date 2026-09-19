@@ -14,7 +14,7 @@ import {
   type TroopValues,
   type WarSkillLevels,
 } from "../lib/generator";
-import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings, capacityObservationLabel, capacityEvidenceStatus, type CapacityObservation } from "../lib/cage-buffs";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings } from "../lib/cage-buffs";
 import Image from "next/image";
 
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
@@ -80,7 +80,6 @@ export default function Home() {
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
   const [showAdvancedTroops, setShowAdvancedTroops] = useState(false);
-  const [capacityObservations, setCapacityObservations] = useState<CapacityObservation[]>([]);
   const [kofLeaderLinks, setKofLeaderLinks] = useState<Record<string,string>>({});
   const seasonHeroes = useMemo(
     () => heroes.filter((h) => (h.season === 0 || h.season <= season) && showHeroInGenerator(h)),
@@ -276,7 +275,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.24 SIMPLE</div>
+        <div className="badge">DEV v1.25 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -287,18 +286,6 @@ export default function Home() {
         </div>
         <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main Rally capacity: {leaderCapacity.toLocaleString()}</span><span>✓ Troop ratio: {leaderRatios.shield}/{leaderRatios.bomber}/{leaderRatios.shooter}</span><span>{availableRobots.length ? "✓" : "⚠"} Robot: {availableRobots[0] ?? "none selected"}</span><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate before Cage <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
         <div className="capacity-preview"><b>Capacity preview</b><span>Base {buffCapacityPreview.baseCapacity.toLocaleString()}</span><span>Expedition {buffCapacityPreview.expeditionPercent ? `+${buffCapacityPreview.expeditionPercent}%` : "—"}</span><span>Expedition flat {buffCapacityPreview.expeditionFlat ? `+${buffCapacityPreview.expeditionFlat.toLocaleString()}` : "—"}</span><span>Rally flat {buffCapacityPreview.rallyFlat ? `+${buffCapacityPreview.rallyFlat.toLocaleString()}` : "—"}</span><small>{buffCapacityPreview.note}</small>{preCageWarnings(leaderCapacity,selectedBuffIds).map(w=><small className="buff-warning" key={w}>{w}</small>)}</div>
-      </section>
-
-      <section className="panel capacity-lab">
-        <div className="title"><div><label>CAPACITY TEST RECORDER</label><h2>Record what the game actually displays</h2></div><span>{capacityObservations.length} tests</span></div>
-        <p className="helper">Use this after a normal Cage activation. It records evidence without guessing the stacking formula.</p><div className={`evidence-status evidence-${capacityEvidenceStatus(capacityObservations).status}`}>{capacityEvidenceStatus(capacityObservations).label}</div>
-        <div className="capacity-test-form">
-          <input id="capacity-felon" placeholder="Felon used (optional)" />
-          <input id="capacity-displayed" type="number" min="1" placeholder="Displayed capacity" />
-          <button type="button" onClick={()=>{const f=document.querySelector<HTMLInputElement>("#capacity-felon");const d=document.querySelector<HTMLInputElement>("#capacity-displayed");const shown=Number(d?.value);if(!shown)return;setCapacityObservations(cur=>[{felon:f?.value.trim()||"Unspecified",baseCapacity:leaderCapacity,selectedBuffIds:[...selectedBuffIds],displayedCapacity:shown,recordedAt:Date.now()},...cur]);if(d)d.value="";}}>RECORD TEST</button>
-        </div>
-        {capacityObservations.length > 0 && <button className="clear-capacity-tests" type="button" onClick={()=>setCapacityObservations([])}>CLEAR RECORDED TESTS</button>}
-        <div className="capacity-test-list">{capacityObservations.slice(0,5).map((o,i)=><div key={o.recordedAt+"-"+i}>{capacityObservationLabel(o)}</div>)}</div>
       </section>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
