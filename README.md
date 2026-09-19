@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Development Beta v1.00 (branch: beta-v081-v100)
+## Development Beta v1.06 (branch: beta-v101-kof-links)
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -219,3 +219,12 @@ Capacity stacking remains intentionally uncalculated until direct in-game observ
 - **v1.00** — Completed the 20-build development milestone and synchronized the visible development version.
 
 The capacity recorder is intentionally evidence-first. It records actual displayed capacities and selected buffs, but it does not invent a final capacity-stacking formula.
+
+
+## Beta v1.01–v1.06 — KOF Main Rally links
+- Player profiles now persist KOF Main Rally links.
+- Owned KOF heroes become linkable only at ★4 or ★5.
+- KOF heroes remain excluded from Joiner LEFT recommendations.
+- Season 5 link targets follow hero class: Omega Rugal → Tyronn, Terry Bogard → Ryuichi or Flameborne, Mai Shiranui → Ada.
+- Links are player-selected replacements, not automatic claims that a KOF hero is stronger.
+- Generated Main Rally output displays active KOF replacement links.
