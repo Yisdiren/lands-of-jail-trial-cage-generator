@@ -22,7 +22,7 @@ import {
   type MemberRole,
 } from "../lib/profiles";
 import { evaluateMemberReadiness } from "../lib/readiness";
-import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings } from "../lib/cage-buffs";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings, capacityObservationLabel, type CapacityObservation } from "../lib/cage-buffs";
 import { parseAllianceBackup, serializeAllianceBackup } from "../lib/backup";
 import Image from "next/image";
 
@@ -99,6 +99,7 @@ export default function Home() {
   const [profileNotice, setProfileNotice] = useState("");
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
+  const [capacityObservations, setCapacityObservations] = useState<CapacityObservation[]>([]);
   const importProfileInput = useRef<HTMLInputElement>(null);
   const importAllianceInput = useRef<HTMLInputElement>(null);
   function applyProfile(profile: MemberProfile) {
@@ -127,6 +128,7 @@ export default function Home() {
     setVerifiedOnly(profile.verifiedOnly ?? false);
     setSelectedBuffIds(profile.cageBuffProfile?.selectedBuffIds ?? defaultCageBuffProfile.selectedBuffIds);
     setActivationLeadMinutes(profile.cageBuffProfile?.activationLeadMinutes ?? defaultCageBuffProfile.activationLeadMinutes);
+    setCapacityObservations(profile.capacityObservations ?? []);
     setGenerated(false);
   }
 
@@ -288,6 +290,7 @@ export default function Home() {
     ownedRobots,
     ownedFelons,
     felonRallyCapacities,
+    capacityObservations,
     rallyFills,
     seatHolder,
     joinerCapacity,
