@@ -275,7 +275,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.43 BETA</div>
+        <div className="badge">DEV v1.44 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -679,7 +679,7 @@ export default function Home() {
               <article className="formation-card" key={f.id}>
                 <div className="formation-head">
                   <b>{f.id}</b>
-                  <span>{f.troopText}</span>
+                  <span>Joiner troops: 10k Bombers + 90k Shooters OR 100k Shooters</span>
                   <em className={`status status-${f.status}`}>
                     {f.status.toUpperCase()}
                   </em>
