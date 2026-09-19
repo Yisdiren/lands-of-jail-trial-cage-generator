@@ -105,6 +105,14 @@ export const heroes: Hero[] = [
     cageAllowed: true,
     notes: "S6. Defensive kit with +75% allied Tactical DMG at War Lv5.",
   },
+  {
+    name: "Fran & Pike",
+    cls: "Shield",
+    season: 7,
+    rarity: "SSR",
+    cageAllowed: true,
+    notes: "S7 screenshot verified. Colossal Behemoth: Shieldbearer HP +6/12/18/24/30%. Dreadful Regeneration: soldiers recovered 1/2/3/5/7%. Corrosive Blessing: troops DMG taken reduction 4/8/12/16/20%. Defensive kit; not a Cage damage LEFT priority.",
+  },
 
   {
     name: "Lunarl",
@@ -241,6 +249,19 @@ export const heroes: Hero[] = [
     cageAllowed: true,
     notes: "S6. +25% Bomber DMG and +25% all allied troop DMG at War Lv5.",
   },
+  {
+    name: "Boogie",
+    cls: "Bomber",
+    season: 7,
+    rarity: "SSR",
+    leftSkill: "Funk Wave: increases all allied troops’ Basic Attack DMG",
+    leftValue: 98,
+    leftTier: "top",
+    leftSkillValues: [5, 10, 15, 20, 25],
+    leftSkillVerified: true,
+    cageAllowed: true,
+    notes: "S7 screenshot verified. Shine Time: extra Basic Attack DMG multiplier 10/20/30/40/50% and Troops ATK +8/16/24/32/40%. Sonic Shockwave: extra Basic Attack DMG multiplier 40/80/120/160/200%.",
+  },
 
   {
     name: "Veronica",
@@ -359,6 +380,32 @@ export const heroes: Hero[] = [
     cageAllowed: true,
     notes:
       "S6. Sprint Signal progression verified; also has a periodic all-troop DMG boost.",
+  },
+  {
+    name: "Rin",
+    cls: "Shooter",
+    season: 7,
+    rarity: "SSR",
+    leftSkill: "Flaw Detection: increases DMG taken by enemy troops from Shooters",
+    leftValue: 100,
+    leftTier: "top",
+    leftSkillValues: [5, 10, 15, 20, 25],
+    leftSkillVerified: true,
+    cageAllowed: true,
+    notes: "S7 screenshot verified. Smoke Cover: Troops DEF +10/20/30/40/50%. Lethal Flywheel: extra Tactical Attack DMG multiplier 6/12/18/24/30%.",
+  },
+  {
+    name: "Rex",
+    cls: "Shooter",
+    season: 7,
+    rarity: "SSR",
+    leftSkill: "Future Computation: increases DMG dealt by Shooters",
+    leftValue: 98,
+    leftTier: "top",
+    leftSkillValues: [5, 10, 15, 20, 25],
+    leftSkillVerified: true,
+    cageAllowed: true,
+    notes: "S7 screenshot verified. Future Computation also increases Wild Monster DMG 2/4/6/8/10%. Skilled Shot: extra Basic Attack DMG multiplier 18/36/54/72/90%. Spacetime Fold: extra Tactical Attack DMG multiplier 24/48/72/96/120%.",
   },
 ];
 
