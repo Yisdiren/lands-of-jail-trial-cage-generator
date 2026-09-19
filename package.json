@@ -1,6 +1,6 @@
 {
   "name": "lands-of-jail-trial-cage-generator",
-  "version": "0.43.0",
+  "version": "0.48.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
