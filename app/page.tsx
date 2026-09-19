@@ -835,6 +835,14 @@ export default function Home() {
         )}
       </section>
 
+      <section className="panel setup-dashboard">
+        <div className="title"><div><label>PROFILE SETUP DASHBOARD</label><h2>Current Cage account setup</h2></div></div>
+        <div className="setup-facts">
+          <span><b>{owned.length}</b> Heroes</span><span><b>{ownedRobots.length}</b> Robots</span><span><b>{ownedFelons.length}</b> Felons</span>
+          <span><b>{mode === "leader" ? leaderCapacity.toLocaleString() : "100,000"}</b> March</span><span><b>{selectedBuffIds.length}</b> Pre-Cage buffs</span>
+        </div>
+      </section>
+
       <section className="panel troop-panel">
         <div className="title">
           <div>
