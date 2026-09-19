@@ -40,6 +40,8 @@ const troopTierOptions = Array.from(
   { length: 11 },
   (_, index) => `T${index + 1}` as TroopTier,
 );
+const retainedSrHeroes = new Set(["Lofili", "Lunarl", "Flameborne", "Samir"]);
+const showHeroInGenerator = (hero: (typeof heroes)[number]) => hero.rarity !== "R" && (hero.rarity !== "SR" || retainedSrHeroes.has(hero.name));
 const profileStorageKey = "loj-member-profiles-v1";
 const activeProfileStorageKey = "loj-active-profile-v1";
 const heroIconNames = new Set([
@@ -136,7 +138,7 @@ export default function Home() {
   }
 
   const seasonHeroes = useMemo(
-    () => heroes.filter((h) => h.season === 0 || h.season <= season),
+    () => heroes.filter((h) => (h.season === 0 || h.season <= season) && showHeroInGenerator(h)),
     [season],
   );
   const available = useMemo(
