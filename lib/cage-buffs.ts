@@ -65,3 +65,18 @@ export function previewCageCapacity(baseCapacity: number, selectedIds: string[])
     note: "Capacity effects are shown separately until the game's stacking/order is verified.",
   };
 }
+
+export function buffEffectLabel(buff: CageBuff) {
+  const pctStats = new Set(["atk","lethality","hp","enemy-def-reduction","expedition-capacity-percent"]);
+  const value = pctStats.has(buff.stat) ? `+${buff.value}%` : `+${buff.value.toLocaleString("en-US")}`;
+  const labels: Record<CageBuff["stat"], string> = {
+    atk: "Troops ATK",
+    lethality: "Troops Lethality",
+    hp: "Expedition Troops HP",
+    "enemy-def-reduction": "Enemy DEF Reduction",
+    "expedition-capacity-percent": "Expedition Capacity",
+    "expedition-capacity-flat": "Expedition Troop Capacity",
+    "rally-capacity-flat": "Rally Troop Capacity",
+  };
+  return `${labels[buff.stat]} ${value}`;
+}
