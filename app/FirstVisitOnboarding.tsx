@@ -10,7 +10,7 @@ export default function FirstVisitOnboarding() {
           playerName: "New Player",
           server: "",
           role: "joiner",
-          season: 6,
+          season: 1,
           ownedHeroes: [],
           heroStarLevels: {},
           warSkillLevels: {},
