@@ -173,3 +173,20 @@ export function preCageWarnings(baseCapacity: number, selectedIds: string[]) {
   if (totals.expeditionCapacityPercent && (totals.expeditionCapacityFlat || totals.rallyCapacityFlat)) warnings.push("Multiple capacity effects are selected. Final capacity is intentionally not auto-calculated until stacking order is verified.");
   return warnings;
 }
+
+export type CapacityObservation = {
+  felon: string;
+  baseCapacity: number;
+  selectedBuffIds: string[];
+  displayedCapacity: number;
+  recordedAt: number;
+};
+
+export function capacityObservationDelta(observation: CapacityObservation) {
+  return observation.displayedCapacity - observation.baseCapacity;
+}
+
+export function capacityObservationLabel(observation: CapacityObservation) {
+  const buffs = observation.selectedBuffIds.length ? cageBuffSummaryText(observation.selectedBuffIds) : "No temporary buffs";
+  return `${observation.felon || "No felon"}: ${observation.baseCapacity.toLocaleString()} → ${observation.displayedCapacity.toLocaleString()} (Δ ${capacityObservationDelta(observation).toLocaleString()}) • ${buffs}`;
+}
