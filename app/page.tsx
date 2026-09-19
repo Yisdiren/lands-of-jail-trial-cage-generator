@@ -5,6 +5,8 @@ import { felons, heroes, robots } from "../data/heroes";
 import {
   generateJoinerFormations,
   generateLeaderFormation,
+  calculateTroopPlan,
+  type TroopTiers,
   optimizeFelons,
   type WarSkillLevels,
 } from "../lib/generator";
@@ -31,6 +33,19 @@ export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
   const [season, setSeason] = useState(1);
   const [owned, setOwned] = useState<string[]>([]);
+  // Internal compatibility plan only. Troop amounts are not presented as Main Rally guidance.
+  // Formation APIs still require a TroopPlan until that legacy parameter is removed from lib/generator.
+  const compatibilityTroopTiers: TroopTiers = { shield: "T10", bomber: "T10", shooter: "T10" };
+  const joinerTroopPlan = useMemo(() => calculateTroopPlan({
+    capacity: 100000,
+    ratios: { shield: 0, bomber: 0, shooter: 100 },
+    tiers: compatibilityTroopTiers,
+  }), []);
+  const leaderTroopPlan = useMemo(() => calculateTroopPlan({
+    capacity: 100000,
+    ratios: { shield: 0, bomber: 10, shooter: 90 },
+    tiers: compatibilityTroopTiers,
+  }), []);
   const [joinCount, setJoinCount] = useState(6);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
