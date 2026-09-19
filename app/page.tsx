@@ -876,7 +876,7 @@ export default function Home() {
           <small>
             {mode === "leader"
               ? "Your normal unbuffed Main Rally march size. Temporary Cage buffs are tracked separately below."
-              : "Trial Cage joiner marches use 100,000 troops."}
+              : "Trial Cage joiners use a fixed 100,000 troops. The LEFT hero is prioritized by Cage War skill; stars are secondary."}
           </small>
         </div>
         <p className="cage-troop-note"><b>Shieldbearer hero ≠ Shieldbearer troops.</b> Standard Trial Cage setup uses 0 Shieldbearer troops, so only Bombers and Shooters are shown here.</p>
