@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Development Beta v0.80 (branch: beta-v071-v080)
+## Development Beta v1.00 (branch: beta-v081-v100)
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -194,3 +194,28 @@ Verified screenshot data currently represented: Troops ATK +11%, Troops Lethalit
 - **v0.80** — Removed the stale runtime beta-badge override, preserved felon-capacity profile data, and synchronized the development milestone version.
 
 Capacity stacking remains intentionally uncalculated until direct in-game observations verify the order/formula. Known account observations should be stored per player rather than hardcoded as universal values.
+
+
+## Beta v0.81–v1.00 development batch
+- **v0.81** — Capacity test observations can be stored with player profiles.
+- **v0.82** — Capacity observations persist through the active profile snapshot.
+- **v0.83** — Added an interactive capacity test recorder for actual in-game displayed values.
+- **v0.84** — Added responsive styling for the capacity recorder.
+- **v0.85** — Added observation comparison math (delta and percent over base) without inferring a stacking formula.
+- **v0.86** — Added a clear-recorded-tests control.
+- **v0.87** — Added quick 0/0/100 and 0/10/90 Cage ratio controls.
+- **v0.88** — Styled the quick Cage ratio controls.
+- **v0.89** — Added optional Advanced Shieldbearer troop controls while keeping them hidden from normal Cage setup.
+- **v0.90** — Styled the advanced troop control.
+- **v0.91** — Added evidence collection states for capacity testing.
+- **v0.92** — Displayed capacity evidence status in the recorder.
+- **v0.93** — Styled evidence-status indicators.
+- **v0.94** — Added a profile setup completion meter.
+- **v0.95** — Polished the setup meter.
+- **v0.96** — Added a one-click reset to zero Shieldbearer troops.
+- **v0.97** — Clarified formation recovery: Shieldbearer-class hero requirement does not imply Shieldbearer troops.
+- **v0.98** — Removed account-specific robot-priority wording from the public generator.
+- **v0.99** — Generalized Main Rally recommendation wording so account-specific testing is not presented as a universal rule.
+- **v1.00** — Completed the 20-build development milestone and synchronized the visible development version.
+
+The capacity recorder is intentionally evidence-first. It records actual displayed capacities and selected buffs, but it does not invent a final capacity-stacking formula.
