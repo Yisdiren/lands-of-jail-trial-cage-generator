@@ -155,3 +155,13 @@ export function cageBuffPriorityHint(selectedIds: string[]) {
     note: "Categories describe the buff effect only; they are not a claim about the best Trial Cage combination.",
   };
 }
+
+export function preCageShareLines(profile: CageBuffProfile) {
+  const checklist = buildPreCageChecklist(profile.selectedBuffIds);
+  return [
+    "PRE-CAGE BUFFS",
+    ...checklist.map(item => `• ${item.label} — ${item.source} — ${item.duration}`),
+    cageBuffSummaryText(profile.selectedBuffIds),
+    cageBuffTimingMessage(profile),
+  ];
+}
