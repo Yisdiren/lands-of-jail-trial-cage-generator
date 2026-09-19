@@ -84,6 +84,7 @@ export default function Home() {
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
   const [ownedFelons, setOwnedFelons] = useState<string[]>([]);
+  const [felonRallyCapacities, setFelonRallyCapacities] = useState<Record<string, number>>({});
   const [rallyFills, setRallyFills] = useState(true);
   const [seatHolder, setSeatHolder] = useState(false);
   const [locks, setLocks] = useState<Locks>({});
@@ -112,6 +113,7 @@ export default function Home() {
     setWarSkillLevels(profile.warSkillLevels);
     setOwnedRobots(profile.ownedRobots);
     setOwnedFelons(profile.ownedFelons);
+    setFelonRallyCapacities(profile.felonRallyCapacities ?? {});
     setRallyFills(profile.rallyFills);
     setSeatHolder(profile.seatHolder ?? false);
     setJoinerCapacity(profile.joinerCapacity);
@@ -285,6 +287,7 @@ export default function Home() {
     warSkillLevels,
     ownedRobots,
     ownedFelons,
+    felonRallyCapacities,
     rallyFills,
     seatHolder,
     joinerCapacity,
@@ -523,7 +526,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v0.70</div>
+        <div className="badge">DEV v0.80</div>
       </header>
 
       <section className="panel profile-panel">
