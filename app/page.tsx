@@ -1337,7 +1337,7 @@ export default function Home() {
         ) : (
           <section className="result warning">
             <b>Not enough heroes.</b>
-            <p>You need at least one usable Shield, Bomber and Shooter.</p>
+            <p>You need one usable Shieldbearer-class hero, one Bomber-class hero and one Shooter-class hero. This hero-class requirement does not mean you should send Shieldbearer troops.</p>
           </section>
         ))}
 
