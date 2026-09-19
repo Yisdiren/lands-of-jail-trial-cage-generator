@@ -4,6 +4,7 @@ import type {
   TroopValues,
   WarSkillLevels,
 } from "./generator";
+import { defaultCageBuffProfile, sanitizeCageBuffProfile, type CageBuffProfile } from "./cage-buffs";
 
 export type MemberRole = "leader" | "joiner";
 
@@ -29,6 +30,7 @@ export type MemberProfile = {
   troopPreset: TroopPreset;
   joinCount: number;
   verifiedOnly?: boolean;
+  cageBuffProfile?: CageBuffProfile;
   updatedAt: number;
 };
 
@@ -73,6 +75,7 @@ export function parseProfileExport(contents: string, id: string): MemberProfile 
     troopTiers: troopTiers(source.troopTiers, fallback.troopTiers), availableTroops: troopValues(source.availableTroops, fallback.availableTroops),
     troopPreset: source.troopPreset === "10-90" || source.troopPreset === "shooters" ? source.troopPreset : fallback.troopPreset,
     joinCount: finiteNumber(source.joinCount, fallback.joinCount), verifiedOnly: typeof source.verifiedOnly === "boolean" ? source.verifiedOnly : fallback.verifiedOnly,
+    cageBuffProfile: sanitizeCageBuffProfile(isRecord(source.cageBuffProfile) ? source.cageBuffProfile as Partial<CageBuffProfile> : fallback.cageBuffProfile),
     updatedAt: Date.now(),
   };
 }
@@ -84,6 +87,6 @@ export function createBlankProfile(id: string): MemberProfile {
     rallyFills: true, seatHolder: false, joinerCapacity: 100000, leaderCapacity: 100000,
     joinerRatios: { shield: 0, bomber: 0, shooter: 100 }, leaderRatios: { shield: 0, bomber: 10, shooter: 90 },
     troopTiers: { shield: "T10", bomber: "T10", shooter: "T10" }, availableTroops: { shield: 0, bomber: 0, shooter: 0 },
-    troopPreset: "shooters", joinCount: 6, verifiedOnly: false, updatedAt: Date.now(),
+    troopPreset: "shooters", joinCount: 6, verifiedOnly: false, cageBuffProfile: defaultCageBuffProfile, updatedAt: Date.now(),
   };
 }
