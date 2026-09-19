@@ -637,6 +637,17 @@ export default function Home() {
         <div className="capacity-preview"><b>Capacity preview</b><span>Base {buffCapacityPreview.baseCapacity.toLocaleString()}</span><span>Expedition {buffCapacityPreview.expeditionPercent ? `+${buffCapacityPreview.expeditionPercent}%` : "—"}</span><span>Expedition flat {buffCapacityPreview.expeditionFlat ? `+${buffCapacityPreview.expeditionFlat.toLocaleString()}` : "—"}</span><span>Rally flat {buffCapacityPreview.rallyFlat ? `+${buffCapacityPreview.rallyFlat.toLocaleString()}` : "—"}</span><small>{buffCapacityPreview.note}</small>{preCageWarnings(leaderCapacity,selectedBuffIds).map(w=><small className="buff-warning" key={w}>{w}</small>)}</div>
       </section>
 
+      <section className="panel capacity-lab">
+        <div className="title"><div><label>CAPACITY TEST RECORDER</label><h2>Record what the game actually displays</h2></div><span>{capacityObservations.length} tests</span></div>
+        <p className="helper">Use this after a normal Cage activation. It records evidence without guessing the stacking formula.</p>
+        <div className="capacity-test-form">
+          <input id="capacity-felon" placeholder="Felon used (optional)" />
+          <input id="capacity-displayed" type="number" min="1" placeholder="Displayed capacity" />
+          <button type="button" onClick={()=>{const f=document.querySelector<HTMLInputElement>("#capacity-felon");const d=document.querySelector<HTMLInputElement>("#capacity-displayed");const shown=Number(d?.value);if(!shown)return;setCapacityObservations(cur=>[{felon:f?.value.trim()||"Unspecified",baseCapacity:leaderCapacity,selectedBuffIds:[...selectedBuffIds],displayedCapacity:shown,recordedAt:Date.now()},...cur]);if(d)d.value="";}}>RECORD TEST</button>
+        </div>
+        <div className="capacity-test-list">{capacityObservations.slice(0,5).map((o,i)=><div key={o.recordedAt+"-"+i}>{capacityObservationLabel(o)}</div>)}</div>
+      </section>
+
       <section className="panel alliance-panel">
         <div className="title">
           <div>
