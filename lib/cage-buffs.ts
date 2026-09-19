@@ -142,3 +142,16 @@ export function cageBuffTimingMessage(profile: CageBuffProfile) {
   const shortest = Math.min(...selected.map(buff => buff.durationHours));
   return `Activate selected buffs about ${profile.activationLeadMinutes} minute${profile.activationLeadMinutes === 1 ? "" : "s"} before Cage. Shortest selected duration: ${shortest}h.`;
 }
+
+export function cageBuffPriorityHint(selectedIds: string[]) {
+  const selected = cageBuffs.filter(buff => selectedIds.includes(buff.id));
+  const offense = selected.filter(buff => ["atk","lethality","enemy-def-reduction"].includes(buff.stat));
+  const capacity = selected.filter(buff => buff.stat.includes("capacity"));
+  const support = selected.filter(buff => buff.stat === "hp");
+  return {
+    offense: offense.map(buffEffectLabel),
+    capacity: capacity.map(buffEffectLabel),
+    support: support.map(buffEffectLabel),
+    note: "Categories describe the buff effect only; they are not a claim about the best Trial Cage combination.",
+  };
+}
