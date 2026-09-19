@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.06</div>
+        <div className="badge">DEV v1.07</div>
       </header>
 
       <section className="panel profile-panel">
@@ -982,7 +982,7 @@ export default function Home() {
           <div className="title"><div><label>KOF LEGACY LINKS</label><h2>Link ★4+ KOF heroes to your Main Rally</h2></div></div>
           <p className="helper">KOF heroes stay excluded from Joiner LEFT recommendations. At ★4 or ★5, an owned KOF hero can be linked as a player-chosen Main Rally replacement. Linking does not claim the KOF hero is automatically stronger.</p>
           <div className="kof-links">
-            {heroes.filter(h=>h.rarity==="KOF" && owned.includes(h.name)).map(h=>{const stars=heroStarLevels[h.name]??1;const targets=h.cls==="Shield"?["Tyronn"]:h.cls==="Bomber"?["Ryuichi","Flameborne"]:["Ada"];return <div className="kof-link" key={h.name}><b>{h.name} • {"★".repeat(stars)}</b>{stars>=4?<select value={kofLeaderLinks[h.name]??""} onChange={e=>{setKofLeaderLinks(cur=>({...cur,[h.name]:e.target.value}));setGenerated(false)}}><option value="">Not linked</option>{targets.map(target=><option key={target} value={target}>Link to / replace {target}</option>)}</select>:<small>Requires ★4 or higher for Main Rally linking.</small>}</div>})}
+            {heroes.filter(h=>h.rarity==="KOF" && owned.includes(h.name)).map(h=>{const stars=heroStarLevels[h.name]??1;const targets=h.cls==="Shield"?["Tyronn"]:h.cls==="Bomber"?["Ryuichi"]:["Ada"];return <div className="kof-link" key={h.name}><b>{h.name} • {"★".repeat(stars)}</b>{stars>=4?<select value={kofLeaderLinks[h.name]??""} onChange={e=>{setKofLeaderLinks(cur=>({...cur,[h.name]:e.target.value}));setGenerated(false)}}><option value="">Not linked</option>{targets.map(target=><option key={target} value={target}>Link to / replace {target}</option>)}</select>:<small>Requires ★4 or higher for Main Rally linking.</small>}</div>})}
             {!heroes.some(h=>h.rarity==="KOF" && owned.includes(h.name)) && <p className="helper">Select an owned KOF hero in your hero roster to configure a link.</p>}
           </div>
         </section>
