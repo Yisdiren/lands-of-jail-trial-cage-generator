@@ -22,7 +22,7 @@ import {
   type MemberRole,
 } from "../lib/profiles";
 import { evaluateMemberReadiness } from "../lib/readiness";
-import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile } from "../lib/cage-buffs";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines } from "../lib/cage-buffs";
 import { parseAllianceBackup, serializeAllianceBackup } from "../lib/backup";
 import Image from "next/image";
 
@@ -315,6 +315,8 @@ export default function Home() {
     const lines = [
       `TRIAL CAGE — ${profileName || "Player"}`,
       `Server ${profileServer || "—"} • ${verifiedOnly ? "verified LEFT skills only" : "standard LEFT skill priority"}`,
+      ...preCageShareLines({ selectedBuffIds, activationLeadMinutes }),
+      "",
       ...joinerFormations.flatMap((formation) => [
         `${formation.id}: ${formation.left.name} (LEFT Lv${formation.leftSkillLevel}) / ${formation.middle.name} / ${formation.right.name}`,
         `  ${formation.troopText} • Robot: ${formation.robot ?? "none"} • ${formation.status.toUpperCase()}`,
