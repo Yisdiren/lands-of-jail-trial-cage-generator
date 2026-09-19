@@ -184,41 +184,41 @@ export default function Home() {
   const importHeroList = async (file: File) => {
     const text = await file.text();
     const normalized = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const heroByName = new Map(seasonHeroes.map(hero => [normalized(hero.name), hero]));
+    const candidates = heroes.filter(hero => hero.cageAllowed && showHeroInGenerator(hero));
     const imported: string[] = [];
     const stars: Record<string, number> = {};
     const unknown: string[] = [];
 
     text.split(/\r?\n/).map(line => line.trim()).filter(Boolean).forEach(line => {
-      const starMatch = line.match(/(?:★\s*){1,5}|★\s*([1-5])|\b([1-5])\s*(?:star|stars)\b/i);
-      let starLevel = 1;
-      if (starMatch) {
-        const repeatedStars = (starMatch[0].match(/★/g) || []).length;
-        starLevel = repeatedStars > 1 ? repeatedStars : Number(starMatch[1] || starMatch[2] || repeatedStars || 1);
-      }
-      const cleaned = line
-        .replace(/(?:★\s*){1,5}/g, " ")
-        .replace(/★\s*[1-5]/g, " ")
-        .replace(/\b[1-5]\s*(?:star|stars)\b/gi, " ")
-        .replace(/\b(?:SSR|SR|R)\b/gi, " ")
-        .replace(/\bRank\s*\d+\b/gi, " ")
-        .trim();
-      const key = normalized(cleaned);
-      let hero = heroByName.get(key);
-      if (!hero) hero = seasonHeroes.find(candidate => key.includes(normalized(candidate.name)) || normalized(candidate.name).includes(key));
-      if (hero && hero.cageAllowed) {
-        if (!imported.includes(hero.name)) imported.push(hero.name);
-        stars[hero.name] = Math.max(1, Math.min(5, starLevel));
-      } else {
+      const normalizedLine = normalized(line);
+      const hero = candidates
+        .slice()
+        .sort((a, b) => b.name.length - a.name.length)
+        .find(candidate => normalizedLine.includes(normalized(candidate.name)));
+
+      if (!hero) {
         unknown.push(line);
+        return;
       }
+
+      const afterName = line.slice(line.toLowerCase().indexOf(hero.name.toLowerCase()) + hero.name.length);
+      const starSymbols = afterName.match(/★/g)?.length ?? 0;
+      const numericStar = afterName.match(/★\s*([1-5])|\b([1-5])\s*(?:star|stars)\b/i);
+      const starLevel = Math.max(1, Math.min(5, starSymbols > 1 ? starSymbols : Number(numericStar?.[1] || numericStar?.[2] || starSymbols || 1)));
+
+      if (!imported.includes(hero.name)) imported.push(hero.name);
+      stars[hero.name] = starLevel;
     });
 
-    setOwned(imported);
-    setHeroStarLevels(current => ({ ...current, ...stars }));
-    setGenerated(false);
+    if (imported.length) {
+      const highestSeason = Math.max(season, ...imported.map(name => heroes.find(hero => hero.name === name)?.season ?? 1));
+      setSeason(Math.min(6, highestSeason));
+      setOwned(imported);
+      setHeroStarLevels(stars);
+      setGenerated(false);
+    }
     setNotice(imported.length
-      ? `Imported ${imported.length} hero${imported.length === 1 ? "" : "es"}${unknown.length ? `. Could not match: ${unknown.join(", ")}` : "."}`
+      ? `Imported ${imported.length} hero${imported.length === 1 ? "" : "es"} with star levels${unknown.length ? `. Could not match: ${unknown.join(", ")}` : "."}`
       : "No matching heroes were found in that text file.");
   };
   const setSkillLevel = (name: string, level: number) => {
@@ -295,7 +295,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.30 SIMPLE</div>
+        <div className="badge">DEV v1.31 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
