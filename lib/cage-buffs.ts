@@ -33,3 +33,14 @@ export function summarizeSelectedBuffs(selectedIds: string[]) {
     rallyCapacityFlat: selected.filter(b => b.stat === "rally-capacity-flat").reduce((sum,b)=>sum+b.value,0),
   };
 }
+
+export function buildPreCageChecklist(selectedIds: string[]) {
+  return cageBuffs
+    .filter(buff => selectedIds.includes(buff.id))
+    .map(buff => ({
+      id: buff.id,
+      label: `${buff.name}${buff.level ? ` Lv.${buff.level}` : ""}`,
+      duration: `${buff.durationHours}h`,
+      source: buff.source === "prison-buff" ? "Prison Buff" : "Prisoner Armor",
+    }));
+}
