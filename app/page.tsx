@@ -275,7 +275,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.44 BETA</div>
+        <div className="badge">DEV v1.45 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -307,7 +307,7 @@ export default function Home() {
 
       <section className="panel troop-panel">
         <div className="title"><div><label>TROOP GUIDELINES</label><h2>Use your alliance's Cage troop rules</h2></div></div>
-        <p className="helper"><b>Main Rally:</b> use your maximum available troops. <b>Joiners:</b> use the troop amount your alliance has set for Trial Cage joiners.</p>
+        <p className="helper"><b>Main Rally:</b> use your maximum available troops. <b>Joiners:</b> use either 10,000 Bombers + 90,000 Shooters or 100,000 Shooters.</p>
       </section>
 
       <section className="panel simple-cage-tips">
