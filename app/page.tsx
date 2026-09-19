@@ -9,6 +9,7 @@ import {
   type TroopTiers,
   optimizeFelons,
   type WarSkillLevels,
+  maxWarSkillLevelForStars,
 } from "../lib/generator";
 import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings } from "../lib/cage-buffs";
 import Image from "next/image";
@@ -91,7 +92,7 @@ export default function Home() {
     available.forEach((hero) => {
       if (hero.leftSkill) {
         const stars = Math.min(5, Math.max(1, heroStarLevels[hero.name] ?? 1));
-        levels[hero.name] = Math.min(5, stars + 1);
+        levels[hero.name] = maxWarSkillLevelForStars(stars);
       }
     });
     return levels;
@@ -272,7 +273,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.39 BETA</div>
+        <div className="badge">DEV v1.41 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
