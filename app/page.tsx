@@ -196,8 +196,8 @@ export default function Home() {
     ],
   );
   const automaticLeader = useMemo(
-    () => generateLeaderFormation(available, leaderTroopPlan, availableRobots, heroStarLevels),
-    [available, leaderTroopPlan, availableRobots, heroStarLevels],
+    () => generateLeaderFormation(available, leaderTroopPlan, availableRobots, heroStarLevels, kofLeaderLinks),
+    [available, leaderTroopPlan, availableRobots, heroStarLevels, kofLeaderLinks],
   );
   let lockError = "";
   let leaderFormation = automaticLeader;
@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.08</div>
+        <div className="badge">DEV v1.09</div>
       </header>
 
       <section className="panel profile-panel">
