@@ -1,8 +1,8 @@
 # Lands of Jail — Trial Cage Formation Generator
 
-A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
+A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.20 (branch: beta-v110-v120)
+## Development Beta v1.23
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -23,7 +23,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Robot ownership and non-repeating robot assignment
 - Main Rally uses the player's saved maximum march capacity
 - Rally Joiners use the Trial Cage 100,000-troop march rule
-- Configurable troop ratios, T1–T11 tiers and available troop counts
+- Configurable troop ratios and T1–T11 tiers; no troop-inventory entry required
 - Exact troop-plan calculation
 - Formation explanations showing why a LEFT hero was selected
 - Hero portraits/icons in generated formations
@@ -37,7 +37,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Guided hero ownership selection
 - Hero roster import from pasted text or .txt files, with ★ detection, merge/replace modes and alias matching
 - Guided ★ and War-skill setup for selected heroes
-- Guided robot and troop-tier/count setup
+- Guided robot and troop-tier setup
 - Player profiles store heroes, stars, War skills, robots and troop settings
 - Member Generator for switching between saved players
 - Alliance Batch Generator calculates every selected player independently
@@ -49,7 +49,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Checks whether enough LEFT-skill heroes exist for requested joiner marches
 - Checks robot availability against requested marches
 - Flags LEFT War skills below Lv5
-- Checks troop inventory per class against requested marches and reports exact Shieldbearer/Bomber/Shooter shortages
+- Validates march capacity and troop ratios without checking troop inventory
 - Detects hero reuse across generated formations
 - Detects robot reuse
 - Detects duplicate hero classes within a formation
@@ -245,3 +245,12 @@ The capacity recorder is intentionally evidence-first. It records actual display
 - **v1.20** — Synchronized the visible development badge and package versions for the stabilization milestone.
 
 Season 6 hero work is intentionally deferred until direct in-game evidence is available.
+
+## Beta v1.23 — Complete inventory-free Cage setup
+- Removed remaining troop-count inputs from guided onboarding and inventory shortage checks from saved-player and alliance generation.
+- All troop plans now use march capacity and ratios, including imported profiles with zero legacy inventory.
+- Legacy inventory data stays compatible with profile imports and exports; no artificial stock counts are saved.
+- Main Rally capacity, ratio validation, troop tiers, and fixed 100,000-troop Joiners remain in place.
+
+### Deployment hold
+Automatic Vercel Git deployments are paused with `git.deploymentEnabled: false` in `vercel.json` while development continues. Set it to `true` (or remove that setting) when the consolidated release is ready to deploy.

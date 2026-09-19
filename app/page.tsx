@@ -75,9 +75,8 @@ export default function Home() {
     bomber: "T10",
     shooter: "T10",
   });
-  // Inventory entry is intentionally removed from the public Cage workflow.
-  // Use effectively unlimited availability so plans are driven only by rally capacity + chosen ratio.
-  const availableTroops: TroopValues = { shield: 999999999, bomber: 999999999, shooter: 999999999 };
+  // Preserve legacy profile data without using it to limit formation generation.
+  const [availableTroops, setAvailableTroops] = useState<TroopValues>({ shield: 0, bomber: 0, shooter: 0 });
   const [joinCount, setJoinCount] = useState(6);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
@@ -123,6 +122,7 @@ export default function Home() {
     setJoinerRatios(profile.joinerRatios);
     setLeaderRatios(profile.leaderRatios);
     setTroopTiers(profile.troopTiers);
+    setAvailableTroops(profile.availableTroops);
     setTroopPreset(profile.troopPreset);
     setJoinCount(profile.joinCount);
     setVerifiedOnly(profile.verifiedOnly ?? false);
@@ -158,9 +158,8 @@ export default function Home() {
         capacity: 100000,
         ratios: joinerRatios,
         tiers: troopTiers,
-        available: availableTroops,
       }),
-    [joinerRatios, troopTiers, availableTroops],
+    [joinerRatios, troopTiers],
   );
   const leaderTroopPlan = useMemo(
     () =>
@@ -168,9 +167,8 @@ export default function Home() {
         capacity: leaderCapacity,
         ratios: leaderRatios,
         tiers: troopTiers,
-        available: availableTroops,
       }),
-    [leaderCapacity, leaderRatios, troopTiers, availableTroops],
+    [leaderCapacity, leaderRatios, troopTiers],
   );
   const automaticWarSkillLevels = useMemo<WarSkillLevels>(() => {
     const levels: WarSkillLevels = {};
@@ -535,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.21 SIMPLE</div>
+        <div className="badge">DEV v1.23 SIMPLE</div>
       </header>
 
       <section className="panel profile-panel">

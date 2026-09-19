@@ -43,7 +43,6 @@ export function evaluateMemberReadiness(
     capacity,
     ratios,
     tiers: profile.troopTiers,
-    available: profile.availableTroops,
   });
   const blockers: string[] = [];
   const reviews: string[] = [];
