@@ -1088,9 +1088,7 @@ export default function Home() {
           ))}
         </div>
         <p className="helper">
-          Selected robots are assigned in priority order. Musashimaru and
-          Phantom Cat remain first for this account; each generated march gets a
-          different robot.
+          Selected robots are assigned in priority order and are not reused across generated marches.
         </p>
       </section>
 
