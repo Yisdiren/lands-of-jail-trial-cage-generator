@@ -122,3 +122,16 @@ export function validateCageBuffSelection(selectedIds: string[]) {
     duplicates: [...new Set(duplicates)],
   };
 }
+
+export function cageBuffSummaryText(selectedIds: string[]) {
+  const totals = summarizeSelectedBuffs(selectedIds);
+  const parts: string[] = [];
+  if (totals.atkPercent) parts.push(`ATK +${totals.atkPercent}%`);
+  if (totals.lethalityPercent) parts.push(`Lethality +${totals.lethalityPercent}%`);
+  if (totals.hpPercent) parts.push(`HP +${totals.hpPercent}%`);
+  if (totals.enemyDefReductionPercent) parts.push(`Enemy DEF Reduction +${totals.enemyDefReductionPercent}%`);
+  if (totals.expeditionCapacityPercent) parts.push(`Expedition Capacity +${totals.expeditionCapacityPercent}%`);
+  if (totals.expeditionCapacityFlat) parts.push(`Expedition Capacity +${totals.expeditionCapacityFlat.toLocaleString("en-US")}`);
+  if (totals.rallyCapacityFlat) parts.push(`Rally Capacity +${totals.rallyCapacityFlat.toLocaleString("en-US")}`);
+  return parts.length ? parts.join(" • ") : "No pre-Cage buffs selected";
+}
