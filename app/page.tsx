@@ -899,7 +899,7 @@ export default function Home() {
               : "Trial Cage joiners use a fixed 100,000 troops. The LEFT hero is prioritized by Cage War skill; stars are secondary."}
           </small>
         </div>
-        <div className="cage-ratio-presets"><b>QUICK CAGE RATIOS</b><button type="button" onClick={()=>{(mode==="leader"?setLeaderRatios:setJoinerRatios)({shield:0,bomber:0,shooter:100});setGenerated(false)}}>0 / 0 / 100</button><button type="button" onClick={()=>{(mode==="leader"?setLeaderRatios:setJoinerRatios)({shield:0,bomber:10,shooter:90});setGenerated(false)}}>0 / 10 / 90</button></div>
+        <div className="cage-ratio-presets"><b>QUICK CAGE RATIOS</b><button type="button" onClick={()=>{(mode==="leader"?setLeaderRatios:setJoinerRatios)({shield:0,bomber:0,shooter:100});setGenerated(false)}}>0 / 0 / 100</button><button type="button" onClick={()=>{const set=mode==="leader"?setLeaderRatios:setJoinerRatios;set(r=>({shield:0,bomber:r.bomber,shooter:100-r.bomber}));setGenerated(false)}}>RESET SHIELD TO 0</button><button type="button" onClick={()=>{(mode==="leader"?setLeaderRatios:setJoinerRatios)({shield:0,bomber:10,shooter:90});setGenerated(false)}}>0 / 10 / 90</button></div>
         <button className="advanced-troops-toggle" type="button" onClick={()=>setShowAdvancedTroops(v=>!v)}>{showAdvancedTroops ? "HIDE ADVANCED SHIELDBEARER TROOPS" : "ADVANCED: SHIELDBEARER TROOPS"}</button>
         <p className="cage-troop-note"><b>Shieldbearer hero ≠ Shieldbearer troops.</b> Standard Trial Cage setup uses 0 Shieldbearer troops, so only Bombers and Shooters are shown here.</p>
         <div className="troop-grid troop-grid-head">
