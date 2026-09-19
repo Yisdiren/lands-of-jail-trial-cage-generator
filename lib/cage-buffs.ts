@@ -190,3 +190,12 @@ export function capacityObservationLabel(observation: CapacityObservation) {
   const buffs = observation.selectedBuffIds.length ? cageBuffSummaryText(observation.selectedBuffIds) : "No temporary buffs";
   return `${observation.felon || "No felon"}: ${observation.baseCapacity.toLocaleString()} → ${observation.displayedCapacity.toLocaleString()} (Δ ${capacityObservationDelta(observation).toLocaleString()}) • ${buffs}`;
 }
+
+export function compareCapacityObservations(observations: CapacityObservation[]) {
+  const valid = observations.filter(o => o.baseCapacity > 0 && o.displayedCapacity > 0);
+  return valid.map(o => ({
+    ...o,
+    delta: capacityObservationDelta(o),
+    percentOverBase: ((o.displayedCapacity - o.baseCapacity) / o.baseCapacity) * 100,
+  }));
+}
