@@ -46,18 +46,11 @@ export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
   const [season, setSeason] = useState(1);
   const [owned, setOwned] = useState<string[]>([]);
-  const [troopPreset, setTroopPreset] = useState<TroopPreset>("shooters");
-  const [joinerCapacity, setJoinerCapacity] = useState(100000);
   const leaderCapacity = 100000;
   const [joinerRatios, setJoinerRatios] = useState<TroopValues>({
     shield: 0,
     bomber: 0,
     shooter: 100,
-  });
-  const [leaderRatios, setLeaderRatios] = useState<TroopValues>({
-    shield: 0,
-    bomber: 10,
-    shooter: 90,
   });
   const [troopTiers, setTroopTiers] = useState<TroopTiers>({
     shield: "T10",
@@ -113,7 +106,7 @@ export default function Home() {
     () =>
       calculateTroopPlan({
         capacity: leaderCapacity,
-        ratios: leaderRatios,
+        ratios: { shield: 0, bomber: 10, shooter: 90 },
         tiers: troopTiers,
       }),
     [leaderCapacity, leaderRatios, troopTiers],
@@ -211,20 +204,6 @@ export default function Home() {
     );
     setGenerated(false);
   };
-  const applyTroopPreset = (preset: TroopPreset) => {
-    setTroopPreset(preset);
-    setJoinerRatios(
-      preset === "shooters"
-        ? { shield: 0, bomber: 0, shooter: 100 }
-        : { shield: 0, bomber: 10, shooter: 90 },
-    );
-    setGenerated(false);
-  };
-  const updateRatio = (key: TroopClassKey, value: number) => {
-    const setter = mode === "leader" ? setLeaderRatios : setJoinerRatios;
-    setter((current) => ({ ...current, [key]: value }));
-    setGenerated(false);
-  };
   const updateTier = (key: TroopClassKey, value: TroopTier) => {
     setTroopTiers((current) => ({ ...current, [key]: value }));
     setGenerated(false);
@@ -275,7 +254,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.26 SIMPLE</div>
+        <div className="badge">DEV v1.27 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -284,7 +263,7 @@ export default function Home() {
         <div className="buff-groups">
           {[["Prison Buffs", buffGroups.prisonBuffs], ["Prisoner Armor", buffGroups.prisonerArmor]].map(([title, items]) => <div className="buff-group" key={String(title)}><h3>{String(title)}</h3><div className="buff-grid">{(items as typeof cageBuffs).map(buff => <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}><b>{buff.name}{buff.level ? ` Lv.${buff.level}` : ""}</b><span>{buffEffectLabel(buff)}</span><small>{buff.durationHours}h after activation</small></button>)}</div></div>)}
         </div>
-        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main Rally capacity: {leaderCapacity.toLocaleString()}</span><span>✓ Troop ratio: {leaderRatios.shield}/{leaderRatios.bomber}/{leaderRatios.shooter}</span><span>{availableRobots.length ? "✓" : "⚠"} Robot: {availableRobots[0] ?? "none selected"}</span><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate before Cage <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
+        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main Rally capacity: {leaderCapacity.toLocaleString()}</span><span>✓ Main Rally: use your maximum available troops</span><span>{availableRobots.length ? "✓" : "⚠"} Robot: {availableRobots[0] ?? "none selected"}</span><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate before Cage <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
         <div className="capacity-preview"><b>Capacity preview</b><span>Base {buffCapacityPreview.baseCapacity.toLocaleString()}</span><span>Expedition {buffCapacityPreview.expeditionPercent ? `+${buffCapacityPreview.expeditionPercent}%` : "—"}</span><span>Expedition flat {buffCapacityPreview.expeditionFlat ? `+${buffCapacityPreview.expeditionFlat.toLocaleString()}` : "—"}</span><span>Rally flat {buffCapacityPreview.rallyFlat ? `+${buffCapacityPreview.rallyFlat.toLocaleString()}` : "—"}</span><small>{buffCapacityPreview.note}</small>{preCageWarnings(leaderCapacity,selectedBuffIds).map(w=><small className="buff-warning" key={w}>{w}</small>)}</div>
       </section>
 
@@ -302,7 +281,6 @@ export default function Home() {
         </label>
         <label><input type="checkbox" checked={seatHolder} onChange={event => {setSeatHolder(event.target.checked);setGenerated(false)}} /> SCARLET BUTCHER SEAT • +10% ATK</label>
         <div><label>SERVER SEASON</label><select value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
-        <div><label>JOINER TROOPS • FIXED 100,000</label><select value={troopPreset} onChange={(e)=>applyTroopPreset(e.target.value as TroopPreset)}><option value="shooters">0 / 0 / 100</option><option value="10-90">0 / 10 / 90</option></select></div>
         <div><label>JOINER MARCHES</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
       </section>
 
@@ -570,7 +548,7 @@ export default function Home() {
               <strong>{leaderFormation.troopText}</strong>
             </div>
             <p>
-              Main Rally uses your owned heroes, star levels and configured troop ratio. New season swaps should be tested one change at a time before being treated as verified Cage improvements.
+              Main Rally uses your owned heroes and star levels. Use your maximum available troops and follow your alliance rules for troop composition. New season swaps should be tested one change at a time before being treated as verified Cage improvements.
             </p>
             {Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).length > 0 && <div className="kof-active-links"><b>KOF MAIN RALLY LINKS</b>{Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).map(([name,target])=><span key={name}>{name} → replaces {target}</span>)}</div>}
             <div className="mini-grid">
@@ -655,7 +633,7 @@ export default function Home() {
           </div>
           <p className="result-intro">
             Every joiner uses exactly one Shieldbearer, one Bomber and one Shooter.
-            Each joiner is fixed at 100,000 troops. The first hero shown is physically
+            Use the joiner troop amount and composition set by your alliance. The first hero shown is physically
             LEFT; LEFT War skill level and hero stars affect recommendation priority.
             Owned robots are assigned without reuse.
           </p>
