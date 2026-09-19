@@ -1014,3 +1014,6 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
 
 /* Beta v0.88 — quick Cage ratios */
 .cage-ratio-presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}.cage-ratio-presets b{margin-right:5px;color:#d5a43a}.cage-ratio-presets button,.clear-capacity-tests{padding:8px 11px;border:1px solid #71552e;border-radius:5px;background:linear-gradient(#30363a,#15191c);color:#e7d8b5;cursor:pointer;font-weight:800}.clear-capacity-tests{margin-top:10px}
+
+/* Beta v0.90 */
+.advanced-troops-toggle{padding:8px 11px;border:1px solid #554831;border-radius:5px;background:#0d1214;color:#9fb1c3;cursor:pointer;font-size:11px;font-weight:800;letter-spacing:.4px}.advanced-troops-toggle:hover{color:#f0ce75;border-color:#9a7336}
