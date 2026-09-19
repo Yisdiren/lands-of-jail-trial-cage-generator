@@ -252,5 +252,5 @@ Season 6 hero work is intentionally deferred until direct in-game evidence is av
 - Legacy inventory data stays compatible with profile imports and exports; no artificial stock counts are saved.
 - Main Rally capacity, ratio validation, troop tiers, and fixed 100,000-troop Joiners remain in place.
 
-### Deployment hold
-Automatic Vercel Git deployments are paused with `git.deploymentEnabled: false` in `vercel.json` while development continues. Set it to `true` (or remove that setting) when the consolidated release is ready to deploy.
+### Deployment
+Vercel Git deployments are enabled for the v1.23 release. Commits to the production branch deploy through the existing Vercel integration.
