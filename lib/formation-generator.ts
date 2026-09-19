@@ -3,6 +3,7 @@ import type { Formation, TroopPlan, WarSkillLevels } from "./generator";
 import { validateFormation } from "./generator";
 
 export type HeroStarLevels = Record<string, number>;
+export type KofLeaderLinks = Record<string, string>;
 const classOrder: HeroClass[] = ["Shield", "Bomber", "Shooter"];
 const isBaseJoinerEligible = (hero: Hero) => hero.cageAllowed && hero.rarity !== "KOF";
 const tier = (hero: Hero) => hero.leftTier === "top" ? 300 : hero.leftTier === "strong" ? 200 : hero.leftTier === "filler" ? 100 : 0;
@@ -26,7 +27,7 @@ const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedName
   return starOf(a,stars)-starOf(b,stars)||leftScore(a,levels,stars)-leftScore(b,levels,stars)||a.name.localeCompare(b.name);
 })[0];
 
-export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={}):Formation|null{
+export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{
   const leaderExcluded=new Set(["Mia","Tormund"]);
   const eligible=availableHeroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!leaderExcluded.has(h.name));
   const ssr=eligible.filter(h=>h.rarity==="SSR");
@@ -42,7 +43,12 @@ export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:Tr
   const bomber=preferredBomber??pickBest(leaderPool,"Bomber",used,heroStarLevels);if(bomber)used.add(bomber.name);
   const preferredShooter=leaderPool.find(h=>h.cls==="Shooter"&&h.name==="Ada");
   const shooter=preferredShooter??pickBest(leaderPool,"Shooter",used,heroStarLevels);if(!shield||!bomber||!shooter)return null;
-  const base:Omit<Formation,"alerts"|"status">={id:"MAIN",left:shooter,middle:bomber,right:shield,robot:ownedRobots[0],troopText:troopPlan.text};
+  const linkedKof=(target:Hero):Hero=>{
+    const kof=availableHeroes.find(h=>h.rarity==="KOF"&&h.cls===target.cls&&kofLeaderLinks[h.name]===target.name&&starOf(h,heroStarLevels)>=4);
+    return kof??target;
+  };
+  const linkedShield=linkedKof(shield),linkedBomber=linkedKof(bomber),linkedShooter=linkedKof(shooter);
+  const base:Omit<Formation,"alerts"|"status">={id:"MAIN",left:linkedShooter,middle:linkedBomber,right:linkedShield,robot:ownedRobots[0],troopText:troopPlan.text};
   return {...base,...validateFormation(base,troopPlan,"leader")};
 }
 

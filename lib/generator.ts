@@ -1,5 +1,5 @@
 import type { Felon, Hero } from "../data/heroes";
-import { generateJoinerFormationsSmart, generateLeaderFormationSmart, type HeroStarLevels } from "./formation-generator";
+import { generateJoinerFormationsSmart, generateLeaderFormationSmart, type HeroStarLevels, type KofLeaderLinks } from "./formation-generator";
 
 export type TroopPreset = "shooters" | "10-90";
 export type WarSkillLevels = Record<string, number>;
@@ -44,7 +44,7 @@ export function generateJoinerFormations(availableHeroes:Hero[],count=6,troopPla
   const leaderFormation=generateLeaderFormationSmart(availableHeroes,troopPlan,ownedRobots,heroStarLevels);
   return generateJoinerFormationsSmart(availableHeroes,count,troopPlan,warSkillLevels,ownedRobots,verifiedOnly,heroStarLevels,leaderFormation);
 }
-export function generateLeaderFormation(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={}):Formation|null{return generateLeaderFormationSmart(availableHeroes,troopPlan,ownedRobots,heroStarLevels)}
+export function generateLeaderFormation(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{return generateLeaderFormationSmart(availableHeroes,troopPlan,ownedRobots,heroStarLevels,kofLeaderLinks)}
 export function optimizeFelons(felons:Felon[],ownedNames:string[],rallyFills:boolean):FelonPlan{
   const owned=felons.filter(f=>ownedNames.includes(f.name)),byName=new Map(owned.map(f=>[f.name,f])),preferredThird=rallyFills?"Rage Fist":"Devil",alternateThird=rallyFills?"Devil":"Rage Fist",order=["Scorpion","Cobra",preferredThird,alternateThird];
   const selected=order.map(name=>byName.get(name)).filter((felon):felon is Felon=>Boolean(felon)).slice(0,3),missingCore=["Scorpion","Cobra"].filter(name=>!byName.has(name)),warnings:string[]=[];
