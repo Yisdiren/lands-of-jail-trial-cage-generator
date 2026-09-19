@@ -22,7 +22,7 @@ export function calculateTroopPlan(config:TroopConfig):TroopPlan{
   const ratioTotal=ratios.shield+ratios.bomber+ratios.shooter,counts:TroopValues={shield:Math.floor(capacity*ratios.shield/100),bomber:Math.floor(capacity*ratios.bomber/100),shooter:Math.floor(capacity*ratios.shooter/100)};
   if(ratioTotal===100)counts.shooter=capacity-counts.shield-counts.bomber;
   const assignedTotal=counts.shield+counts.bomber+counts.shooter,warnings:string[]=[];
-  if(capacity<1)warnings.push("March capacity must be at least 1.");if(ratioTotal!==100)warnings.push(`Troop ratios total ${ratioTotal}%; they must total 100%.`);
+  if(capacity<1)warnings.push("March capacity must be at least 1.");if(ratioTotal===100&&assignedTotal!==capacity)warnings.push(`Troop assignment is ${formatNumber(assignedTotal)} but march capacity is ${formatNumber(capacity)}.`);if(ratioTotal!==100)warnings.push(`Troop ratios total ${ratioTotal}%; they must total 100%.`);
   (Object.keys(counts)as TroopClassKey[]).forEach(key=>{const available=safeWhole(config.available[key]);if(counts[key]>available)warnings.push(`Need ${formatNumber(counts[key])} ${config.tiers[key]} ${troopClassLabels[key]}, but only ${formatNumber(available)} are available.`)});
   const parts=(Object.keys(counts)as TroopClassKey[]).filter(key=>counts[key]>0).map(key=>`${formatNumber(counts[key])} ${config.tiers[key]} ${troopClassLabels[key]}`);
   return{counts,ratioTotal,assignedTotal,text:`${ratios.shield} / ${ratios.bomber} / ${ratios.shooter} — ${parts.join(" + ")||"No troops assigned"}`,warnings};
