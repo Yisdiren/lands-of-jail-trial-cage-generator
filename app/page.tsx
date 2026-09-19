@@ -174,13 +174,21 @@ export default function Home() {
       }),
     [leaderCapacity, leaderRatios, troopTiers, availableTroops],
   );
+  const automaticWarSkillLevels = useMemo<WarSkillLevels>(() => {
+    const levels: WarSkillLevels = {};
+    available.forEach((hero) => {
+      if (hero.leftSkill) levels[hero.name] = Math.min(5, Math.max(1, heroStarLevels[hero.name] ?? 1));
+    });
+    return levels;
+  }, [available, heroStarLevels]);
+
   const automaticJoiners = useMemo(
     () =>
       generateJoinerFormations(
         available,
         joinCount,
         joinerTroopPlan,
-        warSkillLevels,
+        automaticWarSkillLevels,
         availableRobots,
         verifiedOnly,
         heroStarLevels,
@@ -189,7 +197,7 @@ export default function Home() {
       available,
       joinCount,
       joinerTroopPlan,
-      warSkillLevels,
+      automaticWarSkillLevels,
       availableRobots,
       verifiedOnly,
       heroStarLevels,
@@ -533,7 +541,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.21</div>
+        <div className="badge">DEV v1.21 SIMPLE</div>
       </header>
 
       <section className="panel profile-panel">
@@ -778,41 +786,26 @@ export default function Home() {
         <div><label>JOINER MARCHES</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
       </section>
 
-      <section className="panel setup-dashboard">
-        <div className="title"><div><label>PROFILE SETUP DASHBOARD</label><h2>Current Cage account setup</h2></div></div>
-        <div className="setup-progress"><b>Setup:</b> {[profileName && profileName !== "New Player", profileServer, owned.length >= 3, availableTroops.bomber > 0 || availableTroops.shooter > 0, ownedRobots.length > 0].filter(Boolean).length}/5 basics complete</div>
-        <div className="setup-facts">
-          <span><b>{owned.length}</b> Heroes</span><span><b>{ownedRobots.length}</b> Robots</span><span><b>{ownedFelons.length}</b> Felons</span>
-          <span><b>{leaderCapacity.toLocaleString()}</b> Main Rally</span><span><b>100,000</b> Joiners</span><span><b>{selectedBuffIds.length}</b> Pre-Cage buffs</span>
-        </div>
-      </section>
-
       <section className="panel troop-panel">
-        <div className="title"><div><label>TROOP SETUP</label><h2>Main Rally + Joiners</h2></div></div>
+        <div className="title"><div><label>MAIN RALLY</label><h2>Set your max troop capacity</h2></div></div>
         <div className="troop-capacity">
-          <label htmlFor="march-capacity">UNBUFFED MAIN RALLY CAPACITY</label>
+          <label htmlFor="march-capacity">MAX MAIN RALLY TROOPS</label>
           <input id="march-capacity" type="number" min="1" step="1" value={leaderCapacity} onChange={(e)=>{setLeaderCapacity(Number(e.target.value));setGenerated(false)}} />
-          <div className="main-rally-context"><b>MAIN RALLY • MAX CAP</b><span>{leaderCapacity.toLocaleString()} troops • {leaderRatios.shield}/{leaderRatios.bomber}/{leaderRatios.shooter}</span><span>{leaderTroopPlan.counts.shield.toLocaleString()} Shield / {leaderTroopPlan.counts.bomber.toLocaleString()} Bomber / {leaderTroopPlan.counts.shooter.toLocaleString()} Shooter</span></div>
         </div>
-        <div className="cage-ratio-presets"><b>MAIN RALLY RATIO</b><button type="button" onClick={()=>{setLeaderRatios({shield:0,bomber:0,shooter:100});setGenerated(false)}}>0 / 0 / 100</button><button type="button" onClick={()=>{setLeaderRatios({shield:0,bomber:10,shooter:90});setGenerated(false)}}>0 / 10 / 90</button></div>
-        <div className="main-rally-context"><b>JOINERS • FIXED 100,000 EACH</b><span>Ratio: {joinerRatios.shield}/{joinerRatios.bomber}/{joinerRatios.shooter}</span><span>{joinerTroopPlan.counts.shield.toLocaleString()} Shield / {joinerTroopPlan.counts.bomber.toLocaleString()} Bomber / {joinerTroopPlan.counts.shooter.toLocaleString()} Shooter</span><small>Joiner LEFT War skill is prioritized; stars are secondary.</small></div>
-        {leaderTroopPlan.warnings.map(w=><div className="warning-box" key={"leader-"+w}>{w}</div>)}
-        {joinerTroopPlan.warnings.map(w=><div className="warning-box" key={"joiner-"+w}>{w}</div>)}
+        <div className="cage-ratio-presets"><b>TROOP RATIO</b><button type="button" onClick={()=>{setLeaderRatios({shield:0,bomber:0,shooter:100});setGenerated(false)}}>0 / 0 / 100</button><button type="button" onClick={()=>{setLeaderRatios({shield:0,bomber:10,shooter:90});setGenerated(false)}}>0 / 10 / 90</button></div>
+        <p className="helper">Main Rally uses your full capacity. Joiners are automatically fixed at 100,000 troops each.</p>
       </section>
 
-      {season >= 5 && (
-        <section className="panel kof-link-panel">
-          <div className="title"><div><label>KOF LEGACY LINKS</label><h2>Link ★4+ KOF heroes to your Main Rally</h2></div></div>
-          <p className="helper">KOF heroes stay excluded from Joiner LEFT recommendations. At ★4 or ★5, an owned KOF hero can be linked as a player-chosen Main Rally replacement. Linking does not claim the KOF hero is automatically stronger.</p>
-          <div className="kof-links">
-            {heroes.filter(h=>h.rarity==="KOF" && owned.includes(h.name)).map(h=>{const stars=heroStarLevels[h.name]??1;const targets=h.cls==="Shield"?["Tyronn"]:h.cls==="Bomber"?["Ryuichi"]:["Ada"];return <div className="kof-link" key={h.name}><b>{h.name} • {"★".repeat(stars)}</b>{stars>=4?<select value={kofLeaderLinks[h.name]??""} onChange={e=>{setKofLeaderLinks(cur=>({...cur,[h.name]:e.target.value}));setGenerated(false)}}><option value="">Not linked</option>{targets.map(target=><option key={target} value={target}>Link to / replace {target}</option>)}</select>:<small>Requires ★4 or higher for Main Rally linking.</small>}</div>})}
-            {!heroes.some(h=>h.rarity==="KOF" && owned.includes(h.name)) && <p className="helper">Select an owned KOF hero in your hero roster to configure a link.</p>}
-          </div>
-        </section>
-      )}
+      <section className="panel simple-cage-tips">
+        <div className="title"><div><label>CAGE RECOMMENDATIONS</label><h2>Use these with the generated formations</h2></div></div>
+        <div className="mini-grid">
+          <div><b>Robots</b><span>Musashimaru + Phantom Cat are the current priority choices when owned.</span></div>
+          <div><b>Felons</b><span>Scorpion + Cobra core. Use Rage Fist for a full rally; Devil when expedition capacity is more useful.</span></div>
+          <div><b>2-hour buffs</b><span>Troops ATK +11%, Troops Lethality +11%, Expedition Capacity +11%. Activate about 5 minutes before Cage.</span></div>
+        </div>
+      </section>
 
-      {mode === "leader" && (
-        <section className="panel">
+      <section className="panel">
           <div className="title">
             <div>
               <label>YARD TIME FELONS</label>
@@ -933,9 +926,9 @@ export default function Home() {
         <div className="title">
           <div>
             <label>YOUR HEROES</label>
-            <h2>Select heroes this account owns</h2>
+            <h2>Select your heroes and set only their star levels</h2>
           </div>
-          <span>{available.length} usable</span>
+          <span>{available.length} selected</span>
         </div>
         <div className="quick-actions">
           <button onClick={selectAll}>Select all usable</button>
@@ -979,7 +972,7 @@ export default function Home() {
                   <label
                     style={{ display: "block", marginTop: 6, fontSize: 12 }}
                   >
-                    Hero stars{" "}
+                    Star level{" "}
                     <select
                       aria-label={`${hero.name} star level`}
                       value={heroStarLevels[hero.name] ?? 1}
@@ -994,57 +987,14 @@ export default function Home() {
                     </select>
                   </label>
                 )}
-                {mode === "joiner" &&
-                  selected &&
-                  hero.leftSkill &&
-                  !disabled && (
-                    <label
-                      style={{ display: "block", marginTop: 6, fontSize: 12 }}
-                    >
-                      LEFT War skill Lv{" "}
-                      <select
-                        value={warSkillLevels[hero.name] ?? 5}
-                        onChange={(e) =>
-                          setSkillLevel(hero.name, +e.target.value)
-                        }
-                        style={{ marginLeft: 6 }}
-                      >
-                        {[1, 2, 3, 4, 5].map((l) => (
-                          <option key={l} value={l}>
-                            {l}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  )}
+
               </div>
             );
           })}
         </div>
       </section>
 
-      <section className="panel">
-        <h2>Hero locks &amp; replacements</h2>
-        <p>Choose an owned hero to lock a slot. Other slots fill automatically. To replace a hero you do not own, clear that hero in your roster and choose an eligible alternative here.</p>
-        <button onClick={() => { (mode === "leader" ? setLeaderLocks : setLocks)({}); setGenerated(false); }}>Clear locks</button>
-        {Array.from({length: mode === "leader" ? 1 : joinCount}, (_, i) => (
-          <div className="slots" key={i}>
-            {slots.map(slot => {
-              const key = i + ":" + slot;
-              const reserved = mode === "joiner" && leaderFormation ? slots.map(s => leaderFormation![s].name) : [];
-              return <label key={slot}>{mode === "leader" ? "MAIN" : "J" + (i+1)} · {slot.toUpperCase()}
-                <select value={currentLocks[key] ?? ""} onChange={e => updateLock(key, e.target.value)}>
-                  <option value="">Automatic / best available</option>
-                  {available.filter(h => !reserved.includes(h.name) && (mode === "leader" || h.rarity === "SSR" || ["Lunarl","Lofili","Samir"].includes(h.name)) && (mode === "leader" || slot !== "left" || (h.leftSkill && (!verifiedOnly || h.leftSkillVerified)))).map(h => <option key={h.name} value={h.name}>{h.name} · {h.cls}</option>)}
-                </select>
-              </label>;
-            })}
-          </div>
-        ))}
-        {lockError && <p role="alert" className="warning-box">{lockError}</p>}
-        <p className="helper">Locks apply to this session and reset when switching profiles. Every march requires one Shield, Bomber and Shooter. Leader heroes remain reserved.</p>
-      </section>
-      <button className="generate" onClick={() => setGenerated(true)}>GENERATE CAGE SETUP</button>
+      <button className="generate" onClick={() => setGenerated(true)}>GENERATE MY CAGE SETUP</button>
 
       {generated && (
         <div className={`seat-bonus ${seatHolder ? "active" : "inactive"}`}>
@@ -1138,11 +1088,6 @@ export default function Home() {
                 </span>
               </div>
             </div>
-            {!leaderFormation.robot && (
-              <div className="warning-box">
-                Select at least one owned robot to complete the leader setup.
-              </div>
-            )}
             {felonPlan.warning && (
               <div className="warning-box">{felonPlan.warning}</div>
             )}
@@ -1229,7 +1174,7 @@ export default function Home() {
                     )}
                     <b>{f.left.name}</b><small>{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
-                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. {locks[(Number(f.id.slice(1))-1)+":left"] ? "Manually locked" : "Selected"} at skill Lv{f.leftSkillLevel}; skill priority comes first, with stars as a secondary preference. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
+                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. Auto-ranked from the hero star level at Lv{f.leftSkillLevel}; skill priority comes first, with stars used by the generator. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
                   </div>
                   <div className="slot">
                     <span>MIDDLE • {f.middle.cls}</span>
@@ -1283,14 +1228,6 @@ export default function Home() {
                   : `Only ${joinerFormations.length} legal non-repeating formation${joinerFormations.length === 1 ? "" : "s"} could be built from the selected roster.`}
               </div>
             )}
-          {availableRobots.length < joinerFormations.length && (
-            <div className="warning-box">
-              Only {availableRobots.length} owned robot
-              {availableRobots.length === 1 ? "" : "s"} selected for{" "}
-              {joinerFormations.length} formations. Select more robots to
-              complete every march.
-            </div>
-          )}
           {joinerTroopPlan.warnings.map((warning) => (
             <div className="warning-box" key={warning}>
               {warning}
