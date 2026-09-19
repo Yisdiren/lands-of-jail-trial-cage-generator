@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.50
+## Development Beta v0.60 (branch: beta-v051-v060)
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -149,3 +149,20 @@ This community project is not affiliated with Lands of Jail or its publisher.
 ### Beta v0.50
 - Removed obsolete Cage Result Lab CSS left behind after the feature was removed.
 - Added small public-generator layout cleanup for profile actions and readiness cards.
+
+
+## Beta v0.51–v0.60 development batch
+This batch is intentionally being developed away from `main` so intermediate beta commits do not need production Vercel deployments.
+
+- **v0.51** — Added screenshot-verified 2-hour Prison Buff and Prisoner Armor data model.
+- **v0.52** — Added a reusable pre-Cage activation checklist builder.
+- **v0.53** — Added a safe capacity preview that keeps percentage, expedition-flat and rally-flat bonuses separate until stacking order is verified.
+- **v0.54** — Added readable effect labels for all verified buffs.
+- **v0.55** — Separated Prison Buffs from Prisoner Armor skills and identified the common 2-hour prison-buff set.
+- **v0.56** — Added reusable per-player Cage buff settings with a configurable activation lead time.
+- **v0.57** — Added validation for saved/unknown/duplicate buff selections.
+- **v0.58** — Added compact pre-Cage buff summary text for future UI/sharing output.
+- **v0.59** — Added pre-Cage timing/reminder helper based on selected buff duration.
+- **v0.60** — Consolidated and documented the first complete pre-Cage buff framework without guessing the game's capacity stacking formula.
+
+Verified screenshot data currently represented: Troops ATK +11%, Troops Lethality +11%, Expedition Capacity +11%, Comprehensive Command Lv.9 +11,250 expedition capacity, Pinpoint Suppression Lv.10 +10% HP, Overload Charge Lv.6 +96,000 rally capacity, Valiant Breach Lv.4 +4% Lethality, Penetrating Ray Lv.10 +10% enemy DEF reduction, and Orbital Strike Lv.5 +4% expedition ATK. All shown effects last 2 hours after activation.
