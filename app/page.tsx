@@ -41,8 +41,6 @@ const troopTierOptions = Array.from(
 );
 const profileStorageKey = "loj-member-profiles-v1";
 const activeProfileStorageKey = "loj-active-profile-v1";
-const evidenceMigrationKey = "loj-evidence-migration-v015";
-const starLevelsMigrationKey = "loj-star-levels-migration-v023";
 const heroIconNames = new Set([
   "Omega Rugal", "Terry Bogard", "Mai Shiranui", "Ada", "Ryuichi", "Edwin",
   "Koschevoi", "Mireya", "Marcus", "Whisper", "Drake", "Veronica", "Tyronn",
@@ -53,48 +51,6 @@ const heroIconNames = new Set([
 ]);
 const heroIconSlug = (name: string) =>
   name.toLowerCase().replace(/scarlet pyros/g, "scarlet-pyros").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const createStilettoSkillLevels = (): WarSkillLevels =>
-  Object.fromEntries(
-    heroes
-      .filter((hero) => hero.leftSkill)
-      .map((hero) => [hero.name, hero.name === "Tyronn" ? 4 : 5]),
-  );
-const createStilettoStarLevels = (): Record<string, number> => ({
-  Durga: 5, Harton: 5, Gerd: 5, Iwado: 4, Vesaryon: 4,
-  Tyronn: 3, Phoenix: 4, Caesar: 3, Xuanming: 4, Zoltan: 3, Marcus: 3,
-  "Omega Rugal": 3, Pasino: 5, Gimes: 5, Lunarl: 5, Samir: 4,
-  Flameborne: 4, Ekko: 4, Tormund: 5, Vivian: 4, Alph: 4, Lanchester: 3,
-  Whisper: 4, Ryuichi: 4, Koschevoi: 4, Lee: 3, "Terry Bogard": 3,
-  Aiksen: 5, Flora: 4, Platos: 4, Lofili: 5, Inata: 3, Devilian: 3,
-  "Mia Scarlet Pyros": 5, Mireya: 5, Sawyer: 4, Veronica: 4, Drake: 3,
-  Edwin: 4, Ada: 4, "Mai Shiranui": 3,
-});
-const createStilettoProfile = (): MemberProfile => ({
-  id: "stiletto-s260",
-  playerName: "Stiletto",
-  server: "260",
-  role: "joiner",
-  season: 6,
-  ownedHeroes: heroes
-    .filter((hero) => hero.cageAllowed)
-    .map((hero) => hero.name),
-  heroStarLevels: createStilettoStarLevels(),
-  warSkillLevels: createStilettoSkillLevels(),
-  ownedRobots: [...robots],
-  ownedFelons: felons.map((felon) => felon.name),
-  rallyFills: true,
-  seatHolder: true,
-  joinerCapacity: 100000,
-  leaderCapacity: 188662,
-  joinerRatios: { shield: 0, bomber: 0, shooter: 100 },
-  leaderRatios: { shield: 0, bomber: 10, shooter: 90 },
-  troopTiers: { shield: "T10", bomber: "T10", shooter: "T11" },
-  availableTroops: { shield: 188662, bomber: 188662, shooter: 188662 },
-  troopPreset: "shooters",
-  joinCount: 6,
-  updatedAt: Date.now(),
-});
-
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner");
   const [season, setSeason] = useState(1);
@@ -154,7 +110,7 @@ export default function Home() {
     setOwnedRobots(profile.ownedRobots);
     setOwnedFelons(profile.ownedFelons);
     setRallyFills(profile.rallyFills);
-    setSeatHolder(profile.seatHolder ?? profile.id === "stiletto-s260");
+    setSeatHolder(profile.seatHolder ?? false);
     setJoinerCapacity(profile.joinerCapacity);
     setLeaderCapacity(profile.leaderCapacity);
     setJoinerRatios(profile.joinerRatios);
@@ -556,7 +512,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.45</div>
+        <div className="badge">BETA v0.46</div>
       </header>
 
       <section className="panel profile-panel">
