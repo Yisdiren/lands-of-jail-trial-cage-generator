@@ -108,13 +108,11 @@ const createStilettoProfile = (): MemberProfile => ({
 
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner");
-  const [season, setSeason] = useState(6);
-  const [owned, setOwned] = useState<string[]>(
-    heroes.filter((h) => h.cageAllowed).map((h) => h.name),
-  );
+  const [season, setSeason] = useState(1);
+  const [owned, setOwned] = useState<string[]>([]);
   const [troopPreset, setTroopPreset] = useState<TroopPreset>("shooters");
   const [joinerCapacity, setJoinerCapacity] = useState(100000);
-  const [leaderCapacity, setLeaderCapacity] = useState(188662);
+  const [leaderCapacity, setLeaderCapacity] = useState(100000);
   const [joinerRatios, setJoinerRatios] = useState<TroopValues>({
     shield: 0,
     bomber: 0,
@@ -128,34 +126,28 @@ export default function Home() {
   const [troopTiers, setTroopTiers] = useState<TroopTiers>({
     shield: "T10",
     bomber: "T10",
-    shooter: "T11",
+    shooter: "T10",
   });
   const [availableTroops, setAvailableTroops] = useState<TroopValues>({
-    shield: 188662,
-    bomber: 188662,
-    shooter: 188662,
+    shield: 0,
+    bomber: 0,
+    shooter: 0,
   });
   const [joinCount, setJoinCount] = useState(6);
-  const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>(
-    createStilettoSkillLevels,
-  );
-  const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>(
-    createStilettoStarLevels,
-  );
-  const [ownedRobots, setOwnedRobots] = useState<string[]>(robots);
-  const [ownedFelons, setOwnedFelons] = useState<string[]>(
-    felons.map((felon) => felon.name),
-  );
+  const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
+  const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
+  const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
+  const [ownedFelons, setOwnedFelons] = useState<string[]>([]);
   const [rallyFills, setRallyFills] = useState(true);
-  const [seatHolder, setSeatHolder] = useState(true);
+  const [seatHolder, setSeatHolder] = useState(false);
   const [locks, setLocks] = useState<Locks>({});
   const [leaderLocks, setLeaderLocks] = useState<Locks>({});
   const [generated, setGenerated] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [profiles, setProfiles] = useState<MemberProfile[]>([]);
-  const [activeProfileId, setActiveProfileId] = useState("stiletto-s260");
-  const [profileName, setProfileName] = useState("Stiletto");
-  const [profileServer, setProfileServer] = useState("260");
+  const [activeProfileId, setActiveProfileId] = useState("new-player");
+  const [profileName, setProfileName] = useState("New Player");
+  const [profileServer, setProfileServer] = useState("");
   const [profilesLoaded, setProfilesLoaded] = useState(false);
   const [profileNotice, setProfileNotice] = useState("");
   const importProfileInput = useRef<HTMLInputElement>(null);
@@ -222,7 +214,7 @@ export default function Home() {
                   ? { ...profile.warSkillLevels, Tyronn: 4 }
                   : profile.warSkillLevels,
             }))
-          : [createStilettoProfile()];
+          : [createBlankProfile("new-player")];
       const storedActive = localStorage.getItem(activeProfileStorageKey);
       const active =
         loadedProfiles.find((profile) => profile.id === storedActive) ??
@@ -235,7 +227,7 @@ export default function Home() {
       localStorage.setItem(evidenceMigrationKey, "complete");
       localStorage.setItem(starLevelsMigrationKey, "complete");
     } catch {
-      const fallback = createStilettoProfile();
+      const fallback = createBlankProfile("new-player");
       setProfiles([fallback]);
       applyProfile(fallback);
       setProfileNotice("Saved member profiles could not be read.");
@@ -733,7 +725,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.43</div>
+        <div className="badge">BETA v0.44</div>
       </header>
 
       <section className="panel profile-panel">
