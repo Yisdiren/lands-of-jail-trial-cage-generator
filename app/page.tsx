@@ -850,7 +850,7 @@ export default function Home() {
           </span>
         </div>
         <div className="troop-capacity">
-          <label htmlFor="march-capacity">MARCH CAPACITY</label>
+          <label htmlFor="march-capacity">UNBUFFED MARCH CAPACITY</label>
           <input
             id="march-capacity"
             type="number"
@@ -866,7 +866,7 @@ export default function Home() {
           />
           <small>
             {mode === "leader"
-              ? "Your personal maximum march size; this is separate from total rally capacity."
+              ? "Your normal unbuffed Main Rally march size. Temporary Cage buffs are tracked separately below."
               : "Trial Cage joiner marches use 100,000 troops."}
           </small>
         </div>
