@@ -1,6 +1,9 @@
 import type { Felon, Hero } from "../data/heroes";
 import { generateJoinerFormationsSmart, generateLeaderFormationSmart, type HeroStarLevels, type KofLeaderLinks } from "./formation-generator";
 
+export type WarSkillLevels = Record<string, number>;
+export const maxWarSkillLevelForStars = (stars:number) => Math.min(5, Math.max(1, Math.floor(stars)) + 1);
+
 export type FormationAlert = { severity: "error" | "warning" | "info"; message: string };
 export type FormationStatus = "blocked" | "review" | "ready";
 export type Formation = { id:string; left:Hero; middle:Hero; right:Hero; troopText:string; robot?:string; leftSkillLevel?:number; leftSkillPercent?:number; alerts:FormationAlert[]; status:FormationStatus };
