@@ -22,6 +22,7 @@ import {
   type MemberRole,
 } from "../lib/profiles";
 import { evaluateMemberReadiness } from "../lib/readiness";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile } from "../lib/cage-buffs";
 import { parseAllianceBackup, serializeAllianceBackup } from "../lib/backup";
 import Image from "next/image";
 
@@ -95,6 +96,8 @@ export default function Home() {
   const [profileServer, setProfileServer] = useState("");
   const [profilesLoaded, setProfilesLoaded] = useState(false);
   const [profileNotice, setProfileNotice] = useState("");
+  const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
+  const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
   const importProfileInput = useRef<HTMLInputElement>(null);
   const importAllianceInput = useRef<HTMLInputElement>(null);
   function applyProfile(profile: MemberProfile) {
@@ -120,6 +123,8 @@ export default function Home() {
     setTroopPreset(profile.troopPreset);
     setJoinCount(profile.joinCount);
     setVerifiedOnly(profile.verifiedOnly ?? false);
+    setSelectedBuffIds(profile.cageBuffProfile?.selectedBuffIds ?? defaultCageBuffProfile.selectedBuffIds);
+    setActivationLeadMinutes(profile.cageBuffProfile?.activationLeadMinutes ?? defaultCageBuffProfile.activationLeadMinutes);
     setGenerated(false);
   }
 
@@ -291,6 +296,7 @@ export default function Home() {
     troopPreset,
     joinCount,
     verifiedOnly,
+    cageBuffProfile: { selectedBuffIds, activationLeadMinutes },
     updatedAt: Date.now(),
   });
   const [exportingImage, setExportingImage] = useState(false);
@@ -483,6 +489,9 @@ export default function Home() {
     setProfileNotice("Member profile deleted from this browser.");
   };
 
+  const buffGroups = splitBuffsBySource();
+  const buffCapacityPreview = previewCageCapacity(leaderCapacity, selectedBuffIds);
+  const toggleCageBuff = (id: string) => setSelectedBuffIds(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id]);
   const profileSnapshot = currentProfileSnapshot();
   const rosterProfiles = profiles.map((profile) =>
     profile.id === activeProfileId ? profileSnapshot : profile,
@@ -608,6 +617,16 @@ export default function Home() {
           260 settings are never used as their account data. Exported profile
           files contain account settings.
         </p>
+      </section>
+
+      <section className="panel cage-buffs-panel">
+        <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Prisoner Armor</h2></div></div>
+        <p className="helper">Select the buffs you actually activate before Trial Cage. Capacity bonuses stay separated until their in-game stacking order is verified.</p>
+        <div className="buff-groups">
+          {[["Prison Buffs", buffGroups.prisonBuffs], ["Prisoner Armor", buffGroups.prisonerArmor]].map(([title, items]) => <div className="buff-group" key={String(title)}><h3>{String(title)}</h3><div className="buff-grid">{(items as typeof cageBuffs).map(buff => <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}><b>{buff.name}{buff.level ? ` Lv.${buff.level}` : ""}</b><span>{buffEffectLabel(buff)}</span><small>{buff.durationHours}h after activation</small></button>)}</div></div>)}
+        </div>
+        <div className="buff-summary"><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate before Cage <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
+        <div className="capacity-preview"><b>Capacity preview</b><span>Base {buffCapacityPreview.baseCapacity.toLocaleString()}</span><span>Expedition {buffCapacityPreview.expeditionPercent ? `+${buffCapacityPreview.expeditionPercent}%` : "—"}</span><span>Expedition flat {buffCapacityPreview.expeditionFlat ? `+${buffCapacityPreview.expeditionFlat.toLocaleString()}` : "—"}</span><span>Rally flat {buffCapacityPreview.rallyFlat ? `+${buffCapacityPreview.rallyFlat.toLocaleString()}` : "—"}</span><small>{buffCapacityPreview.note}</small></div>
       </section>
 
       <section className="panel alliance-panel">
