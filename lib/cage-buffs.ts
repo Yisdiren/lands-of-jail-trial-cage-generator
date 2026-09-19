@@ -80,3 +80,16 @@ export function buffEffectLabel(buff: CageBuff) {
   };
   return `${labels[buff.stat]} ${value}`;
 }
+
+export const commonTwoHourPrisonBuffIds = [
+  "troops-atk-2h",
+  "troops-lethality-2h",
+  "expedition-capacity-2h",
+] as const;
+
+export function splitBuffsBySource() {
+  return {
+    prisonBuffs: cageBuffs.filter(buff => buff.source === "prison-buff"),
+    prisonerArmor: cageBuffs.filter(buff => buff.source === "prisoner-armor"),
+  };
+}
