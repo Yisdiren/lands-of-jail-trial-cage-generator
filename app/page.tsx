@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.00</div>
+        <div className="badge">DEV v1.06</div>
       </header>
 
       <section className="panel profile-panel">
