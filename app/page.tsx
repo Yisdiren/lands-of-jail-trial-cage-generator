@@ -254,7 +254,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.28 SIMPLE</div>
+        <div className="badge">DEV v1.29 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -543,12 +543,8 @@ export default function Home() {
                     <b>{leaderFormation.right.name}</b><small>{heroStarLevels[leaderFormation.right.name] ? "★".repeat(heroStarLevels[leaderFormation.right.name]) : "Stars not set"}</small>
               </div>
             </div>
-            <div className="ratio">
-              <span>TROOPS • Shield / Bomber / Shooter</span>
-              <strong>{leaderFormation.troopText}</strong>
-            </div>
             <p>
-              Main Rally uses your owned heroes and star levels. Use your maximum available troops and follow your alliance rules for troop composition. New season swaps should be tested one change at a time before being treated as verified Cage improvements.
+              Use your maximum available troops for your Main Rally. Follow your alliance’s current Trial Cage troop composition rules.
             </p>
             {Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).length > 0 && <div className="kof-active-links"><b>KOF MAIN RALLY LINKS</b>{Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).map(([name,target])=><span key={name}>{name} → replaces {target}</span>)}</div>}
             <div className="mini-grid">
@@ -571,7 +567,7 @@ export default function Home() {
                 </span>
               </div>
               <div>
-                <b>3rd felon • {rallyFills ? "full rally" : "open space"}</b>
+                <b>3rd felon</b>
                 <span>
                   {felonPlan.selected.find(
                     (felon) =>
