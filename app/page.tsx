@@ -48,9 +48,8 @@ const heroIconNames = new Set([
   "Omega Rugal", "Terry Bogard", "Mai Shiranui", "Ada", "Ryuichi", "Edwin",
   "Koschevoi", "Mireya", "Marcus", "Whisper", "Drake", "Veronica", "Tyronn",
   "Xuanming", "Sawyer", "Tormund", "Mia Scarlet Pyros", "Phoenix", "Alph",
-  "Zoltan", "Lunarl", "Lofili", "Vivian", "Lee", "Samir", "Gerd", "Durga",
-  "Harton", "Pasino", "Aiksen", "Gimes", "Caesar", "Flameborne", "Devilian",
-  "Iwado", "Inata", "Lanchester", "Vesaryon", "Ekko", "Flora", "Platos",
+  "Zoltan", "Lunarl", "Lofili", "Vivian", "Lee", "Samir", "Caesar", "Flameborne",
+  "Devilian", "Inata", "Lanchester",
 ]);
 const heroIconSlug = (name: string) =>
   name.toLowerCase().replace(/scarlet pyros/g, "scarlet-pyros").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -323,7 +322,7 @@ export default function Home() {
   const exportFormationImage = async () => {
     setExportingImage(true);
     try {
-      await downloadFormationImage(mode === "leader" ? (leaderFormation ? [leaderFormation] : []) : joinerFormations,
+      await downloadFormationImage(leaderFormation ? [leaderFormation, ...joinerFormations] : joinerFormations,
         profileName || "Member", heroStarLevels,
         name => heroIconNames.has(name) ? "/icons/" + heroIconSlug(name) + ".png" : null);
       setProfileNotice("Formation image downloaded.");
@@ -1009,7 +1008,7 @@ export default function Home() {
       )}
 
       {generated && !lockError && (
-        <button className="copy-button" disabled={exportingImage || (mode === "leader" ? !leaderFormation : !joinerFormations.length)} onClick={exportFormationImage}>
+        <button className="copy-button" disabled={exportingImage || (!leaderFormation && !joinerFormations.length)} onClick={exportFormationImage}>
           {exportingImage ? "CREATING IMAGE…" : "DOWNLOAD FORMATION IMAGE"}
         </button>
       )}

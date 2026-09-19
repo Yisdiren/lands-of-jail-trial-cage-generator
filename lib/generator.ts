@@ -16,6 +16,8 @@ export type FelonPlan = { selected: Felon[]; preferredThird: "Rage Fist" | "Devi
 const troopClassLabels:Record<TroopClassKey,string>={shield:"Shieldbearers",bomber:"Bombers",shooter:"Shooters"};
 const safeWhole=(value:number)=>Number.isFinite(value)?Math.max(0,Math.floor(value)):0;
 const formatNumber=(value:number)=>value.toLocaleString("en-US");
+const retainedSrHeroes=new Set(["Lofili","Lunarl","Flameborne","Samir"]);
+const streamlinedHeroes=(heroes:Hero[])=>heroes.filter(hero=>hero.rarity!=="R"&&(hero.rarity!=="SR"||retainedSrHeroes.has(hero.name)));
 
 export function calculateTroopPlan(config:TroopConfig):TroopPlan{
   const capacity=safeWhole(config.capacity),ratios:TroopValues={shield:safeWhole(config.ratios.shield),bomber:safeWhole(config.ratios.bomber),shooter:safeWhole(config.ratios.shooter)};
@@ -32,7 +34,7 @@ export function validateFormation(formation:Omit<Formation,"alerts"|"status">,tr
   const alerts:FormationAlert[]=troopPlan.warnings.map(message=>({severity:"error",message})),formationHeroes=[formation.left,formation.middle,formation.right];
   if(new Set(formationHeroes.map(hero=>hero.cls)).size!==3)alerts.push({severity:"error",message:"Formation must contain exactly one Shield, one Bomber and one Shooter hero."});
   formationHeroes.forEach(hero=>{if(hero.rarity==="KOF"&&mode==="joiner")alerts.push({severity:"error",message:`${hero.name} is a KOF event hero and is excluded from Joiner generation.`})});
-  if(!formation.robot)alerts.push({severity:"warning",message:"No owned robot is assigned to this march. Select a robot in setup or review this march before Cage."});
+  if(!formation.robot)alerts.push({severity:"warning",message:"No owned robot is assigned to this march. Use your best available Trial Cage robot when sending it."});
   if(mode==="joiner"){
     if(!formation.left.leftSkill)alerts.push({severity:"error",message:"The LEFT hero has no confirmed first War skill for rally joining."});
     else{if(formation.left.leftTier==="filler")alerts.push({severity:"warning",message:"Filler LEFT skill — use only after stronger LEFT heroes are exhausted."});if((formation.leftSkillLevel??5)<5)alerts.push({severity:"warning",message:`${formation.left.name}'s LEFT War skill is only Lv${formation.leftSkillLevel}.`});if(!formation.left.leftSkillVerified)alerts.push({severity:"info",message:`${formation.left.name}'s exact War skill percentage progression is not yet verified.`})}
@@ -41,10 +43,11 @@ export function validateFormation(formation:Omit<Formation,"alerts"|"status">,tr
 }
 
 export function generateJoinerFormations(availableHeroes:Hero[],count=6,troopPlan:TroopPlan,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={}):Formation[]{
-  const leaderFormation=generateLeaderFormationSmart(availableHeroes,troopPlan,ownedRobots,heroStarLevels);
-  return generateJoinerFormationsSmart(availableHeroes,count,troopPlan,warSkillLevels,ownedRobots,verifiedOnly,heroStarLevels,leaderFormation);
+  const heroPool=streamlinedHeroes(availableHeroes);
+  const leaderFormation=generateLeaderFormationSmart(heroPool,troopPlan,ownedRobots,heroStarLevels);
+  return generateJoinerFormationsSmart(heroPool,count,troopPlan,warSkillLevels,ownedRobots,verifiedOnly,heroStarLevels,leaderFormation);
 }
-export function generateLeaderFormation(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{return generateLeaderFormationSmart(availableHeroes,troopPlan,ownedRobots,heroStarLevels,kofLeaderLinks)}
+export function generateLeaderFormation(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{return generateLeaderFormationSmart(streamlinedHeroes(availableHeroes),troopPlan,ownedRobots,heroStarLevels,kofLeaderLinks)}
 export function optimizeFelons(felons:Felon[],ownedNames:string[],rallyFills:boolean):FelonPlan{
   const owned=felons.filter(f=>ownedNames.includes(f.name)),byName=new Map(owned.map(f=>[f.name,f])),preferredThird=rallyFills?"Rage Fist":"Devil",alternateThird=rallyFills?"Devil":"Rage Fist",order=["Scorpion","Cobra",preferredThird,alternateThird];
   const selected=order.map(name=>byName.get(name)).filter((felon):felon is Felon=>Boolean(felon)).slice(0,3),missingCore=["Scorpion","Cobra"].filter(name=>!byName.has(name)),warnings:string[]=[];
