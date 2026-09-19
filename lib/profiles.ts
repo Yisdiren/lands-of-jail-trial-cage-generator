@@ -41,6 +41,7 @@ type ProfileExport = { format: "loj-member-profile"; version: 1; exportedAt: str
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 const stringArray = (value: unknown) => Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
 const finiteNumber = (value: unknown, fallback: number) => typeof value === "number" && Number.isFinite(value) ? value : fallback;
+const skillLevel = (value: number) => Math.min(5, Math.max(1, Math.floor(value)));
 const troopValues = (value: unknown, fallback: TroopValues): TroopValues => !isRecord(value) ? fallback : ({ shield: finiteNumber(value.shield, fallback.shield), bomber: finiteNumber(value.bomber, fallback.bomber), shooter: finiteNumber(value.shooter, fallback.shooter) });
 const troopTiers = (value: unknown, fallback: TroopTiers): TroopTiers => {
   if (!isRecord(value)) return fallback;
@@ -60,9 +61,9 @@ export function parseProfileExport(contents: string, id: string): MemberProfile 
   const fallback = createBlankProfile(id);
   if (typeof source.playerName !== "string" || !source.playerName.trim()) throw new Error("The imported profile is missing a player name.");
   const warSkillLevels: WarSkillLevels = {};
-  if (isRecord(source.warSkillLevels)) Object.entries(source.warSkillLevels).forEach(([name, level]) => { if (name && typeof level === "number" && Number.isFinite(level)) warSkillLevels[name] = level; });
+  if (isRecord(source.warSkillLevels)) Object.entries(source.warSkillLevels).forEach(([name, level]) => { if (name && typeof level === "number" && Number.isFinite(level)) warSkillLevels[name] = skillLevel(level); });
   const heroStarLevels: Record<string, number> = {};
-  if (isRecord(source.heroStarLevels)) Object.entries(source.heroStarLevels).forEach(([name, level]) => { if (name && typeof level === "number" && Number.isFinite(level)) heroStarLevels[name] = Math.min(5, Math.max(1, Math.floor(level))); });
+  if (isRecord(source.heroStarLevels)) Object.entries(source.heroStarLevels).forEach(([name, level]) => { if (name && typeof level === "number" && Number.isFinite(level)) heroStarLevels[name] = skillLevel(level); });
   return {
     id,
     playerName: source.playerName.trim(),
