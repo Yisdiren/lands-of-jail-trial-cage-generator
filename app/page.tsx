@@ -301,7 +301,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.37 SIMPLE</div>
+        <div className="badge">DEV v1.38 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
