@@ -22,6 +22,7 @@ import {
   type MemberRole,
 } from "../lib/profiles";
 import { evaluateMemberReadiness } from "../lib/readiness";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings, capacityObservationLabel, capacityEvidenceStatus, type CapacityObservation } from "../lib/cage-buffs";
 import { parseAllianceBackup, serializeAllianceBackup } from "../lib/backup";
 import Image from "next/image";
 
@@ -83,6 +84,7 @@ export default function Home() {
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
   const [ownedFelons, setOwnedFelons] = useState<string[]>([]);
+  const [felonRallyCapacities, setFelonRallyCapacities] = useState<Record<string, number>>({});
   const [rallyFills, setRallyFills] = useState(true);
   const [seatHolder, setSeatHolder] = useState(false);
   const [locks, setLocks] = useState<Locks>({});
@@ -95,6 +97,11 @@ export default function Home() {
   const [profileServer, setProfileServer] = useState("");
   const [profilesLoaded, setProfilesLoaded] = useState(false);
   const [profileNotice, setProfileNotice] = useState("");
+  const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
+  const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
+  const [showAdvancedTroops, setShowAdvancedTroops] = useState(false);
+  const [capacityObservations, setCapacityObservations] = useState<CapacityObservation[]>([]);
+  const [kofLeaderLinks, setKofLeaderLinks] = useState<Record<string,string>>({});
   const importProfileInput = useRef<HTMLInputElement>(null);
   const importAllianceInput = useRef<HTMLInputElement>(null);
   function applyProfile(profile: MemberProfile) {
@@ -109,6 +116,7 @@ export default function Home() {
     setWarSkillLevels(profile.warSkillLevels);
     setOwnedRobots(profile.ownedRobots);
     setOwnedFelons(profile.ownedFelons);
+    setFelonRallyCapacities(profile.felonRallyCapacities ?? {});
     setRallyFills(profile.rallyFills);
     setSeatHolder(profile.seatHolder ?? false);
     setJoinerCapacity(profile.joinerCapacity);
@@ -120,6 +128,10 @@ export default function Home() {
     setTroopPreset(profile.troopPreset);
     setJoinCount(profile.joinCount);
     setVerifiedOnly(profile.verifiedOnly ?? false);
+    setSelectedBuffIds(profile.cageBuffProfile?.selectedBuffIds ?? defaultCageBuffProfile.selectedBuffIds);
+    setActivationLeadMinutes(profile.cageBuffProfile?.activationLeadMinutes ?? defaultCageBuffProfile.activationLeadMinutes);
+    setCapacityObservations(profile.capacityObservations ?? []);
+    setKofLeaderLinks(profile.kofLeaderLinks ?? {});
     setGenerated(false);
   }
 
@@ -280,6 +292,9 @@ export default function Home() {
     warSkillLevels,
     ownedRobots,
     ownedFelons,
+    felonRallyCapacities,
+    capacityObservations,
+    kofLeaderLinks,
     rallyFills,
     seatHolder,
     joinerCapacity,
@@ -291,6 +306,7 @@ export default function Home() {
     troopPreset,
     joinCount,
     verifiedOnly,
+    cageBuffProfile: { selectedBuffIds, activationLeadMinutes },
     updatedAt: Date.now(),
   });
   const [exportingImage, setExportingImage] = useState(false);
@@ -309,6 +325,8 @@ export default function Home() {
     const lines = [
       `TRIAL CAGE — ${profileName || "Player"}`,
       `Server ${profileServer || "—"} • ${verifiedOnly ? "verified LEFT skills only" : "standard LEFT skill priority"}`,
+      ...preCageShareLines({ selectedBuffIds, activationLeadMinutes }),
+      "",
       ...joinerFormations.flatMap((formation) => [
         `${formation.id}: ${formation.left.name} (LEFT Lv${formation.leftSkillLevel}) / ${formation.middle.name} / ${formation.right.name}`,
         `  ${formation.troopText} • Robot: ${formation.robot ?? "none"} • ${formation.status.toUpperCase()}`,
@@ -483,6 +501,9 @@ export default function Home() {
     setProfileNotice("Member profile deleted from this browser.");
   };
 
+  const buffGroups = splitBuffsBySource();
+  const buffCapacityPreview = previewCageCapacity(leaderCapacity, selectedBuffIds);
+  const toggleCageBuff = (id: string) => setSelectedBuffIds(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id]);
   const profileSnapshot = currentProfileSnapshot();
   const rosterProfiles = profiles.map((profile) =>
     profile.id === activeProfileId ? profileSnapshot : profile,
@@ -512,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.50</div>
+        <div className="badge">DEV v1.07</div>
       </header>
 
       <section className="panel profile-panel">
@@ -608,6 +629,28 @@ export default function Home() {
           260 settings are never used as their account data. Exported profile
           files contain account settings.
         </p>
+      </section>
+
+      <section className="panel cage-buffs-panel">
+        <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Prisoner Armor</h2></div></div>
+        <p className="helper">Select the buffs you actually activate before Trial Cage. Capacity bonuses stay separated until their in-game stacking order is verified.</p>
+        <div className="buff-groups">
+          {[["Prison Buffs", buffGroups.prisonBuffs], ["Prisoner Armor", buffGroups.prisonerArmor]].map(([title, items]) => <div className="buff-group" key={String(title)}><h3>{String(title)}</h3><div className="buff-grid">{(items as typeof cageBuffs).map(buff => <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}><b>{buff.name}{buff.level ? ` Lv.${buff.level}` : ""}</b><span>{buffEffectLabel(buff)}</span><small>{buff.durationHours}h after activation</small></button>)}</div></div>)}
+        </div>
+        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate before Cage <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
+        <div className="capacity-preview"><b>Capacity preview</b><span>Base {buffCapacityPreview.baseCapacity.toLocaleString()}</span><span>Expedition {buffCapacityPreview.expeditionPercent ? `+${buffCapacityPreview.expeditionPercent}%` : "—"}</span><span>Expedition flat {buffCapacityPreview.expeditionFlat ? `+${buffCapacityPreview.expeditionFlat.toLocaleString()}` : "—"}</span><span>Rally flat {buffCapacityPreview.rallyFlat ? `+${buffCapacityPreview.rallyFlat.toLocaleString()}` : "—"}</span><small>{buffCapacityPreview.note}</small>{preCageWarnings(leaderCapacity,selectedBuffIds).map(w=><small className="buff-warning" key={w}>{w}</small>)}</div>
+      </section>
+
+      <section className="panel capacity-lab">
+        <div className="title"><div><label>CAPACITY TEST RECORDER</label><h2>Record what the game actually displays</h2></div><span>{capacityObservations.length} tests</span></div>
+        <p className="helper">Use this after a normal Cage activation. It records evidence without guessing the stacking formula.</p><div className={`evidence-status evidence-${capacityEvidenceStatus(capacityObservations).status}`}>{capacityEvidenceStatus(capacityObservations).label}</div>
+        <div className="capacity-test-form">
+          <input id="capacity-felon" placeholder="Felon used (optional)" />
+          <input id="capacity-displayed" type="number" min="1" placeholder="Displayed capacity" />
+          <button type="button" onClick={()=>{const f=document.querySelector<HTMLInputElement>("#capacity-felon");const d=document.querySelector<HTMLInputElement>("#capacity-displayed");const shown=Number(d?.value);if(!shown)return;setCapacityObservations(cur=>[{felon:f?.value.trim()||"Unspecified",baseCapacity:leaderCapacity,selectedBuffIds:[...selectedBuffIds],displayedCapacity:shown,recordedAt:Date.now()},...cur]);if(d)d.value="";}}>RECORD TEST</button>
+        </div>
+        {capacityObservations.length > 0 && <button className="clear-capacity-tests" type="button" onClick={()=>setCapacityObservations([])}>CLEAR RECORDED TESTS</button>}
+        <div className="capacity-test-list">{capacityObservations.slice(0,5).map((o,i)=><div key={o.recordedAt+"-"+i}>{capacityObservationLabel(o)}</div>)}</div>
       </section>
 
       <section className="panel alliance-panel">
@@ -814,6 +857,15 @@ export default function Home() {
         )}
       </section>
 
+      <section className="panel setup-dashboard">
+        <div className="title"><div><label>PROFILE SETUP DASHBOARD</label><h2>Current Cage account setup</h2></div></div>
+        <div className="setup-progress"><b>Setup:</b> {[profileName && profileName !== "New Player", profileServer, owned.length >= 3, availableTroops.bomber > 0 || availableTroops.shooter > 0, ownedRobots.length > 0].filter(Boolean).length}/5 basics complete</div>
+        <div className="setup-facts">
+          <span><b>{owned.length}</b> Heroes</span><span><b>{ownedRobots.length}</b> Robots</span><span><b>{ownedFelons.length}</b> Felons</span>
+          <span><b>{mode === "leader" ? leaderCapacity.toLocaleString() : "100,000"}</b> March</span><span><b>{selectedBuffIds.length}</b> Pre-Cage buffs</span>
+        </div>
+      </section>
+
       <section className="panel troop-panel">
         <div className="title">
           <div>
@@ -829,7 +881,7 @@ export default function Home() {
           </span>
         </div>
         <div className="troop-capacity">
-          <label htmlFor="march-capacity">MARCH CAPACITY</label>
+          <label htmlFor="march-capacity">UNBUFFED MARCH CAPACITY</label>
           <input
             id="march-capacity"
             type="number"
@@ -843,20 +895,24 @@ export default function Home() {
               setGenerated(false);
             }}
           />
+          {mode === "leader" && <div className="main-rally-context"><b>MAIN RALLY</b><span>Unbuffed march: {leaderCapacity.toLocaleString()}</span><span>Ratio: 0 / {leaderRatios.bomber} / {leaderRatios.shooter}</span></div>}
           <small>
             {mode === "leader"
-              ? "Your personal maximum march size; this is separate from total rally capacity."
-              : "Trial Cage joiner marches use 100,000 troops."}
+              ? "Your normal unbuffed Main Rally march size. Temporary Cage buffs are tracked separately below."
+              : "Trial Cage joiners use a fixed 100,000 troops. The LEFT hero is prioritized by Cage War skill; stars are secondary."}
           </small>
         </div>
+        <div className="cage-ratio-presets"><b>QUICK CAGE RATIOS</b><button type="button" onClick={()=>{(mode==="leader"?setLeaderRatios:setJoinerRatios)({shield:0,bomber:0,shooter:100});setGenerated(false)}}>0 / 0 / 100</button><button type="button" onClick={()=>{const set=mode==="leader"?setLeaderRatios:setJoinerRatios;set(r=>({shield:0,bomber:r.bomber,shooter:100-r.bomber}));setGenerated(false)}}>RESET SHIELD TO 0</button><button type="button" onClick={()=>{(mode==="leader"?setLeaderRatios:setJoinerRatios)({shield:0,bomber:10,shooter:90});setGenerated(false)}}>0 / 10 / 90</button></div>
+        <button className="advanced-troops-toggle" type="button" onClick={()=>setShowAdvancedTroops(v=>!v)}>{showAdvancedTroops ? "HIDE ADVANCED SHIELDBEARER TROOPS" : "ADVANCED: SHIELDBEARER TROOPS"}</button>
+        <p className="cage-troop-note"><b>Shieldbearer hero ≠ Shieldbearer troops.</b> Standard Trial Cage setup uses 0 Shieldbearer troops, so only Bombers and Shooters are shown here.</p>
         <div className="troop-grid troop-grid-head">
-          <b>CLASS</b>
+          <b>CAGE TROOPS</b>
           <b>RATIO %</b>
           <b>TIER</b>
           <b>AVAILABLE</b>
           <b>REQUIRED</b>
         </div>
-        {troopClasses.map(({ key, label }) => {
+        {troopClasses.filter(({ key }) => key !== "shield" || showAdvancedTroops).map(({ key, label }) => {
           const ratios = mode === "leader" ? leaderRatios : joinerRatios;
           const plan = mode === "leader" ? leaderTroopPlan : joinerTroopPlan;
           return (
@@ -920,6 +976,17 @@ export default function Home() {
           ),
         )}
       </section>
+
+      {mode === "leader" && season >= 5 && (
+        <section className="panel kof-link-panel">
+          <div className="title"><div><label>KOF LEGACY LINKS</label><h2>Link ★4+ KOF heroes to your Main Rally</h2></div></div>
+          <p className="helper">KOF heroes stay excluded from Joiner LEFT recommendations. At ★4 or ★5, an owned KOF hero can be linked as a player-chosen Main Rally replacement. Linking does not claim the KOF hero is automatically stronger.</p>
+          <div className="kof-links">
+            {heroes.filter(h=>h.rarity==="KOF" && owned.includes(h.name)).map(h=>{const stars=heroStarLevels[h.name]??1;const targets=h.cls==="Shield"?["Tyronn"]:h.cls==="Bomber"?["Ryuichi"]:["Ada"];return <div className="kof-link" key={h.name}><b>{h.name} • {"★".repeat(stars)}</b>{stars>=4?<select value={kofLeaderLinks[h.name]??""} onChange={e=>{setKofLeaderLinks(cur=>({...cur,[h.name]:e.target.value}));setGenerated(false)}}><option value="">Not linked</option>{targets.map(target=><option key={target} value={target}>Link to / replace {target}</option>)}</select>:<small>Requires ★4 or higher for Main Rally linking.</small>}</div>})}
+            {!heroes.some(h=>h.rarity==="KOF" && owned.includes(h.name)) && <p className="helper">Select an owned KOF hero in your hero roster to configure a link.</p>}
+          </div>
+        </section>
+      )}
 
       {mode === "leader" && (
         <section className="panel">
@@ -1035,9 +1102,7 @@ export default function Home() {
           ))}
         </div>
         <p className="helper">
-          Selected robots are assigned in priority order. Musashimaru and
-          Phantom Cat remain first for this account; each generated march gets a
-          different robot.
+          Selected robots are assigned in priority order and are not reused across generated marches.
         </p>
       </section>
 
@@ -1221,10 +1286,9 @@ export default function Home() {
               <strong>{leaderFormation.troopText}</strong>
             </div>
             <p>
-              Current controlled-test baseline is Ada / Ryuichi / Tyronn at
-              0/10/90 when all three are owned. S6 swaps should be tested one
-              change at a time.
+              Main Rally uses your owned heroes, star levels and configured troop ratio. New season swaps should be tested one change at a time before being treated as verified Cage improvements.
             </p>
+            {Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).length > 0 && <div className="kof-active-links"><b>KOF MAIN RALLY LINKS</b>{Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).map(([name,target])=><span key={name}>{name} → replaces {target}</span>)}</div>}
             <div className="mini-grid">
               <div>
                 <b>Robot assignment</b>
@@ -1284,7 +1348,7 @@ export default function Home() {
         ) : (
           <section className="result warning">
             <b>Not enough heroes.</b>
-            <p>You need at least one usable Shield, Bomber and Shooter.</p>
+            <p>You need one usable Shieldbearer-class hero, one Bomber-class hero and one Shooter-class hero. This hero-class requirement does not mean you should send Shieldbearer troops.</p>
           </section>
         ))}
 

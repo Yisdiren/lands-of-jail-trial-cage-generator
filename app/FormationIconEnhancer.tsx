@@ -175,8 +175,7 @@ function guideTroopsAfterRoster(){
   card.querySelector<HTMLButtonElement>("[data-save]")!.onclick=save;card.querySelector<HTMLButtonElement>("[data-skip]")!.onclick=()=>{localStorage.setItem(`loj-account-onboarding-v036:${p.id??"player"}`,"complete");overlay.remove()};
 }
 
-function syncBetaBadge(){const badge=document.querySelector<HTMLElement>(".badge");if(badge)badge.textContent="BETA v0.48"}
 let enhanceQueued=false;
-function enhanceGenerator(){syncBetaBadge();document.querySelectorAll<HTMLElement>(".formation-card .slot").forEach(addHeroIcon);document.querySelectorAll<HTMLElement>(".formation-card").forEach(addFormationReason);document.querySelectorAll<HTMLElement>(".result > .slots > .slot").forEach(addHeroIcon);addMemberOverview();addBatchGenerator();addCurrentFormationCopy();addSetupWizard()}
+function enhanceGenerator(){document.querySelectorAll<HTMLElement>(".formation-card .slot").forEach(addHeroIcon);document.querySelectorAll<HTMLElement>(".formation-card").forEach(addFormationReason);document.querySelectorAll<HTMLElement>(".result > .slots > .slot").forEach(addHeroIcon);addMemberOverview();addBatchGenerator();addCurrentFormationCopy();addSetupWizard()}
 function queueEnhance(){if(enhanceQueued)return;enhanceQueued=true;requestAnimationFrame(()=>{enhanceQueued=false;enhanceGenerator()})}
 export default function FormationIconEnhancer(){useEffect(()=>{enhanceGenerator();guideRosterAfterWizard();guideTroopsAfterRoster();const observer=new MutationObserver(mutations=>{if(mutations.some(m=>Array.from(m.addedNodes).some(n=>n.nodeType===Node.ELEMENT_NODE)))queueEnhance()});observer.observe(document.body,{childList:true,subtree:true});return()=>observer.disconnect()},[]);return null}

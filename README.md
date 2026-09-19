@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.50
+## Development Beta v1.06 (branch: beta-v101-kof-links)
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -149,3 +149,83 @@ This community project is not affiliated with Lands of Jail or its publisher.
 ### Beta v0.50
 - Removed obsolete Cage Result Lab CSS left behind after the feature was removed.
 - Added small public-generator layout cleanup for profile actions and readiness cards.
+
+
+## Beta v0.51–v0.60 development batch
+This batch is intentionally being developed away from `main` so intermediate beta commits do not need production Vercel deployments.
+
+- **v0.51** — Added screenshot-verified 2-hour Prison Buff and Prisoner Armor data model.
+- **v0.52** — Added a reusable pre-Cage activation checklist builder.
+- **v0.53** — Added a safe capacity preview that keeps percentage, expedition-flat and rally-flat bonuses separate until stacking order is verified.
+- **v0.54** — Added readable effect labels for all verified buffs.
+- **v0.55** — Separated Prison Buffs from Prisoner Armor skills and identified the common 2-hour prison-buff set.
+- **v0.56** — Added reusable per-player Cage buff settings with a configurable activation lead time.
+- **v0.57** — Added validation for saved/unknown/duplicate buff selections.
+- **v0.58** — Added compact pre-Cage buff summary text for future UI/sharing output.
+- **v0.59** — Added pre-Cage timing/reminder helper based on selected buff duration.
+- **v0.60** — Consolidated and documented the first complete pre-Cage buff framework without guessing the game's capacity stacking formula.
+
+Verified screenshot data currently represented: Troops ATK +11%, Troops Lethality +11%, Expedition Capacity +11%, Comprehensive Command Lv.9 +11,250 expedition capacity, Pinpoint Suppression Lv.10 +10% HP, Overload Charge Lv.6 +96,000 rally capacity, Valiant Breach Lv.4 +4% Lethality, Penetrating Ray Lv.10 +10% enemy DEF reduction, and Orbital Strike Lv.5 +4% expedition ATK. All shown effects last 2 hours after activation.
+
+
+## Beta v0.61–v0.70 development batch
+- **v0.61** — Pre-Cage selections persist with each player profile and profile export/import.
+- **v0.62** — Added the interactive Pre-Cage Buffs & Prisoner Armor panel.
+- **v0.63** — Added responsive desktop/mobile styling for the new panel.
+- **v0.64** — Added neutral offense/capacity/support categorization without claiming an optimal setup.
+- **v0.65** — Added shareable pre-Cage checklist output.
+- **v0.66** — Copied Trial Cage instructions now include the player's pre-Cage setup.
+- **v0.67** — Added warnings when multiple unverified capacity stacking effects are selected.
+- **v0.68** — Capacity verification warnings are now visible in the UI.
+- **v0.69** — Improved selected-buff and warning visibility.
+- **v0.70** — Consolidated the complete first interactive Pre-Cage UI batch for later merge/deployment.
+
+
+## Beta v0.71–v0.80 development batch
+- **v0.71** — Added per-felon unbuffed rally-capacity storage so felon-specific baselines can be recorded without becoming global game assumptions.
+- **v0.72** — Separated unbuffed Main Rally capacity wording from temporary Cage buffs.
+- **v0.73** — Added a capacity-observation model for future in-game stacking tests.
+- **v0.74** — Strengthened the Pre-Cage checklist presentation.
+- **v0.75** — Added a compact profile setup dashboard.
+- **v0.76** — Redesigned normal Cage troop entry around Bombers and Shooters; Shieldbearer troops are no longer presented as a standard Cage input.
+- **v0.77** — Added clearer Main Rally capacity and troop-ratio context.
+- **v0.78** — Clarified the fixed 100,000 Joiner rule and LEFT War-skill priority.
+- **v0.79** — Added responsive polish for the new dashboard and troop setup.
+- **v0.80** — Removed the stale runtime beta-badge override, preserved felon-capacity profile data, and synchronized the development milestone version.
+
+Capacity stacking remains intentionally uncalculated until direct in-game observations verify the order/formula. Known account observations should be stored per player rather than hardcoded as universal values.
+
+
+## Beta v0.81–v1.00 development batch
+- **v0.81** — Capacity test observations can be stored with player profiles.
+- **v0.82** — Capacity observations persist through the active profile snapshot.
+- **v0.83** — Added an interactive capacity test recorder for actual in-game displayed values.
+- **v0.84** — Added responsive styling for the capacity recorder.
+- **v0.85** — Added observation comparison math (delta and percent over base) without inferring a stacking formula.
+- **v0.86** — Added a clear-recorded-tests control.
+- **v0.87** — Added quick 0/0/100 and 0/10/90 Cage ratio controls.
+- **v0.88** — Styled the quick Cage ratio controls.
+- **v0.89** — Added optional Advanced Shieldbearer troop controls while keeping them hidden from normal Cage setup.
+- **v0.90** — Styled the advanced troop control.
+- **v0.91** — Added evidence collection states for capacity testing.
+- **v0.92** — Displayed capacity evidence status in the recorder.
+- **v0.93** — Styled evidence-status indicators.
+- **v0.94** — Added a profile setup completion meter.
+- **v0.95** — Polished the setup meter.
+- **v0.96** — Added a one-click reset to zero Shieldbearer troops.
+- **v0.97** — Clarified formation recovery: Shieldbearer-class hero requirement does not imply Shieldbearer troops.
+- **v0.98** — Removed account-specific robot-priority wording from the public generator.
+- **v0.99** — Generalized Main Rally recommendation wording so account-specific testing is not presented as a universal rule.
+- **v1.00** — Completed the 20-build development milestone and synchronized the visible development version.
+
+The capacity recorder is intentionally evidence-first. It records actual displayed capacities and selected buffs, but it does not invent a final capacity-stacking formula.
+
+
+## Beta v1.01–v1.06 — KOF Main Rally links
+- Player profiles now persist KOF Main Rally links.
+- Owned KOF heroes become linkable only at ★4 or ★5.
+- KOF heroes remain excluded from Joiner LEFT recommendations.
+- Season 5 link targets follow hero class: Omega Rugal → Tyronn, Terry Bogard → Ryuichi, Mai Shiranui → Ada.
+- KOF links can target SSR Main Rally heroes only; SR heroes such as Flameborne cannot be linked.
+- Links are player-selected replacements, not automatic claims that a KOF hero is stronger.
+- Generated Main Rally output displays active KOF replacement links.

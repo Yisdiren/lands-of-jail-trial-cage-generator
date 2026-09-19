@@ -4,6 +4,7 @@ import type {
   TroopValues,
   WarSkillLevels,
 } from "./generator";
+import { defaultCageBuffProfile, sanitizeCageBuffProfile, type CageBuffProfile, type CapacityObservation } from "./cage-buffs";
 
 export type MemberRole = "leader" | "joiner";
 
@@ -29,6 +30,10 @@ export type MemberProfile = {
   troopPreset: TroopPreset;
   joinCount: number;
   verifiedOnly?: boolean;
+  cageBuffProfile?: CageBuffProfile;
+  felonRallyCapacities?: Record<string, number>;
+  capacityObservations?: CapacityObservation[];
+  kofLeaderLinks?: Record<string, string>;
   updatedAt: number;
 };
 
@@ -73,6 +78,10 @@ export function parseProfileExport(contents: string, id: string): MemberProfile 
     troopTiers: troopTiers(source.troopTiers, fallback.troopTiers), availableTroops: troopValues(source.availableTroops, fallback.availableTroops),
     troopPreset: source.troopPreset === "10-90" || source.troopPreset === "shooters" ? source.troopPreset : fallback.troopPreset,
     joinCount: finiteNumber(source.joinCount, fallback.joinCount), verifiedOnly: typeof source.verifiedOnly === "boolean" ? source.verifiedOnly : fallback.verifiedOnly,
+    cageBuffProfile: sanitizeCageBuffProfile(isRecord(source.cageBuffProfile) ? source.cageBuffProfile as Partial<CageBuffProfile> : fallback.cageBuffProfile),
+    felonRallyCapacities: isRecord(source.felonRallyCapacities) ? Object.fromEntries(Object.entries(source.felonRallyCapacities).filter(([,v]) => typeof v === "number" && Number.isFinite(v))) as Record<string, number> : {},
+    capacityObservations: Array.isArray(source.capacityObservations) ? source.capacityObservations.filter(isRecord).map(o => ({ felon: typeof o.felon === "string" ? o.felon : "", baseCapacity: finiteNumber(o.baseCapacity, 0), selectedBuffIds: stringArray(o.selectedBuffIds), displayedCapacity: finiteNumber(o.displayedCapacity, 0), recordedAt: finiteNumber(o.recordedAt, Date.now()) })) : [],
+    kofLeaderLinks: isRecord(source.kofLeaderLinks) ? Object.fromEntries(Object.entries(source.kofLeaderLinks).filter(([,v]) => typeof v === "string")) as Record<string,string> : {},
     updatedAt: Date.now(),
   };
 }
@@ -84,6 +93,6 @@ export function createBlankProfile(id: string): MemberProfile {
     rallyFills: true, seatHolder: false, joinerCapacity: 100000, leaderCapacity: 100000,
     joinerRatios: { shield: 0, bomber: 0, shooter: 100 }, leaderRatios: { shield: 0, bomber: 10, shooter: 90 },
     troopTiers: { shield: "T10", bomber: "T10", shooter: "T10" }, availableTroops: { shield: 0, bomber: 0, shooter: 0 },
-    troopPreset: "shooters", joinCount: 6, verifiedOnly: false, updatedAt: Date.now(),
+    troopPreset: "shooters", joinCount: 6, verifiedOnly: false, cageBuffProfile: defaultCageBuffProfile, felonRallyCapacities: {}, capacityObservations: [], kofLeaderLinks: {}, updatedAt: Date.now(),
   };
 }
