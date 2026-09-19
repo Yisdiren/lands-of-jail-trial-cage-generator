@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.48
+## Current Beta v0.50
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -139,3 +139,13 @@ This community project is not affiliated with Lands of Jail or its publisher.
 - Removed the obsolete runtime code that hid the old Cage Result Lab.
 - Generator remains focused on Main Rally and configurable 100,000-troop Joiners.
 - Switched the visual direction to the new Tyronn Trial Cage background.
+
+
+### Beta v0.49
+- Readiness now gives specific missing-class counts when the requested number of marches cannot be built.
+- Joiner readiness reports exactly how many additional eligible LEFT-skill heroes are needed.
+- Joiner readiness now consistently uses the fixed 100,000-troop Trial Cage rule.
+
+### Beta v0.50
+- Removed obsolete Cage Result Lab CSS left behind after the feature was removed.
+- Added small public-generator layout cleanup for profile actions and readiness cards.
