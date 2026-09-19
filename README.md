@@ -225,6 +225,7 @@ The capacity recorder is intentionally evidence-first. It records actual display
 - Player profiles now persist KOF Main Rally links.
 - Owned KOF heroes become linkable only at ★4 or ★5.
 - KOF heroes remain excluded from Joiner LEFT recommendations.
-- Season 5 link targets follow hero class: Omega Rugal → Tyronn, Terry Bogard → Ryuichi or Flameborne, Mai Shiranui → Ada.
+- Season 5 link targets follow hero class: Omega Rugal → Tyronn, Terry Bogard → Ryuichi, Mai Shiranui → Ada.
+- KOF links can target SSR Main Rally heroes only; SR heroes such as Flameborne cannot be linked.
 - Links are player-selected replacements, not automatic claims that a KOF hero is stronger.
 - Generated Main Rally output displays active KOF replacement links.
