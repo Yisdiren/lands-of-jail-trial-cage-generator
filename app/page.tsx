@@ -109,7 +109,7 @@ export default function Home() {
         ratios: { shield: 0, bomber: 10, shooter: 90 },
         tiers: troopTiers,
       }),
-    [leaderCapacity, leaderRatios, troopTiers],
+    [leaderCapacity, troopTiers],
   );
   const automaticWarSkillLevels = useMemo<WarSkillLevels>(() => {
     const levels: WarSkillLevels = {};
@@ -254,7 +254,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.27 SIMPLE</div>
+        <div className="badge">DEV v1.28 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
