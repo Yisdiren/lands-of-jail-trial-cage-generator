@@ -31,7 +31,7 @@ export function calculateTroopPlan(config:TroopConfig):TroopPlan{
 export function validateFormation(formation:Omit<Formation,"alerts"|"status">,troopPlan:TroopPlan,mode:"leader"|"joiner"):Pick<Formation,"alerts"|"status">{
   const alerts:FormationAlert[]=troopPlan.warnings.map(message=>({severity:"error",message})),formationHeroes=[formation.left,formation.middle,formation.right];
   if(new Set(formationHeroes.map(hero=>hero.cls)).size!==3)alerts.push({severity:"error",message:"Formation must contain exactly one Shield, one Bomber and one Shooter hero."});
-  formationHeroes.forEach(hero=>{if(hero.rarity==="KOF")alerts.push({severity:"error",message:`${hero.name} is a KOF event hero and is currently excluded from Trial Cage generation.`})});
+  formationHeroes.forEach(hero=>{if(hero.rarity==="KOF"&&mode==="joiner")alerts.push({severity:"error",message:`${hero.name} is a KOF event hero and is excluded from Joiner generation.`})});
   if(!formation.robot)alerts.push({severity:"warning",message:"No owned robot is assigned to this march."});
   if(mode==="joiner"){
     if(!formation.left.leftSkill)alerts.push({severity:"error",message:"The LEFT hero has no confirmed first War skill for rally joining."});
