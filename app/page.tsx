@@ -3,15 +3,9 @@
 import { useMemo, useRef, useState } from "react";
 import { felons, heroes, robots } from "../data/heroes";
 import {
-  calculateTroopPlan,
   generateJoinerFormations,
   generateLeaderFormation,
   optimizeFelons,
-  type TroopPreset,
-  type TroopClassKey,
-  type TroopTier,
-  type TroopTiers,
-  type TroopValues,
   type WarSkillLevels,
 } from "../lib/generator";
 import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings } from "../lib/cage-buffs";
@@ -22,15 +16,6 @@ import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks
 import { downloadFormationImage } from "../lib/formation-image";
 
 type Mode = "leader" | "joiner";
-const troopClasses: { key: TroopClassKey; label: string }[] = [
-  { key: "shield", label: "Shieldbearers" },
-  { key: "bomber", label: "Bombers" },
-  { key: "shooter", label: "Shooters" },
-];
-const troopTierOptions = Array.from(
-  { length: 11 },
-  (_, index) => `T${index + 1}` as TroopTier,
-);
 const retainedSrHeroes = new Set(["Lofili", "Lunarl", "Flameborne", "Samir"]);
 const showHeroInGenerator = (hero: (typeof heroes)[number]) => hero.rarity !== "R" && (hero.rarity !== "SR" || retainedSrHeroes.has(hero.name));
 const heroIconNames = new Set([
@@ -46,17 +31,6 @@ export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
   const [season, setSeason] = useState(1);
   const [owned, setOwned] = useState<string[]>([]);
-  const leaderCapacity = 100000;
-  const [joinerRatios, setJoinerRatios] = useState<TroopValues>({
-    shield: 0,
-    bomber: 0,
-    shooter: 100,
-  });
-  const [troopTiers, setTroopTiers] = useState<TroopTiers>({
-    shield: "T10",
-    bomber: "T10",
-    shooter: "T10",
-  });
   const [joinCount, setJoinCount] = useState(6);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
@@ -93,24 +67,6 @@ export default function Home() {
   const availableRobots = useMemo(
     () => robots.filter((robot) => ownedRobots.includes(robot)),
     [ownedRobots],
-  );
-  const joinerTroopPlan = useMemo(
-    () =>
-      calculateTroopPlan({
-        capacity: 100000,
-        ratios: joinerRatios,
-        tiers: troopTiers,
-      }),
-    [joinerRatios, troopTiers],
-  );
-  const leaderTroopPlan = useMemo(
-    () =>
-      calculateTroopPlan({
-        capacity: leaderCapacity,
-        ratios: { shield: 0, bomber: 10, shooter: 90 },
-        tiers: troopTiers,
-      }),
-    [leaderCapacity, troopTiers],
   );
   // War skills unlock one level ahead of hero stars:
   // 1★ -> max Lv2, 2★ -> max Lv3, 3★ -> max Lv4, 4★+ -> max Lv5.
@@ -286,7 +242,7 @@ export default function Home() {
     }
   };
   const buffGroups = splitBuffsBySource();
-  const buffCapacityPreview = previewCageCapacity(leaderCapacity, selectedBuffIds);
+  const buffCapacityPreview = previewCageCapacity(100000, selectedBuffIds);
   const toggleCageBuff = (id: string) => setSelectedBuffIds(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id]);
   return (
     <main>
@@ -301,7 +257,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.38 SIMPLE</div>
+        <div className="badge">DEV v1.39 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
