@@ -44,3 +44,24 @@ export function buildPreCageChecklist(selectedIds: string[]) {
       source: buff.source === "prison-buff" ? "Prison Buff" : "Prisoner Armor",
     }));
 }
+
+export type CapacityPreview = {
+  baseCapacity: number;
+  expeditionPercent: number;
+  expeditionFlat: number;
+  rallyFlat: number;
+  confirmedFinalCapacity: number | null;
+  note: string;
+};
+
+export function previewCageCapacity(baseCapacity: number, selectedIds: string[]): CapacityPreview {
+  const totals = summarizeSelectedBuffs(selectedIds);
+  return {
+    baseCapacity,
+    expeditionPercent: totals.expeditionCapacityPercent,
+    expeditionFlat: totals.expeditionCapacityFlat,
+    rallyFlat: totals.rallyCapacityFlat,
+    confirmedFinalCapacity: null,
+    note: "Capacity effects are shown separately until the game's stacking/order is verified.",
+  };
+}
