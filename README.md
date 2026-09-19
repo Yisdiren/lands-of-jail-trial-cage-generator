@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Development Beta v0.70 (branch: beta-v061-v070)
+## Development Beta v0.80 (branch: beta-v071-v080)
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -179,3 +179,18 @@ Verified screenshot data currently represented: Troops ATK +11%, Troops Lethalit
 - **v0.68** — Capacity verification warnings are now visible in the UI.
 - **v0.69** — Improved selected-buff and warning visibility.
 - **v0.70** — Consolidated the complete first interactive Pre-Cage UI batch for later merge/deployment.
+
+
+## Beta v0.71–v0.80 development batch
+- **v0.71** — Added per-felon unbuffed rally-capacity storage so felon-specific baselines can be recorded without becoming global game assumptions.
+- **v0.72** — Separated unbuffed Main Rally capacity wording from temporary Cage buffs.
+- **v0.73** — Added a capacity-observation model for future in-game stacking tests.
+- **v0.74** — Strengthened the Pre-Cage checklist presentation.
+- **v0.75** — Added a compact profile setup dashboard.
+- **v0.76** — Redesigned normal Cage troop entry around Bombers and Shooters; Shieldbearer troops are no longer presented as a standard Cage input.
+- **v0.77** — Added clearer Main Rally capacity and troop-ratio context.
+- **v0.78** — Clarified the fixed 100,000 Joiner rule and LEFT War-skill priority.
+- **v0.79** — Added responsive polish for the new dashboard and troop setup.
+- **v0.80** — Removed the stale runtime beta-badge override, preserved felon-capacity profile data, and synchronized the development milestone version.
+
+Capacity stacking remains intentionally uncalculated until direct in-game observations verify the order/formula. Known account observations should be stored per player rather than hardcoded as universal values.
