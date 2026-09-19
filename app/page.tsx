@@ -99,6 +99,7 @@ export default function Home() {
   const [profileNotice, setProfileNotice] = useState("");
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
+  const [showAdvancedTroops, setShowAdvancedTroops] = useState(false);
   const [capacityObservations, setCapacityObservations] = useState<CapacityObservation[]>([]);
   const importProfileInput = useRef<HTMLInputElement>(null);
   const importAllianceInput = useRef<HTMLInputElement>(null);
@@ -898,6 +899,7 @@ export default function Home() {
           </small>
         </div>
         <div className="cage-ratio-presets"><b>QUICK CAGE RATIOS</b><button type="button" onClick={()=>{(mode==="leader"?setLeaderRatios:setJoinerRatios)({shield:0,bomber:0,shooter:100});setGenerated(false)}}>0 / 0 / 100</button><button type="button" onClick={()=>{(mode==="leader"?setLeaderRatios:setJoinerRatios)({shield:0,bomber:10,shooter:90});setGenerated(false)}}>0 / 10 / 90</button></div>
+        <button className="advanced-troops-toggle" type="button" onClick={()=>setShowAdvancedTroops(v=>!v)}>{showAdvancedTroops ? "HIDE ADVANCED SHIELDBEARER TROOPS" : "ADVANCED: SHIELDBEARER TROOPS"}</button>
         <p className="cage-troop-note"><b>Shieldbearer hero ≠ Shieldbearer troops.</b> Standard Trial Cage setup uses 0 Shieldbearer troops, so only Bombers and Shooters are shown here.</p>
         <div className="troop-grid troop-grid-head">
           <b>CAGE TROOPS</b>
@@ -906,7 +908,7 @@ export default function Home() {
           <b>AVAILABLE</b>
           <b>REQUIRED</b>
         </div>
-        {troopClasses.filter(({ key }) => key !== "shield").map(({ key, label }) => {
+        {troopClasses.filter(({ key }) => key !== "shield" || showAdvancedTroops).map(({ key, label }) => {
           const ratios = mode === "leader" ? leaderRatios : joinerRatios;
           const plan = mode === "leader" ? leaderTroopPlan : joinerTroopPlan;
           return (
