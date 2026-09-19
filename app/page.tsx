@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.16</div>
+        <div className="badge">DEV v1.17</div>
       </header>
 
       <section className="panel profile-panel">
@@ -826,7 +826,7 @@ export default function Home() {
         {mode === "joiner" && (
           <>
             <div>
-              <label>JOINER TROOPS</label>
+              <label>JOINER TROOPS • FIXED 100,000</label>
               <select
                 value={troopPreset}
                 onChange={(e) => {
