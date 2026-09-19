@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Development Beta v0.60 (branch: beta-v051-v060)
+## Development Beta v0.70 (branch: beta-v061-v070)
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -166,3 +166,16 @@ This batch is intentionally being developed away from `main` so intermediate bet
 - **v0.60** — Consolidated and documented the first complete pre-Cage buff framework without guessing the game's capacity stacking formula.
 
 Verified screenshot data currently represented: Troops ATK +11%, Troops Lethality +11%, Expedition Capacity +11%, Comprehensive Command Lv.9 +11,250 expedition capacity, Pinpoint Suppression Lv.10 +10% HP, Overload Charge Lv.6 +96,000 rally capacity, Valiant Breach Lv.4 +4% Lethality, Penetrating Ray Lv.10 +10% enemy DEF reduction, and Orbital Strike Lv.5 +4% expedition ATK. All shown effects last 2 hours after activation.
+
+
+## Beta v0.61–v0.70 development batch
+- **v0.61** — Pre-Cage selections persist with each player profile and profile export/import.
+- **v0.62** — Added the interactive Pre-Cage Buffs & Prisoner Armor panel.
+- **v0.63** — Added responsive desktop/mobile styling for the new panel.
+- **v0.64** — Added neutral offense/capacity/support categorization without claiming an optimal setup.
+- **v0.65** — Added shareable pre-Cage checklist output.
+- **v0.66** — Copied Trial Cage instructions now include the player's pre-Cage setup.
+- **v0.67** — Added warnings when multiple unverified capacity stacking effects are selected.
+- **v0.68** — Capacity verification warnings are now visible in the UI.
+- **v0.69** — Improved selected-buff and warning visibility.
+- **v0.70** — Consolidated the complete first interactive Pre-Cage UI batch for later merge/deployment.
