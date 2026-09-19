@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.09</div>
+        <div className="badge">DEV v1.13</div>
       </header>
 
       <section className="panel profile-panel">
@@ -895,7 +895,7 @@ export default function Home() {
               setGenerated(false);
             }}
           />
-          {mode === "leader" && <div className="main-rally-context"><b>MAIN RALLY • MAX CAP</b><span>Full march: {leaderCapacity.toLocaleString()} troops</span><span>Composition: {leaderRatios.shield} / {leaderRatios.bomber} / {leaderRatios.shooter}</span><small>Ratios split your full Main Rally capacity; they do not reduce the march to 100,000.</small></div>}
+          {mode === "leader" && <div className="main-rally-context"><b>MAIN RALLY • MAX CAP</b><span>Full march: {leaderCapacity.toLocaleString()} troops</span><span>Composition: {leaderRatios.shield} / {leaderRatios.bomber} / {leaderRatios.shooter}</span><span>Exact troops: {leaderTroopPlan.counts.shield.toLocaleString()} Shield / {leaderTroopPlan.counts.bomber.toLocaleString()} Bomber / {leaderTroopPlan.counts.shooter.toLocaleString()} Shooter = {leaderTroopPlan.assignedTotal.toLocaleString()}</span><small>Ratios split your full Main Rally capacity; they do not reduce the march to 100,000.</small></div>}
           <small>
             {mode === "leader"
               ? "Rally Leaders always use the full saved Main Rally capacity. The ratio only divides that full capacity between troop classes. Temporary Cage buffs are tracked separately below."
