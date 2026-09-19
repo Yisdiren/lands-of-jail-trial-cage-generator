@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useMemo, useState } from "react";
 import { felons, heroes, robots } from "../data/heroes";
 import {
   calculateTroopPlan,
@@ -14,23 +14,14 @@ import {
   type TroopValues,
   type WarSkillLevels,
 } from "../lib/generator";
-import {
-  createBlankProfile,
-  parseProfileExport,
-  serializeProfile,
-  type MemberProfile,
-  type MemberRole,
-} from "../lib/profiles";
-import { evaluateMemberReadiness } from "../lib/readiness";
 import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings, capacityObservationLabel, capacityEvidenceStatus, type CapacityObservation } from "../lib/cage-buffs";
-import { parseAllianceBackup, serializeAllianceBackup } from "../lib/backup";
 import Image from "next/image";
 
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
 
 import { downloadFormationImage } from "../lib/formation-image";
 
-type Mode = MemberRole;
+type Mode = "leader" | "joiner";
 const troopClasses: { key: TroopClassKey; label: string }[] = [
   { key: "shield", label: "Shieldbearers" },
   { key: "bomber", label: "Bombers" },
@@ -42,8 +33,6 @@ const troopTierOptions = Array.from(
 );
 const retainedSrHeroes = new Set(["Lofili", "Lunarl", "Flameborne", "Samir"]);
 const showHeroInGenerator = (hero: (typeof heroes)[number]) => hero.rarity !== "R" && (hero.rarity !== "SR" || retainedSrHeroes.has(hero.name));
-const profileStorageKey = "loj-member-profiles-v1";
-const activeProfileStorageKey = "loj-active-profile-v1";
 const heroIconNames = new Set([
   "Omega Rugal", "Terry Bogard", "Mai Shiranui", "Ada", "Ryuichi", "Edwin",
   "Koschevoi", "Mireya", "Marcus", "Whisper", "Drake", "Veronica", "Tyronn",
@@ -54,7 +43,7 @@ const heroIconNames = new Set([
 const heroIconSlug = (name: string) =>
   name.toLowerCase().replace(/scarlet pyros/g, "scarlet-pyros").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 export default function Home() {
-  const [mode, setMode] = useState<Mode>("joiner"); // retained for saved-profile compatibility; streamlined UI generates both
+  const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
   const [season, setSeason] = useState(1);
   const [owned, setOwned] = useState<string[]>([]);
   const [troopPreset, setTroopPreset] = useState<TroopPreset>("shooters");
@@ -75,8 +64,6 @@ export default function Home() {
     bomber: "T10",
     shooter: "T10",
   });
-  // Preserve legacy profile data without using it to limit formation generation.
-  const [availableTroops, setAvailableTroops] = useState<TroopValues>({ shield: 0, bomber: 0, shooter: 0 });
   const [joinCount, setJoinCount] = useState(6);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
@@ -89,50 +76,12 @@ export default function Home() {
   const [leaderLocks, setLeaderLocks] = useState<Locks>({});
   const [generated, setGenerated] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const [profiles, setProfiles] = useState<MemberProfile[]>([]);
-  const [activeProfileId, setActiveProfileId] = useState("new-player");
-  const [profileName, setProfileName] = useState("New Player");
-  const [profileServer, setProfileServer] = useState("");
-  const [profilesLoaded, setProfilesLoaded] = useState(false);
-  const [profileNotice, setProfileNotice] = useState("");
+  const [notice, setNotice] = useState("");
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
   const [showAdvancedTroops, setShowAdvancedTroops] = useState(false);
   const [capacityObservations, setCapacityObservations] = useState<CapacityObservation[]>([]);
   const [kofLeaderLinks, setKofLeaderLinks] = useState<Record<string,string>>({});
-  const importProfileInput = useRef<HTMLInputElement>(null);
-  const importAllianceInput = useRef<HTMLInputElement>(null);
-  function applyProfile(profile: MemberProfile) {
-    setLocks({});
-    setLeaderLocks({});
-    setProfileName(profile.playerName);
-    setProfileServer(profile.server);
-    setMode(profile.role);
-    setSeason(profile.season);
-    setOwned(profile.ownedHeroes);
-    setHeroStarLevels(profile.heroStarLevels ?? {});
-    setWarSkillLevels(profile.warSkillLevels);
-    setOwnedRobots(profile.ownedRobots);
-    setOwnedFelons(profile.ownedFelons);
-    setFelonRallyCapacities(profile.felonRallyCapacities ?? {});
-    setRallyFills(profile.rallyFills);
-    setSeatHolder(profile.seatHolder ?? false);
-    setJoinerCapacity(profile.joinerCapacity);
-    setLeaderCapacity(profile.leaderCapacity);
-    setJoinerRatios(profile.joinerRatios);
-    setLeaderRatios(profile.leaderRatios);
-    setTroopTiers(profile.troopTiers);
-    setAvailableTroops(profile.availableTroops);
-    setTroopPreset(profile.troopPreset);
-    setJoinCount(profile.joinCount);
-    setVerifiedOnly(profile.verifiedOnly ?? false);
-    setSelectedBuffIds(profile.cageBuffProfile?.selectedBuffIds ?? defaultCageBuffProfile.selectedBuffIds);
-    setActivationLeadMinutes(profile.cageBuffProfile?.activationLeadMinutes ?? defaultCageBuffProfile.activationLeadMinutes);
-    setCapacityObservations(profile.capacityObservations ?? []);
-    setKofLeaderLinks(profile.kofLeaderLinks ?? {});
-    setGenerated(false);
-  }
-
   const seasonHeroes = useMemo(
     () => heroes.filter((h) => (h.season === 0 || h.season <= season) && showHeroInGenerator(h)),
     [season],
@@ -281,50 +230,22 @@ export default function Home() {
     setTroopTiers((current) => ({ ...current, [key]: value }));
     setGenerated(false);
   };
-  const currentProfileSnapshot = (): MemberProfile => ({
-    id: activeProfileId,
-    playerName: profileName.trim() || "Unnamed Member",
-    server: profileServer.trim(),
-    role: mode,
-    season,
-    ownedHeroes: owned,
-    heroStarLevels,
-    warSkillLevels,
-    ownedRobots,
-    ownedFelons,
-    felonRallyCapacities,
-    capacityObservations,
-    kofLeaderLinks,
-    rallyFills,
-    seatHolder,
-    joinerCapacity,
-    leaderCapacity,
-    joinerRatios,
-    leaderRatios,
-    troopTiers,
-    availableTroops,
-    troopPreset,
-    joinCount,
-    verifiedOnly,
-    cageBuffProfile: { selectedBuffIds, activationLeadMinutes },
-    updatedAt: Date.now(),
-  });
   const [exportingImage, setExportingImage] = useState(false);
   const exportFormationImage = async () => {
     setExportingImage(true);
     try {
       await downloadFormationImage(leaderFormation ? [leaderFormation, ...joinerFormations] : joinerFormations,
-        profileName || "Member", heroStarLevels,
+        "Trial Cage", heroStarLevels,
         name => heroIconNames.has(name) ? "/icons/" + heroIconSlug(name) + ".png" : null);
-      setProfileNotice("Formation image downloaded.");
+      setNotice("Formation image downloaded.");
     } catch (error) {
-      setProfileNotice(error instanceof Error ? error.message : "Image download failed.");
+      setNotice(error instanceof Error ? error.message : "Image download failed.");
     } finally { setExportingImage(false); }
   };
   const copyAllianceInstructions = async () => {
     const lines = [
-      `TRIAL CAGE — ${profileName || "Player"}`,
-      `Server ${profileServer || "—"} • ${verifiedOnly ? "verified LEFT skills only" : "standard LEFT skill priority"}`,
+      "TRIAL CAGE FORMATIONS",
+      verifiedOnly ? "Verified LEFT skills only" : "Standard LEFT skill priority",
       ...preCageShareLines({ selectedBuffIds, activationLeadMinutes }),
       "",
       ...joinerFormations.flatMap((formation) => [
@@ -334,192 +255,14 @@ export default function Home() {
     ];
     try {
       await navigator.clipboard.writeText(lines.join("\n"));
-      setProfileNotice("Alliance instructions copied to the clipboard.");
+      setNotice("Alliance instructions copied to the clipboard.");
     } catch {
-      setProfileNotice("Clipboard access was blocked. Select and copy the formation list manually.");
+      setNotice("Clipboard access was blocked. Select and copy the formation list manually.");
     }
   };
-  const saveActiveProfile = () => {
-    const saved = currentProfileSnapshot();
-    const next = profiles.map((profile) =>
-      profile.id === activeProfileId ? saved : profile,
-    );
-    setProfiles(next);
-    localStorage.setItem(profileStorageKey, JSON.stringify(next));
-    setProfileNotice(`${saved.playerName}'s account profile is saved.`);
-  };
-  const exportActiveProfile = () => {
-    const saved = currentProfileSnapshot();
-    const next = profiles.map((profile) =>
-      profile.id === activeProfileId ? saved : profile,
-    );
-    setProfiles(next);
-    localStorage.setItem(profileStorageKey, JSON.stringify(next));
-    const blob = new Blob([serializeProfile(saved)], {
-      type: "application/json",
-    });
-    const link = document.createElement("a");
-    const safeName = saved.playerName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-    link.href = URL.createObjectURL(blob);
-    link.download = `loj-profile-${safeName || "member"}.json`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-    setProfileNotice(`${saved.playerName}'s profile backup was downloaded.`);
-  };
-  const importMemberProfile = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    try {
-      const createdAt = Date.now();
-      const id =
-        typeof crypto !== "undefined" && "randomUUID" in crypto
-          ? crypto.randomUUID()
-          : `member-${createdAt}`;
-      const imported = parseProfileExport(await file.text(), id);
-      const current = currentProfileSnapshot();
-      const savedProfiles = profiles.map((profile) =>
-        profile.id === activeProfileId ? current : profile,
-      );
-      const next = [...savedProfiles, imported];
-      setProfiles(next);
-      localStorage.setItem(profileStorageKey, JSON.stringify(next));
-      setActiveProfileId(imported.id);
-      localStorage.setItem(activeProfileStorageKey, imported.id);
-      applyProfile(imported);
-      setProfileNotice(`Imported ${imported.playerName}'s account profile.`);
-    } catch (error) {
-      setProfileNotice(
-        error instanceof Error
-          ? error.message
-          : "The selected profile could not be imported.",
-      );
-    }
-  };
-  const exportAllianceBackup = () => {
-    const current = currentProfileSnapshot();
-    const savedProfiles = profiles.map((profile) =>
-      profile.id === activeProfileId ? current : profile,
-    );
-    setProfiles(savedProfiles);
-    localStorage.setItem(profileStorageKey, JSON.stringify(savedProfiles));
-    const blob = new Blob([serializeAllianceBackup(savedProfiles, {})], {
-      type: "application/json",
-    });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `loj-trial-cage-backup-${new Date()
-      .toISOString()
-      .slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-    setProfileNotice("Full Trial Cage profile backup downloaded.");
-  };
-  const importAllianceBackup = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    try {
-      const createdAt = Date.now();
-      const restored = parseAllianceBackup(
-        await file.text(),
-        (_sourceId, index) =>
-          typeof crypto !== "undefined" && "randomUUID" in crypto
-            ? crypto.randomUUID()
-            : `member-${createdAt}-${index}`,
-      );
-      const current = currentProfileSnapshot();
-      const savedProfiles = profiles.map((profile) =>
-        profile.id === activeProfileId ? current : profile,
-      );
-      const next = [...savedProfiles, ...restored.profiles];
-      const first = restored.profiles[0];
-      setProfiles(next);
-      localStorage.setItem(profileStorageKey, JSON.stringify(next));
-      setActiveProfileId(first.id);
-      localStorage.setItem(activeProfileStorageKey, first.id);
-      applyProfile(first);
-      setProfileNotice(
-        `Restored ${restored.profiles.length} member profiles.`,
-      );
-    } catch (error) {
-      setProfileNotice(
-        error instanceof Error
-          ? error.message
-          : "The selected alliance backup could not be restored.",
-      );
-    }
-  };
-  const switchProfile = (profileId: string) => {
-    const current = currentProfileSnapshot();
-    const next = profiles.map((profile) =>
-      profile.id === activeProfileId ? current : profile,
-    );
-    const profile = next.find((entry) => entry.id === profileId);
-    if (!profile) return;
-    setProfiles(next);
-    localStorage.setItem(profileStorageKey, JSON.stringify(next));
-    setActiveProfileId(profile.id);
-    localStorage.setItem(activeProfileStorageKey, profile.id);
-    applyProfile(profile);
-    setProfileNotice(`Loaded ${profile.playerName}'s account settings.`);
-  };
-  const createProfile = () => {
-    const createdAt = Date.now();
-    const id =
-      typeof crypto !== "undefined" && "randomUUID" in crypto
-        ? crypto.randomUUID()
-        : `member-${createdAt}`;
-    const profile = createBlankProfile(id);
-    const current = currentProfileSnapshot();
-    const savedProfiles = profiles.map((entry) =>
-      entry.id === activeProfileId ? current : entry,
-    );
-    const next = [...savedProfiles, profile];
-    setProfiles(next);
-    localStorage.setItem(profileStorageKey, JSON.stringify(next));
-    setActiveProfileId(profile.id);
-    localStorage.setItem(activeProfileStorageKey, profile.id);
-    applyProfile(profile);
-    setProfileNotice("Created an empty player profile.");
-  };
-  const deleteActiveProfile = () => {
-    if (profiles.length <= 1) {
-      setProfileNotice("At least one member profile must remain.");
-      return;
-    }
-    const next = profiles.filter((profile) => profile.id !== activeProfileId);
-    const replacement = next[0];
-    setProfiles(next);
-    localStorage.setItem(profileStorageKey, JSON.stringify(next));
-    setActiveProfileId(replacement.id);
-    localStorage.setItem(activeProfileStorageKey, replacement.id);
-    applyProfile(replacement);
-    setProfileNotice("Member profile deleted from this browser.");
-  };
-
   const buffGroups = splitBuffsBySource();
   const buffCapacityPreview = previewCageCapacity(leaderCapacity, selectedBuffIds);
   const toggleCageBuff = (id: string) => setSelectedBuffIds(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id]);
-  const profileSnapshot = currentProfileSnapshot();
-  const rosterProfiles = profiles.map((profile) =>
-    profile.id === activeProfileId ? profileSnapshot : profile,
-  );
-  const roster = rosterProfiles.map((profile) => ({
-    profile,
-    readiness: evaluateMemberReadiness(profile, heroes),
-  }));
-  const readinessCounts = {
-    ready: roster.filter((entry) => entry.readiness.status === "ready").length,
-    review: roster.filter((entry) => entry.readiness.status === "review")
-      .length,
-    blocked: roster.filter((entry) => entry.readiness.status === "blocked")
-      .length,
-  };
-
   return (
     <main>
       <header>
@@ -533,103 +276,8 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.23 SIMPLE</div>
+        <div className="badge">DEV v1.24 SIMPLE</div>
       </header>
-
-      <section className="panel profile-panel">
-        <div className="title">
-          <div>
-            <label>PLAYER PROFILE</label>
-            <h2>Generate from this member&apos;s actual account</h2>
-          </div>
-          <span>{profiles.length} saved locally</span>
-        </div>
-        <div className="profile-grid">
-          <label>
-            ACTIVE MEMBER
-            <select
-              value={activeProfileId}
-              onChange={(event) => switchProfile(event.target.value)}
-              disabled={!profilesLoaded}
-            >
-              {profiles.map((profile) => (
-                <option key={profile.id} value={profile.id}>
-                  {profile.playerName}
-                  {profile.server ? ` — Server ${profile.server}` : ""}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            PLAYER NAME
-            <input
-              value={profileName}
-              onChange={(event) => {
-                setProfileName(event.target.value);
-                setProfileNotice("");
-              }}
-            />
-          </label>
-          <label>
-            SERVER
-            <input
-              inputMode="numeric"
-              value={profileServer}
-              onChange={(event) => {
-                setProfileServer(event.target.value);
-                setProfileNotice("");
-              }}
-              placeholder="260"
-            />
-          </label>
-          <div className="profile-role">
-            <label>SAVED ROLE</label>
-            <strong>
-              {mode === "leader" ? "Rally Leader" : "Rally Joiner"}
-            </strong>
-          </div>
-          <div className="profile-seat">
-            <label>SCARLET BUTCHER SEAT</label>
-            <button
-              className={seatHolder ? "active" : ""}
-              onClick={() => {
-                setSeatHolder((current) => !current);
-                setGenerated(false);
-                setProfileNotice("");
-              }}
-            >
-              {seatHolder ? "SEAT HOLDER • +10% ATK" : "NO SEAT BONUS"}
-            </button>
-          </div>
-        </div>
-        <div className="profile-actions">
-          <button className="profile-save" onClick={saveActiveProfile}>
-            SAVE PROFILE
-          </button>
-          <button onClick={createProfile}>NEW EMPTY MEMBER</button>
-          <button onClick={exportActiveProfile}>EXPORT PROFILE</button>
-          <button onClick={() => importProfileInput.current?.click()}>
-            IMPORT PROFILE
-          </button>
-          <input
-            ref={importProfileInput}
-            className="profile-file-input"
-            type="file"
-            accept="application/json,.json"
-            onChange={importMemberProfile}
-          />
-          <button className="profile-delete" onClick={deleteActiveProfile}>
-            DELETE PROFILE
-          </button>
-        </div>
-        {profileNotice && <p className="profile-notice">{profileNotice}</p>}
-        <p className="helper">
-          Profiles stay in this browser. New members begin with
-          no owned heroes, robots or Felons selected, so Stiletto&apos;s Server
-          260 settings are never used as their account data. Exported profile
-          files contain account settings.
-        </p>
-      </section>
 
       <section className="panel cage-buffs-panel">
         <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Prisoner Armor</h2></div></div>
@@ -653,126 +301,19 @@ export default function Home() {
         <div className="capacity-test-list">{capacityObservations.slice(0,5).map((o,i)=><div key={o.recordedAt+"-"+i}>{capacityObservationLabel(o)}</div>)}</div>
       </section>
 
-      <section className="panel alliance-panel">
-        <div className="title">
-          <div>
-            <label>PLAYER READINESS</label>
-            <h2>See who is ready before Trial Cage opens</h2>
-          </div>
-          <span>{roster.length} member profiles</span>
-        </div>
-        <div className="alliance-summary">
-          <div className="ready">
-            <strong>{readinessCounts.ready}</strong>
-            <span>READY</span>
-          </div>
-          <div className="review">
-            <strong>{readinessCounts.review}</strong>
-            <span>REVIEW</span>
-          </div>
-          <div className="blocked">
-            <strong>{readinessCounts.blocked}</strong>
-            <span>BLOCKED</span>
-          </div>
-          <div>
-            <strong>
-              {roster.filter((entry) => entry.profile.seatHolder).length}
-            </strong>
-            <span>SEAT HOLDERS</span>
-          </div>
-        </div>
-        <div className="profile-actions alliance-actions">
-          <button className="profile-save" onClick={exportAllianceBackup}>
-            EXPORT FULL ALLIANCE
-          </button>
-          <button onClick={() => importAllianceInput.current?.click()}>
-            RESTORE ALLIANCE BACKUP
-          </button>
-          <input
-            ref={importAllianceInput}
-            className="profile-file-input"
-            type="file"
-            accept="application/json,.json"
-            onChange={importAllianceBackup}
-          />
-          <span>
-            Includes every member profile and each member&apos;s Cage-hit
-            profiles and Trial Cage setup.
-          </span>
-        </div>
-        <div className="alliance-roster">
-          {roster.map(({ profile, readiness }) => (
-            <article
-              className={`member-card ${
-                profile.id === activeProfileId ? "active" : ""
-              }`}
-              key={profile.id}
-            >
-              <div className="member-card-head">
-                <div>
-                  <b>{profile.playerName}</b>
-                  <span>
-                    {profile.server ? `Server ${profile.server}` : "No server"}
-                    {profile.seatHolder ? " • Seat +10% ATK" : ""}
-                  </span>
-                </div>
-                <em className={`status status-${readiness.status}`}>
-                  {readiness.status.toUpperCase()}
-                </em>
-              </div>
-              <div className="member-facts">
-                <span>
-                  <b>{profile.role === "leader" ? "Leader" : "Joiner"}</b>
-                  Role
-                </span>
-                <span>
-                  <b>{readiness.capacity.toLocaleString("en-US")}</b>
-                  Capacity
-                </span>
-                <span>
-                  <b>
-                    {readiness.possibleMarches}/{readiness.requestedMarches}
-                  </b>
-                  Marches
-                </span>
-                <span>
-                  <b>
-                    {readiness.classCounts.Shield}/
-                    {readiness.classCounts.Bomber}/
-                    {readiness.classCounts.Shooter}
-                  </b>
-                  S / B / S heroes
-                </span>
-                <span>
-                  <b>{profile.ownedRobots.length}</b>
-                  Robots
-                </span>
-              </div>
-              <p>
-                {readiness.issues.length
-                  ? readiness.issues.slice(0, 2).join(" • ")
-                  : "Profile has the required heroes, troops and support setup."}
-              </p>
-              <button onClick={() => switchProfile(profile.id)}>
-                {profile.id === activeProfileId
-                  ? "ACTIVE MEMBER"
-                  : "OPEN MEMBER PROFILE"}
-              </button>
-            </article>
-          ))}
-        </div>
-      </section>
+      {notice && <p role="status" className="profile-notice">{notice}</p>}
 
       <section className="panel controls">
         <div>
           <label>CAGE SETUP</label>
           <h2>One-click Main Rally + Joiners</h2>
-          <p className="helper">Set your account once, then generate your Main Rally and all Joiners together.</p>
+          <p className="helper">Choose your heroes, robots and march settings, then generate your Main Rally and Joiners together.</p>
         </div>
         <label className="verified-toggle">
           <input type="checkbox" checked={verifiedOnly} onChange={(event)=>{setVerifiedOnly(event.target.checked);setGenerated(false)}} />
           <span><b>VERIFIED SKILLS ONLY</b><small>Use screenshot-confirmed LEFT War progressions only</small><small>{evidenceCounts.verified}/{evidenceCounts.total} available LEFT skills verified</small></span>
         </label>
+        <label><input type="checkbox" checked={seatHolder} onChange={event => {setSeatHolder(event.target.checked);setGenerated(false)}} /> SCARLET BUTCHER SEAT • +10% ATK</label>
         <div><label>SERVER SEASON</label><select value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
         <div><label>JOINER TROOPS • FIXED 100,000</label><select value={troopPreset} onChange={(e)=>applyTroopPreset(e.target.value as TroopPreset)}><option value="shooters">0 / 0 / 100</option><option value="10-90">0 / 10 / 90</option></select></div>
         <div><label>JOINER MARCHES</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
@@ -992,8 +533,8 @@ export default function Home() {
           <b>{seatHolder ? "+10% ATK ACTIVE" : "NO SEAT ATK BONUS"}</b>
           <span>
             {seatHolder
-              ? "This member is a seat holder: +10% ATK against Imprisoned Scarlet Butcher."
-              : "This member is not marked as a seat holder; no seat modifier is applied."}
+              ? "You are a seat holder: +10% ATK against Imprisoned Scarlet Butcher."
+              : "Seat holder is turned off; no seat modifier is applied."}
           </span>
         </div>
       )}

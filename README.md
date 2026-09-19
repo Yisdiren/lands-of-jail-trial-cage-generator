@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.23
+## Development Beta v1.24
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -29,19 +29,11 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Hero portraits/icons in generated formations
 - Copy-ready individual and group formation output
 
-### Player profiles and onboarding
-- General player profiles for any alliance or server
-- New visitors begin with a clean **New Player** profile
-- Existing saved profiles are preserved while new visitors start from neutral account defaults
-- Guided first-time setup for player name, server, season, role, capacity and join count
-- Guided hero ownership selection
-- Hero roster import from pasted text or .txt files, with ★ detection, merge/replace modes and alias matching
-- Guided ★ and War-skill setup for selected heroes
-- Guided robot and troop-tier setup
-- Player profiles store heroes, stars, War skills, robots and troop settings
-- Member Generator for switching between saved players
-- Alliance Batch Generator calculates every selected player independently
-- Versioned browser-local profile storage
+### Direct generator
+- Opens directly to Cage settings without player profiles or onboarding
+- No player name, server identity, member switching or alliance profile backups
+- Formation sharing and image download use the current selections
+- Seat-holder toggle remains in Cage Setup
 
 ### Validation and readiness
 - Detects missing hero classes
@@ -254,3 +246,6 @@ Season 6 hero work is intentionally deferred until direct in-game evidence is av
 
 ### Deployment
 Vercel Git deployments are enabled for the v1.23 release. Commits to the production branch deploy through the existing Vercel integration.
+
+## Beta v1.24 — Remove player profiles
+Removed profile management, member overview, alliance readiness and batch panels, and onboarding. The generator uses the selections on the page directly. Existing browser profile data is left untouched but is no longer read or written.
