@@ -12,7 +12,7 @@ import {
   maxWarSkillLevelForStars,
   diagnoseJoinerRoster,
 } from "../lib/generator";
-import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings } from "../lib/cage-buffs";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, buffEffectLabel, defaultCageBuffProfile, preCageShareLines } from "../lib/cage-buffs";
 import Image from "next/image";
 
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
@@ -53,7 +53,6 @@ export default function Home() {
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
   const [ownedFelons, setOwnedFelons] = useState<string[]>([]);
-  const [felonRallyCapacities, setFelonRallyCapacities] = useState<Record<string, number>>({});
   const [rallyFills, setRallyFills] = useState(true);
   const [seatHolder, setSeatHolder] = useState(false);
   const [locks, setLocks] = useState<Locks>({});
@@ -64,7 +63,6 @@ export default function Home() {
   const heroImportRef = useRef<HTMLInputElement>(null);
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
-  const [showAdvancedTroops, setShowAdvancedTroops] = useState(false);
   const [kofLeaderLinks, setKofLeaderLinks] = useState<Record<string,string>>({});
   const seasonHeroes = useMemo(
     () => heroes.filter((h) => (h.season === 0 || h.season <= season) && showHeroInGenerator(h)),
@@ -260,7 +258,6 @@ export default function Home() {
     }
   };
   const buffGroups = splitBuffsBySource();
-  const buffCapacityPreview = previewCageCapacity(100000, selectedBuffIds);
   const toggleCageBuff = (id: string) => setSelectedBuffIds(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id]);
   return (
     <main>
@@ -275,7 +272,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.45 BETA</div>
+        <div className="badge">DEV v1.46 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
