@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Development Beta v1.06 (branch: beta-v101-kof-links)
+## Development Beta v1.20 (branch: beta-v110-v120)
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -229,3 +229,19 @@ The capacity recorder is intentionally evidence-first. It records actual display
 - KOF links can target SSR Main Rally heroes only; SR heroes such as Flameborne cannot be linked.
 - Links are player-selected replacements, not automatic claims that a KOF hero is stronger.
 - Generated Main Rally output displays active KOF replacement links.
+
+
+## Beta v1.10–v1.20 development batch
+- **v1.10** — KOF-linked heroes are valid in Main Rally while remaining blocked from Joiners.
+- **v1.11** — Hardened KOF replacement targets to the verified SSR link pairs.
+- **v1.12** — Added a full-capacity troop assignment consistency check.
+- **v1.13** — Added live exact Main Rally troop counts and total.
+- **v1.14** — Removed stale Cage-hit-history backup wording.
+- **v1.15** — Capacity observations now show both absolute and percentage deltas.
+- **v1.16** — Expanded the Pre-Cage checklist with capacity, ratio and robot readiness.
+- **v1.17** — Reinforced the fixed 100,000-troop Joiner rule in the interface.
+- **v1.18** — Improved formation recovery guidance when a robot is missing.
+- **v1.19** — Generalized remaining backup wording.
+- **v1.20** — Synchronized the visible development badge and package versions for the stabilization milestone.
+
+Season 6 hero work is intentionally deferred until direct in-game evidence is available.
