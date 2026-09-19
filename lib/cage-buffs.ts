@@ -165,3 +165,11 @@ export function preCageShareLines(profile: CageBuffProfile) {
     cageBuffTimingMessage(profile),
   ];
 }
+
+export function preCageWarnings(baseCapacity: number, selectedIds: string[]) {
+  const totals = summarizeSelectedBuffs(selectedIds);
+  const warnings: string[] = [];
+  if (baseCapacity <= 0) warnings.push("Enter your unbuffed Main Rally capacity before using the capacity preview.");
+  if (totals.expeditionCapacityPercent && (totals.expeditionCapacityFlat || totals.rallyCapacityFlat)) warnings.push("Multiple capacity effects are selected. Final capacity is intentionally not auto-calculated until stacking order is verified.");
+  return warnings;
+}
