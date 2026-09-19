@@ -1011,3 +1011,6 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
 
 /* Beta v0.84 — capacity evidence recorder */
 .capacity-test-form{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;margin-top:14px}.capacity-test-form input,.capacity-test-form button{padding:10px 12px}.capacity-test-list{display:grid;gap:7px;margin-top:12px}.capacity-test-list div{padding:9px 11px;border:1px solid #4d4435;border-radius:5px;background:rgba(8,11,12,.72);font-size:12px;color:#b9c8d7}@media(max-width:650px){.capacity-test-form{grid-template-columns:1fr}}
+
+/* Beta v0.88 — quick Cage ratios */
+.cage-ratio-presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}.cage-ratio-presets b{margin-right:5px;color:#d5a43a}.cage-ratio-presets button,.clear-capacity-tests{padding:8px 11px;border:1px solid #71552e;border-radius:5px;background:linear-gradient(#30363a,#15191c);color:#e7d8b5;cursor:pointer;font-weight:800}.clear-capacity-tests{margin-top:10px}
