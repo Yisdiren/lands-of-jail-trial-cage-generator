@@ -15,13 +15,6 @@ import {
   type WarSkillLevels,
 } from "../lib/generator";
 import {
-  compareResults,
-  rankLeftHeroes,
-  type CageName,
-  type CageResult,
-  type TestVariant,
-} from "../lib/results";
-import {
   createBlankProfile,
   parseProfileExport,
   serializeProfile,
@@ -46,14 +39,10 @@ const troopTierOptions = Array.from(
   { length: 11 },
   (_, index) => `T${index + 1}` as TroopTier,
 );
-const legacyResultStorageKey = "loj-cage-results-v1";
 const profileStorageKey = "loj-member-profiles-v1";
 const activeProfileStorageKey = "loj-active-profile-v1";
 const evidenceMigrationKey = "loj-evidence-migration-v015";
 const starLevelsMigrationKey = "loj-star-levels-migration-v023";
-const resultStorageKey = (profileId: string) =>
-  `loj-cage-results-v1:${profileId}`;
-const formatDamage = (value: number) => value.toLocaleString("en-US");
 const heroIconNames = new Set([
   "Omega Rugal", "Terry Bogard", "Mai Shiranui", "Ada", "Ryuichi", "Edwin",
   "Koschevoi", "Mireya", "Marcus", "Whisper", "Drake", "Veronica", "Tyronn",
@@ -152,19 +141,6 @@ export default function Home() {
   const [profileNotice, setProfileNotice] = useState("");
   const importProfileInput = useRef<HTMLInputElement>(null);
   const importAllianceInput = useRef<HTMLInputElement>(null);
-  const [cageResults, setCageResults] = useState<CageResult[]>([]);
-  const [resultsLoaded, setResultsLoaded] = useState(false);
-  const [resultsProfileId, setResultsProfileId] = useState("");
-  const [resultCage, setResultCage] = useState<CageName>("Cage 1");
-  const [resultDate, setResultDate] = useState("");
-  const [testName, setTestName] = useState("Main baseline");
-  const [testVariant, setTestVariant] = useState<TestVariant>("A");
-  const [resultLeftHero, setResultLeftHero] = useState("Ryuichi");
-  const [resultDamage, setResultDamage] = useState("");
-  const [resultNotes, setResultNotes] = useState("");
-  const [resultError, setResultError] = useState("");
-  const [comparisonName, setComparisonName] = useState("");
-
   function applyProfile(profile: MemberProfile) {
     setLocks({});
     setLeaderLocks({});
@@ -190,85 +166,6 @@ export default function Home() {
     setVerifiedOnly(profile.verifiedOnly ?? false);
     setGenerated(false);
   }
-
-  useEffect(() => {
-    setResultDate(new Date().toISOString().slice(0, 10));
-    try {
-      const storedProfiles = localStorage.getItem(profileStorageKey);
-      const parsedProfiles = storedProfiles ? JSON.parse(storedProfiles) : null;
-      const needsEvidenceMigration =
-        !localStorage.getItem(evidenceMigrationKey);
-      const needsStarLevelsMigration =
-        !localStorage.getItem(starLevelsMigrationKey);
-      const loadedProfiles: MemberProfile[] =
-        Array.isArray(parsedProfiles) && parsedProfiles.length
-          ? parsedProfiles.map((profile: MemberProfile) => ({
-              ...profile,
-              seatHolder: profile.seatHolder ?? profile.id === "stiletto-s260",
-              heroStarLevels:
-                needsStarLevelsMigration && profile.id === "stiletto-s260"
-                  ? createStilettoStarLevels()
-                  : profile.heroStarLevels ?? {},
-              warSkillLevels:
-                needsEvidenceMigration && profile.id === "stiletto-s260"
-                  ? { ...profile.warSkillLevels, Tyronn: 4 }
-                  : profile.warSkillLevels,
-            }))
-          : [createBlankProfile("new-player")];
-      const storedActive = localStorage.getItem(activeProfileStorageKey);
-      const active =
-        loadedProfiles.find((profile) => profile.id === storedActive) ??
-        loadedProfiles[0];
-      setProfiles(loadedProfiles);
-      setActiveProfileId(active.id);
-      applyProfile(active);
-      localStorage.setItem(profileStorageKey, JSON.stringify(loadedProfiles));
-      localStorage.setItem(activeProfileStorageKey, active.id);
-      localStorage.setItem(evidenceMigrationKey, "complete");
-      localStorage.setItem(starLevelsMigrationKey, "complete");
-    } catch {
-      const fallback = createBlankProfile("new-player");
-      setProfiles([fallback]);
-      applyProfile(fallback);
-      setProfileNotice("Saved member profiles could not be read.");
-    } finally {
-      setProfilesLoaded(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!profilesLoaded) return;
-    setResultsLoaded(false);
-    setComparisonName("");
-    try {
-      const profileKey = resultStorageKey(activeProfileId);
-      const stored = localStorage.getItem(profileKey);
-      const legacy =
-        activeProfileId === "stiletto-s260"
-          ? localStorage.getItem(legacyResultStorageKey)
-          : null;
-      const parsed = JSON.parse(stored ?? legacy ?? "[]");
-      const loaded = Array.isArray(parsed) ? parsed : [];
-      setCageResults(loaded);
-      if (!stored && legacy) {
-        localStorage.setItem(profileKey, JSON.stringify(loaded));
-      }
-    } catch {
-      setCageResults([]);
-      setResultError("Saved results could not be read for this profile.");
-    } finally {
-      setResultsProfileId(activeProfileId);
-      setResultsLoaded(true);
-    }
-  }, [activeProfileId, profilesLoaded]);
-
-  useEffect(() => {
-    if (!resultsLoaded || resultsProfileId !== activeProfileId) return;
-    localStorage.setItem(
-      resultStorageKey(activeProfileId),
-      JSON.stringify(cageResults),
-    );
-  }, [activeProfileId, cageResults, resultsLoaded, resultsProfileId]);
 
   const seasonHeroes = useMemo(
     () => heroes.filter((h) => h.season === 0 || h.season <= season),
@@ -354,20 +251,6 @@ export default function Home() {
     () => optimizeFelons(felons, ownedFelons, rallyFills),
     [ownedFelons, rallyFills],
   );
-  const testNames = useMemo(
-    () => [...new Set(cageResults.map((result) => result.testName))].sort(),
-    [cageResults],
-  );
-  const activeComparisonName = comparisonName || testNames[0] || "";
-  const comparison = useMemo(
-    () => compareResults(cageResults, activeComparisonName),
-    [cageResults, activeComparisonName],
-  );
-  const heroRanking = useMemo(
-    () => rankLeftHeroes(cageResults, resultCage, activeComparisonName),
-    [activeComparisonName, cageResults, resultCage],
-  );
-
   const toggle = (name: string) => {
     setGenerated(false);
     setOwned((current) =>
@@ -547,23 +430,9 @@ export default function Home() {
     const savedProfiles = profiles.map((profile) =>
       profile.id === activeProfileId ? current : profile,
     );
-    const results = Object.fromEntries(
-      savedProfiles.map((profile) => {
-        if (profile.id === activeProfileId) {
-          return [profile.id, cageResults];
-        }
-        try {
-          const stored = localStorage.getItem(resultStorageKey(profile.id));
-          const parsed = stored ? JSON.parse(stored) : [];
-          return [profile.id, Array.isArray(parsed) ? parsed : []];
-        } catch {
-          return [profile.id, []];
-        }
-      }),
-    );
     setProfiles(savedProfiles);
     localStorage.setItem(profileStorageKey, JSON.stringify(savedProfiles));
-    const blob = new Blob([serializeAllianceBackup(savedProfiles, results)], {
+    const blob = new Blob([serializeAllianceBackup(savedProfiles, {})], {
       type: "application/json",
     });
     const link = document.createElement("a");
@@ -593,12 +462,6 @@ export default function Home() {
         profile.id === activeProfileId ? current : profile,
       );
       const next = [...savedProfiles, ...restored.profiles];
-      Object.entries(restored.results).forEach(([profileId, results]) => {
-        localStorage.setItem(
-          resultStorageKey(profileId),
-          JSON.stringify(results),
-        );
-      });
       const first = restored.profiles[0];
       setProfiles(next);
       localStorage.setItem(profileStorageKey, JSON.stringify(next));
@@ -606,7 +469,7 @@ export default function Home() {
       localStorage.setItem(activeProfileStorageKey, first.id);
       applyProfile(first);
       setProfileNotice(
-        `Restored ${restored.profiles.length} member profiles with their Cage histories.`,
+        `Restored ${restored.profiles.length} member profiles.`,
       );
     } catch (error) {
       setProfileNotice(
@@ -663,39 +526,7 @@ export default function Home() {
     applyProfile(replacement);
     setProfileNotice("Member profile deleted from this browser.");
   };
-  const addCageResult = () => {
-    const damage = Number(resultDamage.replaceAll(",", ""));
-    if (!resultDate || !testName.trim() || !resultLeftHero.trim()) {
-      setResultError("Date, test name and LEFT hero are required.");
-      return;
-    }
-    if (!Number.isFinite(damage) || damage <= 0) {
-      setResultError("Enter a damage result greater than zero.");
-      return;
-    }
-    const createdAt = Date.now();
-    setCageResults((current) => [
-      {
-        id:
-          typeof crypto !== "undefined" && "randomUUID" in crypto
-            ? crypto.randomUUID()
-            : `${createdAt}-${current.length}`,
-        cage: resultCage,
-        date: resultDate,
-        testName: testName.trim(),
-        variant: testVariant,
-        leftHero: resultLeftHero.trim(),
-        damage,
-        notes: resultNotes.trim(),
-        createdAt,
-      },
-      ...current,
-    ]);
-    setComparisonName(testName.trim());
-    setResultDamage("");
-    setResultNotes("");
-    setResultError("");
-  };
+
   const profileSnapshot = currentProfileSnapshot();
   const rosterProfiles = profiles.map((profile) =>
     profile.id === activeProfileId ? profileSnapshot : profile,
@@ -725,7 +556,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.44</div>
+        <div className="badge">BETA v0.45</div>
       </header>
 
       <section className="panel profile-panel">
@@ -816,10 +647,10 @@ export default function Home() {
         </div>
         {profileNotice && <p className="profile-notice">{profileNotice}</p>}
         <p className="helper">
-          Profiles and Cage results stay in this browser. New members begin with
+          Profiles stay in this browser. New members begin with
           no owned heroes, robots or Felons selected, so Stiletto&apos;s Server
           260 settings are never used as their account data. Exported profile
-          files contain account settings, but not saved Cage-hit history.
+          files contain account settings.
         </p>
       </section>
 
