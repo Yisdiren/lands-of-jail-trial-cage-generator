@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.14</div>
+        <div className="badge">DEV v1.16</div>
       </header>
 
       <section className="panel profile-panel">
@@ -637,7 +637,7 @@ export default function Home() {
         <div className="buff-groups">
           {[["Prison Buffs", buffGroups.prisonBuffs], ["Prisoner Armor", buffGroups.prisonerArmor]].map(([title, items]) => <div className="buff-group" key={String(title)}><h3>{String(title)}</h3><div className="buff-grid">{(items as typeof cageBuffs).map(buff => <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}><b>{buff.name}{buff.level ? ` Lv.${buff.level}` : ""}</b><span>{buffEffectLabel(buff)}</span><small>{buff.durationHours}h after activation</small></button>)}</div></div>)}
         </div>
-        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate before Cage <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
+        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main Rally capacity: {leaderCapacity.toLocaleString()}</span><span>✓ Troop ratio: {leaderRatios.shield}/{leaderRatios.bomber}/{leaderRatios.shooter}</span><span>{availableRobots.length ? "✓" : "⚠"} Robot: {availableRobots[0] ?? "none selected"}</span><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate before Cage <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
         <div className="capacity-preview"><b>Capacity preview</b><span>Base {buffCapacityPreview.baseCapacity.toLocaleString()}</span><span>Expedition {buffCapacityPreview.expeditionPercent ? `+${buffCapacityPreview.expeditionPercent}%` : "—"}</span><span>Expedition flat {buffCapacityPreview.expeditionFlat ? `+${buffCapacityPreview.expeditionFlat.toLocaleString()}` : "—"}</span><span>Rally flat {buffCapacityPreview.rallyFlat ? `+${buffCapacityPreview.rallyFlat.toLocaleString()}` : "—"}</span><small>{buffCapacityPreview.note}</small>{preCageWarnings(leaderCapacity,selectedBuffIds).map(w=><small className="buff-warning" key={w}>{w}</small>)}</div>
       </section>
 
