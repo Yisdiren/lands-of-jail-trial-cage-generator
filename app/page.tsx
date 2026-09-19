@@ -10,6 +10,7 @@ import {
   optimizeFelons,
   type WarSkillLevels,
   maxWarSkillLevelForStars,
+  diagnoseJoinerRoster,
 } from "../lib/generator";
 import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings } from "../lib/cage-buffs";
 import Image from "next/image";
@@ -123,6 +124,7 @@ export default function Home() {
     () => generateLeaderFormation(available, leaderTroopPlan, availableRobots, heroStarLevels, kofLeaderLinks),
     [available, leaderTroopPlan, availableRobots, heroStarLevels, kofLeaderLinks],
   );
+  const joinerRosterDiagnostics = useMemo(() => diagnoseJoinerRoster(available, joinCount, automaticLeader), [available, joinCount, automaticLeader]);
   let lockError = "";
   let leaderFormation = automaticLeader;
   let joinerFormations = automaticJoiners;
@@ -273,7 +275,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.41 BETA</div>
+        <div className="badge">DEV v1.43 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -745,7 +747,7 @@ export default function Home() {
               <div className="warning-box">
                 {verifiedOnly
                   ? `Verified-only mode produced ${joinerFormations.length} of ${joinCount} legal non-repeating formations. Add more screenshot-verified LEFT heroes or turn the filter off.`
-                  : `Only ${joinerFormations.length} legal non-repeating formation${joinerFormations.length === 1 ? "" : "s"} could be built from the selected roster.`}
+                  : `Only ${joinerFormations.length} legal non-repeating formation${joinerFormations.length === 1 ? "" : "s"} could be built from the selected roster. ${joinerRosterDiagnostics.blockers.join(" ")}` }
               </div>
             )}
           {joinerTroopPlan.warnings.map((warning) => (
