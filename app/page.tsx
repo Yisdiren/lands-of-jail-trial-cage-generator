@@ -1288,6 +1288,7 @@ export default function Home() {
             <p>
               Main Rally uses your owned heroes, star levels and configured troop ratio. New season swaps should be tested one change at a time before being treated as verified Cage improvements.
             </p>
+            {Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).length > 0 && <div className="kof-active-links"><b>KOF MAIN RALLY LINKS</b>{Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).map(([name,target])=><span key={name}>{name} → replaces {target}</span>)}</div>}
             <div className="mini-grid">
               <div>
                 <b>Robot assignment</b>
