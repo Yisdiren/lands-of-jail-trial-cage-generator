@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.13</div>
+        <div className="badge">DEV v1.14</div>
       </header>
 
       <section className="panel profile-panel">
@@ -697,7 +697,7 @@ export default function Home() {
           />
           <span>
             Includes every member profile and each member&apos;s Cage-hit
-            history.
+            profiles and Trial Cage setup.
           </span>
         </div>
         <div className="alliance-roster">
