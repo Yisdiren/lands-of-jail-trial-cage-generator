@@ -872,6 +872,7 @@ export default function Home() {
               setGenerated(false);
             }}
           />
+          {mode === "leader" && <div className="main-rally-context"><b>MAIN RALLY</b><span>Unbuffed march: {leaderCapacity.toLocaleString()}</span><span>Ratio: 0 / {leaderRatios.bomber} / {leaderRatios.shooter}</span></div>}
           <small>
             {mode === "leader"
               ? "Your normal unbuffed Main Rally march size. Temporary Cage buffs are tracked separately below."
