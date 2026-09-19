@@ -2,10 +2,10 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots and troop availability.
 
-## Current Beta v0.43
+## Current Beta v0.48
 
 ### Visual theme
-- Lands of Jail-inspired Trial Cage fortress background
+- Tyronn-focused Trial Cage background based on the in-game Cage target
 - Full Trial Cage game-interface skin with forged-metal panels, bronze/gold trim, deep-red accents and game-style controls
 - Dark readability overlay and translucent glass-style panels
 - Fixed cinematic desktop background with mobile-safe scrolling treatment
@@ -32,7 +32,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 ### Player profiles and onboarding
 - General player profiles for any alliance or server
 - New visitors begin with a clean **New Player** profile
-- Existing saved profiles, including older Stiletto data, are preserved
+- Existing saved profiles are preserved while new visitors start from neutral account defaults
 - Guided first-time setup for player name, server, season, role, capacity and join count
 - Guided hero ownership selection
 - Hero roster import from pasted text or .txt files, with ★ detection, merge/replace modes and alias matching
@@ -72,13 +72,11 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 Development is continuing in this order:
 
 1. **Validation UI improvements** — make readiness/conflict problems easier to see directly on each generated march and provide specific fixes.
-2. **Star-aware manual/locked formations** — make locked and manually edited formations use the same ★-aware scoring as automatic generation.
 3. **Formation recovery suggestions** — when a requested march cannot be built, explain exactly which class, LEFT hero, robot or troop resource is missing.
 4. **Profile setup dashboard** — show setup completion and let players quickly return to Heroes, War Skills, Robots or Troops without rerunning onboarding.
-5. **Generator cleanup** — remove remaining historical CCW/Stiletto source defaults and old compatibility UI where it is no longer required, while preserving existing saved data.
 6. **S6 hero/icon completion** — add and verify remaining Season 6 hero information, icons and exact War-skill progression when clean game screenshots/assets are available.
 7. **Hero database verification** — continue verifying S1–S6 Cage heroes and exact War-skill values from game evidence.
-8. **Result/formation polish** — improve formation cards, mobile readability, sharing output and alliance overview.
+8. **Formation polish** — improve formation cards, mobile readability, sharing output and player overview.
 9. **Build/deployment checks** — continue testing releases and keep the displayed beta, package version and README synchronized.
 
 ## Evidence rules
@@ -120,3 +118,24 @@ This community project is not affiliated with Lands of Jail or its publisher.
 - Joiner cards now explain the fixed 100,000-troop rule and LEFT-skill/star priority.
 - Failed joiner generation gives a more useful roster-recovery hint.
 - Cage Result Lab remains hidden; the public experience stays focused on Main Rally and Joiner configuration.
+
+
+### Beta v0.44
+- Fresh visitors now start with neutral New Player defaults instead of historical account values.
+- Existing locally saved player profiles remain intact.
+
+### Beta v0.45
+- Removed the unused Cage Result Lab state, comparison logic and result-storage wiring from the public generator.
+- Legacy browser result data is left untouched rather than deleted.
+
+### Beta v0.46
+- Removed historical Stiletto-specific source defaults and migrations from normal profile loading.
+- Saved profiles now load their own values without account-specific fallback data.
+
+### Beta v0.47
+- Removed remaining CCW wording from the main generator source and generalized backup/readiness labels.
+
+### Beta v0.48
+- Removed the obsolete runtime code that hid the old Cage Result Lab.
+- Generator remains focused on Main Rally and configurable 100,000-troop Joiners.
+- Switched the visual direction to the new Tyronn Trial Cage background.
