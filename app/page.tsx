@@ -38,7 +38,7 @@ const heroIconNames = new Set([
   "Koschevoi", "Mireya", "Marcus", "Whisper", "Drake", "Veronica", "Tyronn",
   "Xuanming", "Sawyer", "Tormund", "Mia Scarlet Pyros", "Phoenix", "Alph",
   "Zoltan", "Lunarl", "Lofili", "Vivian", "Lee", "Samir", "Caesar", "Flameborne",
-  "Devilian", "Inata", "Lanchester",
+  "Devilian", "Inata", "Lanchester", "Otto", "Wukong", "Worrell", "Kate",
 ]);
 const heroIconSlug = (name: string) =>
   name.toLowerCase().replace(/scarlet pyros/g, "scarlet-pyros").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -301,7 +301,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.34 SIMPLE</div>
+        <div className="badge">DEV v1.35 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
