@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.07</div>
+        <div className="badge">DEV v1.08</div>
       </header>
 
       <section className="panel profile-panel">
@@ -895,10 +895,10 @@ export default function Home() {
               setGenerated(false);
             }}
           />
-          {mode === "leader" && <div className="main-rally-context"><b>MAIN RALLY</b><span>Unbuffed march: {leaderCapacity.toLocaleString()}</span><span>Ratio: 0 / {leaderRatios.bomber} / {leaderRatios.shooter}</span></div>}
+          {mode === "leader" && <div className="main-rally-context"><b>MAIN RALLY • MAX CAP</b><span>Full march: {leaderCapacity.toLocaleString()} troops</span><span>Composition: {leaderRatios.shield} / {leaderRatios.bomber} / {leaderRatios.shooter}</span><small>Ratios split your full Main Rally capacity; they do not reduce the march to 100,000.</small></div>}
           <small>
             {mode === "leader"
-              ? "Your normal unbuffed Main Rally march size. Temporary Cage buffs are tracked separately below."
+              ? "Rally Leaders always use the full saved Main Rally capacity. The ratio only divides that full capacity between troop classes. Temporary Cage buffs are tracked separately below."
               : "Trial Cage joiners use a fixed 100,000 troops. The LEFT hero is prioritized by Cage War skill; stars are secondary."}
           </small>
         </div>
