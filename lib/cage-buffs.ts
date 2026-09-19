@@ -188,7 +188,8 @@ export function capacityObservationDelta(observation: CapacityObservation) {
 
 export function capacityObservationLabel(observation: CapacityObservation) {
   const buffs = observation.selectedBuffIds.length ? cageBuffSummaryText(observation.selectedBuffIds) : "No temporary buffs";
-  return `${observation.felon || "No felon"}: ${observation.baseCapacity.toLocaleString()} → ${observation.displayedCapacity.toLocaleString()} (Δ ${capacityObservationDelta(observation).toLocaleString()}) • ${buffs}`;
+  const delta=capacityObservationDelta(observation); const pct=observation.baseCapacity>0?(delta/observation.baseCapacity)*100:0;
+  return `${observation.felon || "No felon"}: ${observation.baseCapacity.toLocaleString()} → ${observation.displayedCapacity.toLocaleString()} (Δ ${delta.toLocaleString()}, ${pct>=0?"+":""}${pct.toFixed(2)}%) • ${buffs}`;
 }
 
 export function compareCapacityObservations(observations: CapacityObservation[]) {
