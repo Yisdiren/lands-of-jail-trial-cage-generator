@@ -29,6 +29,8 @@ const heroIconNames = new Set([
 ]);
 const heroIconSlug = (name: string) =>
   name.toLowerCase().replace(/scarlet pyros/g, "scarlet-pyros").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const season7IconNames = new Set(["Rin", "Rex", "Boogie", "Fran & Pike"]);
+const heroIconPath = (name: string) => `/icons/${heroIconSlug(name)}.${season7IconNames.has(name) ? "jpg" : "png"}`;
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
   const [season, setSeason] = useState(1);
@@ -212,7 +214,7 @@ export default function Home() {
     try {
       await downloadFormationImage(leaderFormation ? [leaderFormation, ...joinerFormations] : joinerFormations,
         "Trial Cage", heroStarLevels,
-        name => heroIconNames.has(name) ? "/icons/" + heroIconSlug(name) + ".png" : null);
+        name => heroIconNames.has(name) ? heroIconPath(name) : null);
       setNotice("Formation image downloaded.");
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Image download failed.");
@@ -451,7 +453,7 @@ export default function Home() {
                   {heroIconNames.has(hero.name) ? (
                     <Image
                       className="hero-icon"
-                      src={`/icons/${heroIconSlug(hero.name)}.png`}
+                      src={heroIconPath(hero.name)}
                       alt=""
                       width={48}
                       height={60}
@@ -529,7 +531,7 @@ export default function Home() {
                 <span>{leaderFormation.left.cls}</span>
                 {heroIconNames.has(leaderFormation.left.name) && (
                       <Image className="formation-hero-icon"
-                        src={`/icons/${heroIconSlug(leaderFormation.left.name)}.png`}
+                        src={heroIconPath(leaderFormation.left.name)}
                         alt="" width={42} height={52} />
                     )}
                     <b>{leaderFormation.left.name}</b><small>{heroStarLevels[leaderFormation.left.name] ? "★".repeat(heroStarLevels[leaderFormation.left.name]) : "Stars not set"}</small>
@@ -538,7 +540,7 @@ export default function Home() {
                 <span>{leaderFormation.middle.cls}</span>
                 {heroIconNames.has(leaderFormation.middle.name) && (
                       <Image className="formation-hero-icon"
-                        src={`/icons/${heroIconSlug(leaderFormation.middle.name)}.png`}
+                        src={heroIconPath(leaderFormation.middle.name)}
                         alt="" width={42} height={52} />
                     )}
                     <b>{leaderFormation.middle.name}</b><small>{heroStarLevels[leaderFormation.middle.name] ? "★".repeat(heroStarLevels[leaderFormation.middle.name]) : "Stars not set"}</small>
@@ -547,7 +549,7 @@ export default function Home() {
                 <span>{leaderFormation.right.cls}</span>
                 {heroIconNames.has(leaderFormation.right.name) && (
                       <Image className="formation-hero-icon"
-                        src={`/icons/${heroIconSlug(leaderFormation.right.name)}.png`}
+                        src={heroIconPath(leaderFormation.right.name)}
                         alt="" width={42} height={52} />
                     )}
                     <b>{leaderFormation.right.name}</b><small>{heroStarLevels[leaderFormation.right.name] ? "★".repeat(heroStarLevels[leaderFormation.right.name]) : "Stars not set"}</small>
@@ -661,7 +663,7 @@ export default function Home() {
                     </span>
                     {heroIconNames.has(f.left.name) && (
                       <Image className="formation-hero-icon"
-                        src={`/icons/${heroIconSlug(f.left.name)}.png`}
+                        src={heroIconPath(f.left.name)}
                         alt="" width={42} height={52} />
                     )}
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
@@ -672,7 +674,7 @@ export default function Home() {
                     <span>MIDDLE • {f.middle.cls}</span>
                     {heroIconNames.has(f.middle.name) && (
                       <Image className="formation-hero-icon"
-                        src={`/icons/${heroIconSlug(f.middle.name)}.png`}
+                        src={heroIconPath(f.middle.name)}
                         alt="" width={42} height={52} />
                     )}
                     <b>{f.middle.name}</b><small>{heroStarLevels[f.middle.name] ? "★".repeat(heroStarLevels[f.middle.name]) : "Stars not set"}</small>
@@ -681,7 +683,7 @@ export default function Home() {
                     <span>RIGHT • {f.right.cls}</span>
                     {heroIconNames.has(f.right.name) && (
                       <Image className="formation-hero-icon"
-                        src={`/icons/${heroIconSlug(f.right.name)}.png`}
+                        src={heroIconPath(f.right.name)}
                         alt="" width={42} height={52} />
                     )}
                     <b>{f.right.name}</b><small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
