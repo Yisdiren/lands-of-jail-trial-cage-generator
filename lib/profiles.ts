@@ -1,9 +1,8 @@
-import type {
-  TroopPreset,
-  TroopTiers,
-  TroopValues,
-  WarSkillLevels,
-} from "./generator";
+import type { WarSkillLevels } from "./generator";
+type TroopPreset = "10-90" | "shooters";
+type TroopTier = `T${1|2|3|4|5|6|7|8|9|10|11}`;
+type TroopTiers = { shield: TroopTier; bomber: TroopTier; shooter: TroopTier };
+type TroopValues = { shield: number; bomber: number; shooter: number };
 import { defaultCageBuffProfile, sanitizeCageBuffProfile, type CageBuffProfile, type CapacityObservation } from "./cage-buffs";
 
 export type MemberRole = "leader" | "joiner";
