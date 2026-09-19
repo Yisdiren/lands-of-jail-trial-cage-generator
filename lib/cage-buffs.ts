@@ -93,3 +93,21 @@ export function splitBuffsBySource() {
     prisonerArmor: cageBuffs.filter(buff => buff.source === "prisoner-armor"),
   };
 }
+
+export type CageBuffProfile = {
+  selectedBuffIds: string[];
+  activationLeadMinutes: number;
+};
+
+export const defaultCageBuffProfile: CageBuffProfile = {
+  selectedBuffIds: [],
+  activationLeadMinutes: 5,
+};
+
+export function sanitizeCageBuffProfile(value?: Partial<CageBuffProfile> | null): CageBuffProfile {
+  const known = new Set(cageBuffs.map(buff => buff.id));
+  return {
+    selectedBuffIds: (value?.selectedBuffIds ?? []).filter(id => known.has(id)),
+    activationLeadMinutes: Math.max(0, Math.min(120, Math.round(value?.activationLeadMinutes ?? 5))),
+  };
+}
