@@ -223,10 +223,6 @@ export default function Home() {
     );
     setGenerated(false);
   };
-  const updateTier = (key: TroopClassKey, value: TroopTier) => {
-    setTroopTiers((current) => ({ ...current, [key]: value }));
-    setGenerated(false);
-  };
   const [exportingImage, setExportingImage] = useState(false);
   const exportFormationImage = async () => {
     setExportingImage(true);
