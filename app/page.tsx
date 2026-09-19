@@ -393,12 +393,12 @@ export default function Home() {
     });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `loj-ccw-alliance-backup-${new Date()
+    link.download = `loj-trial-cage-backup-${new Date()
       .toISOString()
       .slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(link.href);
-    setProfileNotice("Full CCW alliance backup downloaded.");
+    setProfileNotice("Full Trial Cage alliance backup downloaded.");
   };
   const importAllianceBackup = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -512,7 +512,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">BETA v0.46</div>
+        <div className="badge">BETA v0.47</div>
       </header>
 
       <section className="panel profile-panel">
@@ -613,7 +613,7 @@ export default function Home() {
       <section className="panel alliance-panel">
         <div className="title">
           <div>
-            <label>CCW ALLIANCE READINESS</label>
+            <label>PLAYER READINESS</label>
             <h2>See who is ready before Trial Cage opens</h2>
           </div>
           <span>{roster.length} member profiles</span>
@@ -1030,7 +1030,7 @@ export default function Home() {
             >
               <i>R{index + 1}</i>
               <strong>{robot}</strong>
-              {index < 2 && <small>CCW priority</small>}
+              {index < 2 && <small>Trial Cage priority</small>}
             </button>
           ))}
         </div>
