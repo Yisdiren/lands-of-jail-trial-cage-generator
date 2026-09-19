@@ -1020,3 +1020,6 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
 
 /* Beta v0.93 — evidence state */
 .evidence-status{display:inline-block;margin-top:8px;padding:6px 9px;border:1px solid #554831;border-radius:999px;font-size:11px;font-weight:850}.evidence-waiting{color:#9fb1c3}.evidence-collecting{color:#f0cf7a;border-color:#8a682d}.evidence-evidence{color:#b8e2a5;border-color:#52713c}
+
+/* Beta v0.95 */
+.setup-progress{margin-top:12px;padding:9px 12px;border:1px solid #4c402e;border-radius:6px;background:rgba(8,11,12,.72);color:#b9c8d7}.setup-progress b{color:#d5a43a}
