@@ -416,7 +416,7 @@ export default function Home() {
       .slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(link.href);
-    setProfileNotice("Full Trial Cage alliance backup downloaded.");
+    setProfileNotice("Full Trial Cage profile backup downloaded.");
   };
   const importAllianceBackup = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -533,7 +533,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.17</div>
+        <div className="badge">DEV v1.19</div>
       </header>
 
       <section className="panel profile-panel">
