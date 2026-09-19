@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.46
+## Development Beta v1.53
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -71,17 +71,28 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 
 This batch is being developed on the **beta-development** branch. Production main remains at the v1.38 checkpoint until the development batch is reviewed and intentionally merged.
 
-## What is next
+## Beta v1.47–v1.53 development batch
 
-Development after this seven-build batch:
+- **v1.47** — Removed the hidden 100,000 Main Rally compatibility plan from page state.
+- **v1.48** — Removed TroopPlan from automatic Main Rally and Joiner generator APIs.
+- **v1.49** — Removed TroopPlan from manual/locked formation generation.
+- **v1.50** — Formation validation no longer depends on obsolete troop-ratio warnings.
+- **v1.51** — Formation output now uses the actual Cage guidance: Main Rally max troops; Joiners use 10k Bombers + 90k Shooters or 100k Shooters.
+- **v1.52** — Joiner recovery diagnostics now respect Verified Skills Only mode.
+- **v1.53** — Synchronized copy output, visible beta version and documentation.
 
-1. **Remove the legacy TroopPlan dependency from formation APIs** — Main Rally generation should no longer need a hidden 100,000 compatibility plan.
-2. **Season 6 verification** — test Otto, Wukong, Worrell and Kate in full six-Joiner generation and verify their exact LEFT War-skill data from game evidence.
-3. **Six-Joiner recovery logic** — improve the generator so it can explain exactly why J6 cannot be formed and which class/LEFT hero is the bottleneck.
-4. **War-skill data audit** — verify S1–S6 hero skill values and keep hero stars separate from War-skill rank.
-5. **Prisoner Armor cleanup** — keep only Cage-relevant armor choices and simplify pre-Cage summaries.
-6. **Formation card polish** — improve mobile readability, hero explanations and copy/share output.
-7. **Build verification** — run the full production build, resolve type/lint errors, then merge to main only when the batch is ready for deployment.
+## What is next — next 10 changes
+
+1. **Season 6 six-Joiner test** — verify Otto, Wukong, Worrell and Kate participate correctly in a full J1–J6 roster.
+2. **Season 6 War-skill audit** — confirm exact LEFT skill names, values and verification status from game evidence.
+3. **J6 bottleneck details** — report which hero class prevents the final legal non-repeating march.
+4. **LEFT-skill recovery suggestions** — name eligible owned alternatives when a stronger LEFT hero cannot be used.
+5. **Lock conflict explanations** — identify the exact locked slot or hero causing an impossible formation.
+6. **Robot assignment cleanup** — distinguish missing-robot guidance from formation legality.
+7. **Robot target rules** — keep Cyber/Warlord robot-specific rules separate from normal gorilla data where shared data is used.
+8. **Pre-Cage summary cleanup** — shorten buff output while preserving verified effects and activation timing.
+9. **Formation card polish** — improve mobile layout, hero-star visibility and LEFT-skill evidence labels.
+10. **Release verification** — run the production build/type check and fix any remaining stale references before the next batch is complete.
 
 ## Evidence rules
 

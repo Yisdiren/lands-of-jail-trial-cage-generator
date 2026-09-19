@@ -1,5 +1,5 @@
 import type { Hero, HeroClass } from "../data/heroes";
-import type { Formation, TroopPlan, WarSkillLevels } from "./generator";
+import type { Formation, WarSkillLevels } from "./generator";
 import { validateFormation } from "./generator";
 
 export type HeroStarLevels = Record<string, number>;
@@ -28,7 +28,7 @@ const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedName
   return starOf(a,stars)-starOf(b,stars)||leftScore(a,levels,stars)-leftScore(b,levels,stars)||a.name.localeCompare(b.name);
 })[0];
 
-export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{
+export function generateLeaderFormationSmart(availableHeroes:Hero[],ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{
   const leaderExcluded=new Set(["Mia","Tormund"]);
   const eligible=availableHeroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!leaderExcluded.has(h.name));
   const ssr=eligible.filter(h=>h.rarity==="SSR");
@@ -52,11 +52,11 @@ export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:Tr
     return kof??target;
   };
   const linkedShield=linkedKof(shield),linkedBomber=linkedKof(bomber),linkedShooter=linkedKof(shooter);
-  const base:Omit<Formation,"alerts"|"status">={id:"MAIN",left:linkedShooter,middle:linkedBomber,right:linkedShield,robot:ownedRobots[0],troopText:troopPlan.text};
-  return {...base,...validateFormation(base,troopPlan,"leader")};
+  const base:Omit<Formation,"alerts"|"status">={id:"MAIN",left:linkedShooter,middle:linkedBomber,right:linkedShield,robot:ownedRobots[0],troopText:"Use your maximum available troops"};
+  return {...base,...validateFormation(base,"leader")};
 }
 
-export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:number,troopPlan:TroopPlan,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={},leaderFormation:Formation|null=null):Formation[]{
+export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:number,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={},leaderFormation:Formation|null=null):Formation[]{
   const reserved=new Set(leaderFormation?[leaderFormation.left.name,leaderFormation.middle.name,leaderFormation.right.name]:[]);
   const eligible=availableHeroes.filter(h=>isBaseJoinerEligible(h)&&!reserved.has(h.name));
   const planned=chooseLeft(eligible,count,warSkillLevels,heroStarLevels,verifiedOnly),protectedNames=new Set(planned.map(h=>h.name)),used=new Set<string>(),results:Formation[]=[];
@@ -66,8 +66,8 @@ export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:numbe
     const middle=pickFiller(eligible,missing[0],local,protectedNames,warSkillLevels,heroStarLevels);if(!middle)continue;local.add(middle.name);
     const right=pickFiller(eligible,missing[1],local,protectedNames,warSkillLevels,heroStarLevels);if(!right)continue;
     used.add(left.name);used.add(middle.name);used.add(right.name);
-    const level=levelOf(left,warSkillLevels),base:Omit<Formation,"alerts"|"status">={id:`J${results.length+1}`,left,middle,right,robot:ownedRobots[results.length],leftSkillLevel:level,leftSkillPercent:left.leftSkillValues?.[level-1],troopText:troopPlan.text};
-    results.push({...base,...validateFormation(base,troopPlan,"joiner")});
+    const level=levelOf(left,warSkillLevels),base:Omit<Formation,"alerts"|"status">={id:`J${results.length+1}`,left,middle,right,robot:ownedRobots[results.length],leftSkillLevel:level,leftSkillPercent:left.leftSkillValues?.[level-1],troopText:"10,000 Bombers + 90,000 Shooters OR 100,000 Shooters"};
+    results.push({...base,...validateFormation(base,"joiner")});
   }
   return results;
 }

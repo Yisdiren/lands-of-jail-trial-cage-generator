@@ -1,9 +1,9 @@
 import type { Hero } from "../data/heroes";
-import { validateFormation, type Formation, type TroopPlan, type WarSkillLevels } from "./generator";
+import { validateFormation, type Formation, type WarSkillLevels } from "./generator";
 import type { HeroStarLevels } from "./formation-generator";
 export type Locks = Record<string,string>;
 export const slots=["left","middle","right"] as const;
-export function buildLockedFormations(pool:Hero[],count:number,locks:Locks,plan:TroopPlan,levels:WarSkillLevels,robots:string[],verified:boolean,leader:Formation|null,mode:"leader"|"joiner",stars:HeroStarLevels={}):Formation[]{
+export function buildLockedFormations(pool:Hero[],count:number,locks:Locks,levels:WarSkillLevels,robots:string[],verified:boolean,leader:Formation|null,mode:"leader"|"joiner",stars:HeroStarLevels={}):Formation[]{
   const reserved=mode==="joiner"&&leader?new Set(slots.map(s=>leader[s].name)):new Set<string>();
   const allowed=pool.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!reserved.has(h.name));
   const active=Object.entries(locks).filter(([key,name])=>name&&Number(key.split(":")[0])<count),names=active.map(([,name])=>name);
@@ -21,8 +21,8 @@ export function buildLockedFormations(pool:Hero[],count:number,locks:Locks,plan:
     }
     if(!search(0)){if(active.some(([k])=>Number(k.split(":")[0])>=i))throw new Error("These locks cannot form legal marches. Change a lock or add eligible heroes.");break}
     chosen.forEach(h=>used.add(h.name));const level=levels[chosen[0].name]??5;
-    const base={id:mode==="leader"?"MAIN":"J"+(i+1),left:chosen[0],middle:chosen[1],right:chosen[2],robot:robots[i],troopText:plan.text,leftSkillLevel:level,leftSkillPercent:chosen[0].leftSkillValues?.[level-1]};
-    output.push({...base,...validateFormation(base,plan,mode)});
+    const base={id:mode==="leader"?"MAIN":"J"+(i+1),left:chosen[0],middle:chosen[1],right:chosen[2],robot:robots[i],troopText:mode==="leader"?"Use your maximum available troops":"10,000 Bombers + 90,000 Shooters OR 100,000 Shooters",leftSkillLevel:level,leftSkillPercent:chosen[0].leftSkillValues?.[level-1]};
+    output.push({...base,...validateFormation(base,mode)});
   }
   return output;
 }

@@ -5,8 +5,6 @@ import { felons, heroes, robots } from "../data/heroes";
 import {
   generateJoinerFormations,
   generateLeaderFormation,
-  calculateTroopPlan,
-  type TroopTiers,
   optimizeFelons,
   type WarSkillLevels,
   maxWarSkillLevelForStars,
@@ -35,19 +33,6 @@ export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
   const [season, setSeason] = useState(1);
   const [owned, setOwned] = useState<string[]>([]);
-  // Internal compatibility plan only. Troop amounts are not presented as Main Rally guidance.
-  // Formation APIs still require a TroopPlan until that legacy parameter is removed from lib/generator.
-  const compatibilityTroopTiers: TroopTiers = { shield: "T10", bomber: "T10", shooter: "T10" };
-  const joinerTroopPlan = useMemo(() => calculateTroopPlan({
-    capacity: 100000,
-    ratios: { shield: 0, bomber: 0, shooter: 100 },
-    tiers: compatibilityTroopTiers,
-  }), []);
-  const leaderTroopPlan = useMemo(() => calculateTroopPlan({
-    capacity: 100000,
-    ratios: { shield: 0, bomber: 10, shooter: 90 },
-    tiers: compatibilityTroopTiers,
-  }), []);
   const [joinCount, setJoinCount] = useState(6);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
@@ -102,7 +87,6 @@ export default function Home() {
       generateJoinerFormations(
         available,
         joinCount,
-        joinerTroopPlan,
         automaticWarSkillLevels,
         availableRobots,
         verifiedOnly,
@@ -111,7 +95,6 @@ export default function Home() {
     [
       available,
       joinCount,
-      joinerTroopPlan,
       automaticWarSkillLevels,
       availableRobots,
       verifiedOnly,
@@ -119,16 +102,16 @@ export default function Home() {
     ],
   );
   const automaticLeader = useMemo(
-    () => generateLeaderFormation(available, leaderTroopPlan, availableRobots, heroStarLevels, kofLeaderLinks),
-    [available, leaderTroopPlan, availableRobots, heroStarLevels, kofLeaderLinks],
+    () => generateLeaderFormation(available, availableRobots, heroStarLevels, kofLeaderLinks),
+    [available, availableRobots, heroStarLevels, kofLeaderLinks],
   );
-  const joinerRosterDiagnostics = useMemo(() => diagnoseJoinerRoster(available, joinCount, automaticLeader), [available, joinCount, automaticLeader]);
+  const joinerRosterDiagnostics = useMemo(() => diagnoseJoinerRoster(available, joinCount, automaticLeader, verifiedOnly), [available, joinCount, automaticLeader, verifiedOnly]);
   let lockError = "";
   let leaderFormation = automaticLeader;
   let joinerFormations = automaticJoiners;
   try {
-    if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, leaderTroopPlan, warSkillLevels, availableRobots, false, null, "leader", heroStarLevels)[0] ?? null;
-    if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(available, joinCount, locks, joinerTroopPlan, warSkillLevels, availableRobots, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
+    if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, warSkillLevels, availableRobots, false, null, "leader", heroStarLevels)[0] ?? null;
+    if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(available, joinCount, locks, warSkillLevels, availableRobots, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
     joinerFormations = [];
@@ -243,7 +226,7 @@ export default function Home() {
       "",
       ...joinerFormations.flatMap((formation) => [
         `${formation.id}: ${formation.left.name} (LEFT Lv${formation.leftSkillLevel}) / ${formation.middle.name} / ${formation.right.name}`,
-        `  ${formation.troopText} • Robot: ${formation.robot ?? "none"} • ${formation.status.toUpperCase()}`,
+        `  Joiner troops: ${formation.troopText} • Robot: ${formation.robot ?? "none"} • ${formation.status.toUpperCase()}`,
       ]),
     ];
     try {
@@ -268,7 +251,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.46 BETA</div>
+        <div className="badge">DEV v1.53 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -606,15 +589,8 @@ export default function Home() {
             {felonPlan.warning && (
               <div className="warning-box">{felonPlan.warning}</div>
             )}
-            {leaderTroopPlan.warnings.map((warning) => (
-              <div className="warning-box" key={warning}>
-                {warning}
-              </div>
-            ))}
             {leaderFormation.alerts
-              .filter(
-                (alert) => !leaderTroopPlan.warnings.includes(alert.message),
-              )
+              
               .map((alert) => (
                 <div
                   className={`formation-alert alert-${alert.severity}`}
@@ -719,10 +695,7 @@ export default function Home() {
                   <b>{f.robot ?? "No owned robot available"}</b>
                 </div>
                 {f.alerts
-                  .filter(
-                    (alert) =>
-                      !joinerTroopPlan.warnings.includes(alert.message),
-                  )
+                  
                   .map((alert) => (
                     <div
                       className={`formation-alert alert-${alert.severity}`}
@@ -743,11 +716,6 @@ export default function Home() {
                   : `Only ${joinerFormations.length} legal non-repeating formation${joinerFormations.length === 1 ? "" : "s"} could be built from the selected roster. ${joinerRosterDiagnostics.blockers.join(" ")}` }
               </div>
             )}
-          {joinerTroopPlan.warnings.map((warning) => (
-            <div className="warning-box" key={warning}>
-              {warning}
-            </div>
-          ))}
         </section>
       )}
 

@@ -1,38 +1,12 @@
 import type { Felon, Hero } from "../data/heroes";
 import { generateJoinerFormationsSmart, generateLeaderFormationSmart, type HeroStarLevels, type KofLeaderLinks } from "./formation-generator";
 
-export type TroopPreset = "shooters" | "10-90";
-export type WarSkillLevels = Record<string, number>;
-export const maxWarSkillLevelForStars = (stars:number) => Math.min(5, Math.max(1, Math.floor(stars)) + 1);
-export type TroopClassKey = "shield" | "bomber" | "shooter";
-export type TroopTier = `T${number}`;
-export type TroopValues = Record<TroopClassKey, number>;
-export type TroopTiers = Record<TroopClassKey, TroopTier>;
-export type TroopConfig = { capacity: number; ratios: TroopValues; tiers: TroopTiers; available?: TroopValues };
-export type TroopPlan = { counts: TroopValues; ratioTotal: number; assignedTotal: number; text: string; warnings: string[] };
 export type FormationAlert = { severity: "error" | "warning" | "info"; message: string };
 export type FormationStatus = "blocked" | "review" | "ready";
 export type Formation = { id:string; left:Hero; middle:Hero; right:Hero; troopText:string; robot?:string; leftSkillLevel?:number; leftSkillPercent?:number; alerts:FormationAlert[]; status:FormationStatus };
 export type FelonPlan = { selected: Felon[]; preferredThird: "Rage Fist" | "Devil"; warning?: string };
-const troopClassLabels:Record<TroopClassKey,string>={shield:"Shieldbearers",bomber:"Bombers",shooter:"Shooters"};
-const safeWhole=(value:number)=>Number.isFinite(value)?Math.max(0,Math.floor(value)):0;
-const formatNumber=(value:number)=>value.toLocaleString("en-US");
-const retainedSrHeroes=new Set(["Lofili","Lunarl","Flameborne","Samir"]);
-const streamlinedHeroes=(heroes:Hero[])=>heroes.filter(hero=>hero.rarity!=="R"&&(hero.rarity!=="SR"||retainedSrHeroes.has(hero.name)));
-
-export function calculateTroopPlan(config:TroopConfig):TroopPlan{
-  const capacity=safeWhole(config.capacity),ratios:TroopValues={shield:safeWhole(config.ratios.shield),bomber:safeWhole(config.ratios.bomber),shooter:safeWhole(config.ratios.shooter)};
-  const ratioTotal=ratios.shield+ratios.bomber+ratios.shooter,counts:TroopValues={shield:Math.floor(capacity*ratios.shield/100),bomber:Math.floor(capacity*ratios.bomber/100),shooter:Math.floor(capacity*ratios.shooter/100)};
-  if(ratioTotal===100)counts.shooter=capacity-counts.shield-counts.bomber;
-  const assignedTotal=counts.shield+counts.bomber+counts.shooter,warnings:string[]=[];
-  if(capacity<1)warnings.push("March capacity must be at least 1.");if(ratioTotal===100&&assignedTotal!==capacity)warnings.push(`Troop assignment is ${formatNumber(assignedTotal)} but march capacity is ${formatNumber(capacity)}.`);if(ratioTotal!==100)warnings.push(`Troop ratios total ${ratioTotal}%; they must total 100%.`);
-  // Legacy inventory values are accepted for compatibility but never limit Cage plans.
-  const parts=(Object.keys(counts)as TroopClassKey[]).filter(key=>counts[key]>0).map(key=>`${formatNumber(counts[key])} ${config.tiers[key]} ${troopClassLabels[key]}`);
-  return{counts,ratioTotal,assignedTotal,text:`${ratios.shield} / ${ratios.bomber} / ${ratios.shooter} — ${parts.join(" + ")||"No troops assigned"}`,warnings};
-}
-
-export function validateFormation(formation:Omit<Formation,"alerts"|"status">,troopPlan:TroopPlan,mode:"leader"|"joiner"):Pick<Formation,"alerts"|"status">{
-  const alerts:FormationAlert[]=troopPlan.warnings.map(message=>({severity:"error",message})),formationHeroes=[formation.left,formation.middle,formation.right];
+export function validateFormation(formation:Omit<Formation,"alerts"|"status">,mode:"leader"|"joiner"):Pick<Formation,"alerts"|"status">{
+  const alerts:FormationAlert[]=[],formationHeroes=[formation.left,formation.middle,formation.right];
   if(new Set(formationHeroes.map(hero=>hero.cls)).size!==3)alerts.push({severity:"error",message:"Formation must contain exactly one Shield, one Bomber and one Shooter hero."});
   formationHeroes.forEach(hero=>{if(hero.rarity==="KOF"&&mode==="joiner")alerts.push({severity:"error",message:`${hero.name} is a KOF event hero and is excluded from Joiner generation.`})});
   if(!formation.robot)alerts.push({severity:"warning",message:"No owned robot is assigned to this march. Use your best available Trial Cage robot when sending it."});
@@ -43,12 +17,12 @@ export function validateFormation(formation:Omit<Formation,"alerts"|"status">,tr
   return{alerts,status:alerts.some(a=>a.severity==="error")?"blocked":alerts.some(a=>a.severity==="warning")?"review":"ready"};
 }
 
-export function generateJoinerFormations(availableHeroes:Hero[],count=6,troopPlan:TroopPlan,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={}):Formation[]{
+export function generateJoinerFormations(availableHeroes:Hero[],count=6,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={}):Formation[]{
   const heroPool=streamlinedHeroes(availableHeroes);
-  const leaderFormation=generateLeaderFormationSmart(heroPool,troopPlan,ownedRobots,heroStarLevels);
-  return generateJoinerFormationsSmart(heroPool,count,troopPlan,warSkillLevels,ownedRobots,verifiedOnly,heroStarLevels,leaderFormation);
+  const leaderFormation=generateLeaderFormationSmart(heroPool,ownedRobots,heroStarLevels);
+  return generateJoinerFormationsSmart(heroPool,count,warSkillLevels,ownedRobots,verifiedOnly,heroStarLevels,leaderFormation);
 }
-export function generateLeaderFormation(availableHeroes:Hero[],troopPlan:TroopPlan,ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{return generateLeaderFormationSmart(streamlinedHeroes(availableHeroes),troopPlan,ownedRobots,heroStarLevels,kofLeaderLinks)}
+export function generateLeaderFormation(availableHeroes:Hero[],ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{return generateLeaderFormationSmart(streamlinedHeroes(availableHeroes),ownedRobots,heroStarLevels,kofLeaderLinks)}
 export function optimizeFelons(felons:Felon[],ownedNames:string[],rallyFills:boolean):FelonPlan{
   const owned=felons.filter(f=>ownedNames.includes(f.name)),byName=new Map(owned.map(f=>[f.name,f])),preferredThird=rallyFills?"Rage Fist":"Devil",alternateThird=rallyFills?"Devil":"Rage Fist",order=["Scorpion","Cobra",preferredThird,alternateThird];
   const selected=order.map(name=>byName.get(name)).filter((felon):felon is Felon=>Boolean(felon)).slice(0,3),missingCore=["Scorpion","Cobra"].filter(name=>!byName.has(name)),warnings:string[]=[];
@@ -57,7 +31,7 @@ export function optimizeFelons(felons:Felon[],ownedNames:string[],rallyFills:boo
 }
 
 
-export function diagnoseJoinerRoster(availableHeroes:Hero[], requested:number, leader:Formation|null=null) {
+export function diagnoseJoinerRoster(availableHeroes:Hero[], requested:number, leader:Formation|null=null, verifiedOnly=false) {
   const reserved=new Set(leader?[leader.left.name,leader.middle.name,leader.right.name]:[]);
   const eligible=streamlinedHeroes(availableHeroes).filter(hero=>hero.cageAllowed&&hero.rarity!=="KOF"&&!reserved.has(hero.name));
   const counts={
@@ -65,11 +39,11 @@ export function diagnoseJoinerRoster(availableHeroes:Hero[], requested:number, l
     Bomber: eligible.filter(hero=>hero.cls==="Bomber").length,
     Shooter: eligible.filter(hero=>hero.cls==="Shooter").length,
   };
-  const leftSkills=eligible.filter(hero=>Boolean(hero.leftSkill)).length;
+  const leftSkills=eligible.filter(hero=>Boolean(hero.leftSkill)&&(!verifiedOnly||hero.leftSkillVerified)).length;
   const blockers:string[]=[];
   (["Shield","Bomber","Shooter"] as const).forEach(cls=>{
     if(counts[cls]<requested) blockers.push(`Need ${requested-counts[cls]} more ${cls} hero${requested-counts[cls]===1?"":"es"} for ${requested} non-repeating Joiners.`);
   });
-  if(leftSkills<requested) blockers.push(`Need ${requested-leftSkills} more eligible LEFT-skill hero${requested-leftSkills===1?"":"es"}.`);
+  if(leftSkills<requested) blockers.push(`Need ${requested-leftSkills} more ${verifiedOnly?"verified ":""}eligible LEFT-skill hero${requested-leftSkills===1?"":"es"}.`);
   return { counts, leftSkills, blockers };
 }
