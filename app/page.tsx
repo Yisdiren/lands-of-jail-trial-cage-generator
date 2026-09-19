@@ -48,7 +48,7 @@ export default function Home() {
   const [owned, setOwned] = useState<string[]>([]);
   const [troopPreset, setTroopPreset] = useState<TroopPreset>("shooters");
   const [joinerCapacity, setJoinerCapacity] = useState(100000);
-  const [leaderCapacity, setLeaderCapacity] = useState(100000);
+  const leaderCapacity = 100000;
   const [joinerRatios, setJoinerRatios] = useState<TroopValues>({
     shield: 0,
     bomber: 0,
@@ -275,7 +275,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.25 SIMPLE</div>
+        <div className="badge">DEV v1.26 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -307,13 +307,8 @@ export default function Home() {
       </section>
 
       <section className="panel troop-panel">
-        <div className="title"><div><label>MAIN RALLY</label><h2>Set your max troop capacity</h2></div></div>
-        <div className="troop-capacity">
-          <label htmlFor="march-capacity">MAX MAIN RALLY TROOPS</label>
-          <input id="march-capacity" type="number" min="1" step="1" value={leaderCapacity} onChange={(e)=>{setLeaderCapacity(Number(e.target.value));setGenerated(false)}} />
-        </div>
-        <div className="cage-ratio-presets"><b>TROOP RATIO</b><button type="button" onClick={()=>{setLeaderRatios({shield:0,bomber:0,shooter:100});setGenerated(false)}}>0 / 0 / 100</button><button type="button" onClick={()=>{setLeaderRatios({shield:0,bomber:10,shooter:90});setGenerated(false)}}>0 / 10 / 90</button></div>
-        <p className="helper">Main Rally uses your full capacity. Joiners are automatically fixed at 100,000 troops each.</p>
+        <div className="title"><div><label>TROOP GUIDELINES</label><h2>Use your alliance's Cage troop rules</h2></div></div>
+        <p className="helper"><b>Main Rally:</b> use your maximum available troops. <b>Joiners:</b> use the troop amount your alliance has set for Trial Cage joiners.</p>
       </section>
 
       <section className="panel simple-cage-tips">
@@ -761,7 +756,7 @@ export default function Home() {
           <p>
             ✓ 1 Shield + 1 Bomber + 1 Shooter &nbsp; ✓ LEFT-slot skill priority
             &nbsp; ✓ LEFT War skill level &nbsp; ✓ no hero or robot reuse across
-            J1–J6 &nbsp; ✓ configurable capacity, ratios and troop tiers &nbsp;
+            J1–J6 &nbsp; ✓ Main Rally uses max troops &nbsp; ✓ joiners follow alliance troop limits &nbsp; ✓ troop tiers &nbsp;
             ✓ KOF excluded
           </p>
         </div>
