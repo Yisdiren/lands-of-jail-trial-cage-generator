@@ -1,5 +1,5 @@
 import type { Hero, HeroClass } from "../data/heroes";
-import { calculateTroopPlan, type FormationStatus } from "./generator";
+import type { FormationStatus } from "./generator";
 import type { MemberProfile } from "./profiles";
 
 export type MemberReadiness = {
@@ -37,13 +37,6 @@ export function evaluateMemberReadiness(
   );
   const capacity =
     profile.role === "leader" ? profile.leaderCapacity : 100000;
-  const ratios =
-    profile.role === "leader" ? profile.leaderRatios : profile.joinerRatios;
-  const troopPlan = calculateTroopPlan({
-    capacity,
-    ratios,
-    tiers: profile.troopTiers,
-  });
   const blockers: string[] = [];
   const reviews: string[] = [];
 
@@ -53,8 +46,6 @@ export function evaluateMemberReadiness(
     }
   });
   if (capacity < 1) blockers.push("March capacity is not set");
-  if (troopPlan.ratioTotal !== 100)
-    blockers.push("Troop ratios do not total 100%");
 
   if (!profile.server) reviews.push("Server is not set");
   if (possibleMarches < requestedMarches && !blockers.length) {
@@ -84,13 +75,6 @@ export function evaluateMemberReadiness(
   ) {
     reviews.push("Scorpion/Cobra leader core is incomplete");
   }
-  troopPlan.warnings
-    .filter(
-      (warning) =>
-        !warning.includes("capacity must") && !warning.includes("must total"),
-    )
-    .forEach((warning) => reviews.push(warning));
-
   const issues = [...blockers, ...reviews];
   return {
     status: blockers.length ? "blocked" : reviews.length ? "review" : "ready",
