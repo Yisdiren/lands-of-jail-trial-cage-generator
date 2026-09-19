@@ -878,14 +878,15 @@ export default function Home() {
               : "Trial Cage joiner marches use 100,000 troops."}
           </small>
         </div>
+        <p className="cage-troop-note"><b>Shieldbearer hero ≠ Shieldbearer troops.</b> Standard Trial Cage setup uses 0 Shieldbearer troops, so only Bombers and Shooters are shown here.</p>
         <div className="troop-grid troop-grid-head">
-          <b>CLASS</b>
+          <b>CAGE TROOPS</b>
           <b>RATIO %</b>
           <b>TIER</b>
           <b>AVAILABLE</b>
           <b>REQUIRED</b>
         </div>
-        {troopClasses.map(({ key, label }) => {
+        {troopClasses.filter(({ key }) => key !== "shield").map(({ key, label }) => {
           const ratios = mode === "leader" ? leaderRatios : joinerRatios;
           const plan = mode === "leader" ? leaderTroopPlan : joinerTroopPlan;
           return (
