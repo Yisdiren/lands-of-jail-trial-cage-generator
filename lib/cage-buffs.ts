@@ -135,3 +135,10 @@ export function cageBuffSummaryText(selectedIds: string[]) {
   if (totals.rallyCapacityFlat) parts.push(`Rally Capacity +${totals.rallyCapacityFlat.toLocaleString("en-US")}`);
   return parts.length ? parts.join(" • ") : "No pre-Cage buffs selected";
 }
+
+export function cageBuffTimingMessage(profile: CageBuffProfile) {
+  const selected = cageBuffs.filter(buff => profile.selectedBuffIds.includes(buff.id));
+  if (!selected.length) return "No pre-Cage activation reminder is needed.";
+  const shortest = Math.min(...selected.map(buff => buff.durationHours));
+  return `Activate selected buffs about ${profile.activationLeadMinutes} minute${profile.activationLeadMinutes === 1 ? "" : "s"} before Cage. Shortest selected duration: ${shortest}h.`;
+}
