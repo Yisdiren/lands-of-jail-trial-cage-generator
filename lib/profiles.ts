@@ -91,7 +91,7 @@ export function createBlankProfile(id: string): MemberProfile {
   return {
     id, playerName: "New Player", server: "", role: "joiner", season: 1,
     ownedHeroes: [], heroStarLevels: {}, warSkillLevels: {}, ownedRobots: [], ownedFelons: [],
-    rallyFills: true, seatHolder: false, joinerCapacity: 100000, leaderCapacity: 100000,
+    rallyFills: true, seatHolder: false, joinerCapacity: 100000, leaderCapacity: 0,
     joinerRatios: { shield: 0, bomber: 0, shooter: 100 }, leaderRatios: { shield: 0, bomber: 10, shooter: 90 },
     troopTiers: { shield: "T10", bomber: "T10", shooter: "T10" }, availableTroops: { shield: 0, bomber: 0, shooter: 0 },
     troopPreset: "shooters", joinCount: 6, verifiedOnly: false, cageBuffProfile: defaultCageBuffProfile, felonRallyCapacities: {}, capacityObservations: [], kofLeaderLinks: {}, updatedAt: Date.now(),
