@@ -1272,9 +1272,7 @@ export default function Home() {
               <strong>{leaderFormation.troopText}</strong>
             </div>
             <p>
-              Current controlled-test baseline is Ada / Ryuichi / Tyronn at
-              0/10/90 when all three are owned. S6 swaps should be tested one
-              change at a time.
+              Main Rally uses your owned heroes, star levels and configured troop ratio. New season swaps should be tested one change at a time before being treated as verified Cage improvements.
             </p>
             <div className="mini-grid">
               <div>
