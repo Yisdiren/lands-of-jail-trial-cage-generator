@@ -55,3 +55,21 @@ export function optimizeFelons(felons:Felon[],ownedNames:string[],rallyFills:boo
   if(missingCore.length)warnings.push(`Missing core Yard Time felon${missingCore.length===1?"":"s"}: ${missingCore.join(" + ")}.`);if(!byName.has(preferredThird))warnings.push(`${preferredThird} is preferred for this rally condition${byName.has(alternateThird)?`; using ${alternateThird} instead`:""}.`);if(selected.length<3)warnings.push(`Only ${selected.length} owned Yard Time felon${selected.length===1?" is":"s are"} available.`);
   return{selected,preferredThird,warning:warnings.length?warnings.join(" "):undefined};
 }
+
+
+export function diagnoseJoinerRoster(availableHeroes:Hero[], requested:number, leader:Formation|null=null) {
+  const reserved=new Set(leader?[leader.left.name,leader.middle.name,leader.right.name]:[]);
+  const eligible=streamlinedHeroes(availableHeroes).filter(hero=>hero.cageAllowed&&hero.rarity!=="KOF"&&!reserved.has(hero.name));
+  const counts={
+    Shield: eligible.filter(hero=>hero.cls==="Shield").length,
+    Bomber: eligible.filter(hero=>hero.cls==="Bomber").length,
+    Shooter: eligible.filter(hero=>hero.cls==="Shooter").length,
+  };
+  const leftSkills=eligible.filter(hero=>Boolean(hero.leftSkill)).length;
+  const blockers:string[]=[];
+  (["Shield","Bomber","Shooter"] as const).forEach(cls=>{
+    if(counts[cls]<requested) blockers.push(`Need ${requested-counts[cls]} more ${cls} hero${requested-counts[cls]===1?"":"es"} for ${requested} non-repeating Joiners.`);
+  });
+  if(leftSkills<requested) blockers.push(`Need ${requested-leftSkills} more eligible LEFT-skill hero${requested-leftSkills===1?"":"es"}.`);
+  return { counts, leftSkills, blockers };
+}
