@@ -36,7 +36,7 @@ export function evaluateMemberReadiness(
     ...classNames.map((heroClass) => classCounts[heroClass]),
   );
   const capacity =
-    profile.role === "leader" ? profile.leaderCapacity : profile.joinerCapacity;
+    profile.role === "leader" ? profile.leaderCapacity : 100000;
   const ratios =
     profile.role === "leader" ? profile.leaderRatios : profile.joinerRatios;
   const troopPlan = calculateTroopPlan({
@@ -59,7 +59,23 @@ export function evaluateMemberReadiness(
 
   if (!profile.server) reviews.push("Server is not set");
   if (possibleMarches < requestedMarches && !blockers.length) {
-    reviews.push(`Can build ${possibleMarches} of ${requestedMarches} marches`);
+    const shortages = classNames
+      .map((heroClass) => {
+        const missing = requestedMarches - classCounts[heroClass];
+        return missing > 0 ? `${missing} more ${heroClass} hero${missing === 1 ? "" : "es"}` : "";
+      })
+      .filter(Boolean);
+    reviews.push(
+      `Can build ${possibleMarches} of ${requestedMarches} marches${shortages.length ? `; needs ${shortages.join(", ")}` : ""}`,
+    );
+  }
+  if (profile.role === "joiner") {
+    const leftCount = eligible.filter((hero) => hero.leftSkill).length;
+    if (leftCount < requestedMarches) {
+      reviews.push(
+        `Needs ${requestedMarches - leftCount} more eligible LEFT-skill hero${requestedMarches - leftCount === 1 ? "" : "es"} for ${requestedMarches} joiners`,
+      );
+    }
   }
   if (!profile.ownedRobots.length) reviews.push("No owned robot selected");
   if (
