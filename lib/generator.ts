@@ -51,5 +51,7 @@ export function diagnoseJoinerRoster(availableHeroes:Hero[], requested:number, l
     if(counts[cls]<requested) blockers.push(`Need ${requested-counts[cls]} more ${cls} hero${requested-counts[cls]===1?"":"es"} for ${requested} non-repeating Joiners.`);
   });
   if(leftSkills<requested) blockers.push(`Need ${requested-leftSkills} more ${verifiedOnly?"verified ":""}eligible LEFT-skill hero${requested-leftSkills===1?"":"es"}.`);
-  return { counts, leftSkills, blockers };
+  const bottleneck = (["Shield","Bomber","Shooter"] as const).map(cls=>({cls,available:counts[cls],short:Math.max(0,requested-counts[cls])})).filter(x=>x.short>0).sort((a,b)=>b.short-a.short)[0]??null;
+  const leftAlternatives=eligible.filter(hero=>Boolean(hero.leftSkill)&&(!verifiedOnly||hero.leftSkillVerified)).sort((a,b)=>(b.leftValue??0)-(a.leftValue??0)||a.name.localeCompare(b.name)).map(hero=>hero.name);
+  return { counts, leftSkills, blockers, bottleneck, leftAlternatives };
 }

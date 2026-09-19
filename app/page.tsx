@@ -10,7 +10,7 @@ import {
   maxWarSkillLevelForStars,
   diagnoseJoinerRoster,
 } from "../lib/generator";
-import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, buffEffectLabel, defaultCageBuffProfile, preCageShareLines } from "../lib/cage-buffs";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, buffEffectLabel, preCageShareLines } from "../lib/cage-buffs";
 import Image from "next/image";
 
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
@@ -251,7 +251,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.53 BETA</div>
+        <div className="badge">DEV v1.63 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -260,7 +260,7 @@ export default function Home() {
         <div className="buff-groups">
           {[["Prison Buffs", buffGroups.prisonBuffs], ["Prisoner Armor", buffGroups.prisonerArmor]].map(([title, items]) => <div className="buff-group" key={String(title)}><h3>{String(title)}</h3><div className="buff-grid">{(items as typeof cageBuffs).map(buff => <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}><b>{buff.name}{buff.level ? ` Lv.${buff.level}` : ""}</b><span>{buffEffectLabel(buff)}</span><small>{buff.durationHours}h after activation</small></button>)}</div></div>)}
         </div>
-        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main Rally max troops: use your maximum available troops</span><span>✓ Joiners: 10,000 Bombers + 90,000 Shooters OR 100,000 Shooters</span><span>{availableRobots.length ? "✓" : "⚠"} Robot: {availableRobots[0] ?? "none selected"}</span><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate before Cage <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
+        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main: maximum troops • Joiners: 10k Bombers + 90k Shooters or 100k Shooters</span><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min before Cage</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
         
       </section>
 
@@ -407,7 +407,7 @@ export default function Home() {
           ))}
         </div>
         <p className="helper">
-          Selected robots are assigned in priority order and are not reused across generated marches.
+          Robots are optional guidance, not a formation-legality requirement. Selected robots are assigned in priority order without reuse. Cyber/Warlord-specific robot rules belong to Gorilla planning and are not applied to normal Trial Cage formations.
         </p>
       </section>
 
@@ -636,6 +636,7 @@ export default function Home() {
             LEFT; LEFT War skill level and hero stars affect recommendation priority.
             Owned robots are assigned without reuse.
           </p>
+          {lockError && <div className="warning-box">{lockError}</div>}
           {joinerFormations.length === 0 && (
             <div className="warning-box">
               {verifiedOnly
@@ -656,14 +657,14 @@ export default function Home() {
                 <div className="slots">
                   <div className="slot left">
                     <span>
-                      LEFT • ACTIVE RALLY SKILL • Lv{f.leftSkillLevel}
+                      LEFT • ACTIVE RALLY SKILL • Lv{f.leftSkillLevel} • {f.left.leftSkillVerified ? "VERIFIED" : "UNVERIFIED"}
                     </span>
                     {heroIconNames.has(f.left.name) && (
                       <Image className="formation-hero-icon"
                         src={`/icons/${heroIconSlug(f.left.name)}.png`}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{f.left.name}</b><small>{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
+                    <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
                     <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. War skill auto-ranked to Lv{f.leftSkillLevel} from the hero star unlock: 1★→Lv2, 2★→Lv3, 3★→Lv4, 4★+→Lv5. Skill priority comes first, with stars used by the generator. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
                   </div>
@@ -713,7 +714,7 @@ export default function Home() {
               <div className="warning-box">
                 {verifiedOnly
                   ? `Verified-only mode produced ${joinerFormations.length} of ${joinCount} legal non-repeating formations. Add more screenshot-verified LEFT heroes or turn the filter off.`
-                  : `Only ${joinerFormations.length} legal non-repeating formation${joinerFormations.length === 1 ? "" : "s"} could be built from the selected roster. ${joinerRosterDiagnostics.blockers.join(" ")}` }
+                  : `Only ${joinerFormations.length} legal non-repeating formation${joinerFormations.length === 1 ? "" : "s"} could be built. ${joinerRosterDiagnostics.bottleneck ? `Bottleneck: ${joinerRosterDiagnostics.bottleneck.cls} is short by ${joinerRosterDiagnostics.bottleneck.short}. ` : ""}${joinerRosterDiagnostics.blockers.join(" ")}${joinerRosterDiagnostics.leftAlternatives.length ? ` Eligible LEFT options: ${joinerRosterDiagnostics.leftAlternatives.join(", ")}.` : ""}` }
               </div>
             )}
         </section>
@@ -724,9 +725,8 @@ export default function Home() {
           <label>RULES CURRENTLY ENFORCED</label>
           <p>
             ✓ 1 Shield + 1 Bomber + 1 Shooter &nbsp; ✓ LEFT-slot skill priority
-            &nbsp; ✓ LEFT War skill level &nbsp; ✓ no hero or robot reuse across
-            J1–J6 &nbsp; ✓ Main Rally uses max troops &nbsp; ✓ joiners follow alliance troop limits &nbsp; ✓ troop tiers &nbsp;
-            ✓ KOF excluded
+            &nbsp; ✓ LEFT War skill level &nbsp; ✓ no hero reuse across
+            J1–J6 &nbsp; ✓ Main Rally uses max troops &nbsp; ✓ joiners use the two Cage troop options &nbsp; ✓ KOF excluded
           </p>
         </div>
       </section>
