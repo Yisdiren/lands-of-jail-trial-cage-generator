@@ -4,6 +4,7 @@ import { validateFormation } from "./generator";
 
 export type HeroStarLevels = Record<string, number>;
 export type KofLeaderLinks = Record<string, string>;
+const validKofTargets:Record<string,string>={"Omega Rugal":"Tyronn","Terry Bogard":"Ryuichi","Mai Shiranui":"Ada"};
 const classOrder: HeroClass[] = ["Shield", "Bomber", "Shooter"];
 const isBaseJoinerEligible = (hero: Hero) => hero.cageAllowed && hero.rarity !== "KOF";
 const tier = (hero: Hero) => hero.leftTier === "top" ? 300 : hero.leftTier === "strong" ? 200 : hero.leftTier === "filler" ? 100 : 0;
@@ -44,7 +45,7 @@ export function generateLeaderFormationSmart(availableHeroes:Hero[],troopPlan:Tr
   const preferredShooter=leaderPool.find(h=>h.cls==="Shooter"&&h.name==="Ada");
   const shooter=preferredShooter??pickBest(leaderPool,"Shooter",used,heroStarLevels);if(!shield||!bomber||!shooter)return null;
   const linkedKof=(target:Hero):Hero=>{
-    const kof=availableHeroes.find(h=>h.rarity==="KOF"&&h.cls===target.cls&&kofLeaderLinks[h.name]===target.name&&starOf(h,heroStarLevels)>=4);
+    const kof=availableHeroes.find(h=>h.rarity==="KOF"&&h.cls===target.cls&&validKofTargets[h.name]===target.name&&kofLeaderLinks[h.name]===target.name&&starOf(h,heroStarLevels)>=4);
     return kof??target;
   };
   const linkedShield=linkedKof(shield),linkedBomber=linkedKof(bomber),linkedShooter=linkedKof(shooter);
