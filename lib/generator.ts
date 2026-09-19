@@ -1,5 +1,5 @@
 import type { Felon, Hero } from "../data/heroes";
-import { generateJoinerFormationsSmart, generateLeaderFormationSmart, type HeroStarLevels, type KofLeaderLinks } from "./formation-generator";
+import { generateJoinerFormationsSmart, generateLeaderFormationSmart, scoreJoinerLeftHero, type HeroStarLevels, type KofLeaderLinks } from "./formation-generator";
 
 export type WarSkillLevels = Record<string, number>;
 export const maxWarSkillLevelForStars = (stars:number) => Math.min(5, Math.max(1, Math.floor(stars)) + 1);
@@ -26,7 +26,8 @@ export function validateFormation(formation:Omit<Formation,"alerts"|"status">,mo
 export function generateJoinerFormations(availableHeroes:Hero[],count=6,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={}):Formation[]{
   const heroPool=streamlinedHeroes(availableHeroes);
   const leaderFormation=generateLeaderFormationSmart(heroPool,ownedRobots,heroStarLevels);
-  return generateJoinerFormationsSmart(heroPool,count,warSkillLevels,ownedRobots,verifiedOnly,heroStarLevels,leaderFormation);
+  const joinerRobots=leaderFormation?.robot?ownedRobots.filter(robot=>robot!==leaderFormation.robot):ownedRobots;
+  return generateJoinerFormationsSmart(heroPool,count,warSkillLevels,joinerRobots,verifiedOnly,heroStarLevels,leaderFormation);
 }
 export function generateLeaderFormation(availableHeroes:Hero[],ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{return generateLeaderFormationSmart(streamlinedHeroes(availableHeroes),ownedRobots,heroStarLevels,kofLeaderLinks)}
 export function optimizeFelons(felons:Felon[],ownedNames:string[],rallyFills:boolean):FelonPlan{
@@ -37,7 +38,14 @@ export function optimizeFelons(felons:Felon[],ownedNames:string[],rallyFills:boo
 }
 
 
-export function diagnoseJoinerRoster(availableHeroes:Hero[], requested:number, leader:Formation|null=null, verifiedOnly=false) {
+export function diagnoseJoinerRoster(
+  availableHeroes:Hero[],
+  requested:number,
+  leader:Formation|null=null,
+  verifiedOnly=false,
+  warSkillLevels:WarSkillLevels={},
+  heroStarLevels:HeroStarLevels={},
+) {
   const reserved=new Set(leader?[leader.left.name,leader.middle.name,leader.right.name]:[]);
   const eligible=streamlinedHeroes(availableHeroes).filter(hero=>hero.cageAllowed&&hero.rarity!=="KOF"&&!reserved.has(hero.name));
   const counts={
@@ -45,13 +53,39 @@ export function diagnoseJoinerRoster(availableHeroes:Hero[], requested:number, l
     Bomber: eligible.filter(hero=>hero.cls==="Bomber").length,
     Shooter: eligible.filter(hero=>hero.cls==="Shooter").length,
   };
-  const leftSkills=eligible.filter(hero=>Boolean(hero.leftSkill)&&(!verifiedOnly||hero.leftSkillVerified)).length;
+  const leftCandidates=eligible.filter(hero=>Boolean(hero.leftSkill)&&(!verifiedOnly||hero.leftSkillVerified));
+  const leftSkills=leftCandidates.length;
+  const requiredHeroes=requested*3;
+  const availableTotal=eligible.length;
   const blockers:string[]=[];
   (["Shield","Bomber","Shooter"] as const).forEach(cls=>{
     if(counts[cls]<requested) blockers.push(`Need ${requested-counts[cls]} more ${cls} hero${requested-counts[cls]===1?"":"es"} for ${requested} non-repeating Joiners.`);
   });
   if(leftSkills<requested) blockers.push(`Need ${requested-leftSkills} more ${verifiedOnly?"verified ":""}eligible LEFT-skill hero${requested-leftSkills===1?"":"es"}.`);
-  const bottleneck = (["Shield","Bomber","Shooter"] as const).map(cls=>({cls,available:counts[cls],short:Math.max(0,requested-counts[cls])})).filter(x=>x.short>0).sort((a,b)=>b.short-a.short)[0]??null;
-  const leftAlternatives=eligible.filter(hero=>Boolean(hero.leftSkill)&&(!verifiedOnly||hero.leftSkillVerified)).sort((a,b)=>(b.leftValue??0)-(a.leftValue??0)||a.name.localeCompare(b.name)).map(hero=>hero.name);
-  return { counts, leftSkills, blockers, bottleneck, leftAlternatives };
+  if(availableTotal<requiredHeroes) blockers.push(`Need ${requiredHeroes-availableTotal} more eligible hero${requiredHeroes-availableTotal===1?"":"es"} overall to fill all ${requested} Joiners.`);
+  const bottleneck = (["Shield","Bomber","Shooter"] as const)
+    .map(cls=>({cls,available:counts[cls],short:Math.max(0,requested-counts[cls])}))
+    .filter(x=>x.short>0)
+    .sort((a,b)=>b.short-a.short)[0]??null;
+  const rankedLeftAlternatives=leftCandidates
+    .map(hero=>({
+      name:hero.name,
+      cls:hero.cls,
+      score:scoreJoinerLeftHero(hero,warSkillLevels,heroStarLevels),
+      level:Math.min(5,Math.max(1,warSkillLevels[hero.name]??5)),
+      verified:Boolean(hero.leftSkillVerified),
+    }))
+    .sort((a,b)=>b.score-a.score||b.level-a.level||a.name.localeCompare(b.name));
+  const leftAlternatives=rankedLeftAlternatives.map(hero=>hero.name);
+  return {
+    counts,
+    leftSkills,
+    blockers,
+    bottleneck,
+    leftAlternatives,
+    rankedLeftAlternatives,
+    requiredHeroes,
+    availableTotal,
+    heroShortage:Math.max(0,requiredHeroes-availableTotal),
+  };
 }

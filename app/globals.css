@@ -1031,3 +1031,42 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
 
 /* Beta v1.62 — formation card polish */
 .hero-stars{color:#f0ce75;font-weight:850;letter-spacing:1px}.formation-card .slot.left>span{line-height:1.35}.formation-card .slot small{overflow-wrap:anywhere}@media(max-width:650px){.formation-head{align-items:flex-start}.formation-head>span{flex-basis:100%;font-size:11px}.formation-card .slots{grid-template-columns:1fr}.formation-card .slot{min-width:0}.formation-hero-icon{width:38px;height:auto}}
+
+
+/* v1.73 roster preflight and evidence states */
+.preflight-panel .mini-grid {
+  margin-top: 14px;
+}
+.preflight-panel h2 {
+  margin: 5px 0 0;
+}
+.preflight-details {
+  margin-top: 12px;
+  border: 1px solid #29435d;
+  border-radius: 10px;
+  background: #091522;
+  padding: 10px 12px;
+}
+.preflight-details summary {
+  cursor: pointer;
+  color: #ffcf68;
+  font-weight: 800;
+}
+.preflight-details p,
+.preflight-details ol {
+  margin-bottom: 4px;
+  color: #b8c7d6;
+  line-height: 1.5;
+}
+.hero .evidence-badge.verified {
+  color: #85e6aa;
+}
+.hero .evidence-badge.unverified {
+  color: #ffd476;
+}
+.hero .evidence-badge.no-left {
+  color: #8ea5bb;
+}
+.hero .evidence-badge.excluded {
+  color: #ffaaaa;
+}

@@ -107,13 +107,14 @@ export default function Home() {
     () => generateLeaderFormation(available, availableRobots, heroStarLevels, kofLeaderLinks),
     [available, availableRobots, heroStarLevels, kofLeaderLinks],
   );
-  const joinerRosterDiagnostics = useMemo(() => diagnoseJoinerRoster(available, joinCount, automaticLeader, verifiedOnly), [available, joinCount, automaticLeader, verifiedOnly]);
+  const joinerRosterDiagnostics = useMemo(() => diagnoseJoinerRoster(available, joinCount, automaticLeader, verifiedOnly, automaticWarSkillLevels, heroStarLevels), [available, joinCount, automaticLeader, verifiedOnly, automaticWarSkillLevels, heroStarLevels]);
   let lockError = "";
   let leaderFormation = automaticLeader;
   let joinerFormations = automaticJoiners;
   try {
     if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, warSkillLevels, availableRobots, false, null, "leader", heroStarLevels)[0] ?? null;
-    if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(available, joinCount, locks, warSkillLevels, availableRobots, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
+    const joinerRobotPool = leaderFormation?.robot ? availableRobots.filter(robot => robot !== leaderFormation.robot) : availableRobots;
+    if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(available, joinCount, locks, warSkillLevels, joinerRobotPool, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
     joinerFormations = [];
@@ -124,6 +125,13 @@ export default function Home() {
     (mode === "leader" ? setLeaderLocks : setLocks)(value => ({...value, [key]: name}));
     setGenerated(false);
   };
+  const leaderReservedNames = leaderFormation ? [leaderFormation.left.name, leaderFormation.middle.name, leaderFormation.right.name] : [];
+  const projectedJoinerHeroNames = Array.from(new Set(joinerFormations.flatMap(formation => [formation.left.name, formation.middle.name, formation.right.name])));
+  const assignedRobotNames = [leaderFormation?.robot, ...joinerFormations.map(formation => formation.robot)].filter((name): name is string => Boolean(name));
+  const unassignedRobotNames = availableRobots.filter(robot => !assignedRobotNames.includes(robot));
+  const requestedRobotSlots = (leaderFormation ? 1 : 0) + joinCount;
+  const preflightStatus = lockError || !leaderFormation ? "blocked" : joinerFormations.length < joinCount ? "review" : "ready";
+  const topRecoveryOptions = joinerRosterDiagnostics.rankedLeftAlternatives.slice(0, 6);
   const felonPlan = useMemo(
     () => optimizeFelons(felons, ownedFelons, rallyFills),
     [ownedFelons, rallyFills],
@@ -213,7 +221,7 @@ export default function Home() {
     setExportingImage(true);
     try {
       await downloadFormationImage(leaderFormation ? [leaderFormation, ...joinerFormations] : joinerFormations,
-        "Trial Cage", heroStarLevels,
+        `Season ${season}`, heroStarLevels,
         name => heroIconNames.has(name) ? heroIconPath(name) : null);
       setNotice("Formation image downloaded.");
     } catch (error) {
@@ -221,15 +229,30 @@ export default function Home() {
     } finally { setExportingImage(false); }
   };
   const copyAllianceInstructions = async () => {
+    const recoveryNames = topRecoveryOptions.map((hero, index) => `${index + 1}. ${hero.name} (Lv${hero.level}, ${hero.verified ? "verified" : "unverified"})`);
+    const readinessLines = joinerFormations.length < joinCount
+      ? [
+          "",
+          "READINESS / RECOVERY",
+          ...joinerRosterDiagnostics.blockers.map(blocker => `- ${blocker}`),
+          ...(recoveryNames.length ? [`- Ranked LEFT options: ${recoveryNames.join(" • ")}`] : []),
+        ]
+      : [];
     const lines = [
       "TRIAL CAGE FORMATIONS",
-      verifiedOnly ? "Verified LEFT skills only" : "Standard LEFT skill priority",
+      `Season ${season} • ${verifiedOnly ? "Verified LEFT skills only" : "Standard LEFT skill priority"}`,
       ...preCageShareLines({ selectedBuffIds, activationLeadMinutes }),
+      "",
+      ...(leaderFormation ? [
+        `MAIN: ${leaderFormation.left.name} / ${leaderFormation.middle.name} / ${leaderFormation.right.name}`,
+        `  Main troops: ${leaderFormation.troopText} • Robot: ${leaderFormation.robot ?? "none"} • ${leaderFormation.status.toUpperCase()}`,
+      ] : ["MAIN: unavailable — check hero class readiness."]),
       "",
       ...joinerFormations.flatMap((formation) => [
         `${formation.id}: ${formation.left.name} (LEFT Lv${formation.leftSkillLevel}) / ${formation.middle.name} / ${formation.right.name}`,
         `  Joiner troops: ${formation.troopText} • Robot: ${formation.robot ?? "none"} • ${formation.status.toUpperCase()}`,
       ]),
+      ...readinessLines,
     ];
     try {
       await navigator.clipboard.writeText(lines.join("\n"));
@@ -253,7 +276,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.63 BETA</div>
+        <div className="badge">DEV v1.73 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -468,9 +491,12 @@ export default function Home() {
                     {hero.rarity}
                   </small>
                   {hero.leftSkill && (
-                    <em>LEFT ★ {hero.leftTier?.toUpperCase()}</em>
+                    <em className={`evidence-badge ${hero.leftSkillVerified ? "verified" : "unverified"}`}>
+                      LEFT {hero.leftSkillVerified ? "VERIFIED" : "UNVERIFIED"}{hero.leftTier ? ` • ${hero.leftTier.toUpperCase()}` : ""}
+                    </em>
                   )}
-                  {!hero.cageAllowed && <em>EXCLUDED</em>}
+                  {hero.cageAllowed && !hero.leftSkill && <em className="evidence-badge no-left">NO LEFT DATA</em>}
+                  {!hero.cageAllowed && <em className="evidence-badge excluded">EXCLUDED</em>}
                 </button>
                 {selected && !disabled && (
                   <label
@@ -496,6 +522,37 @@ export default function Home() {
             );
           })}
         </div>
+      </section>
+
+      <section className="panel preflight-panel">
+        <div className="result-title">
+          <div><label>FORMATION PREFLIGHT</label><h2>Roster, LEFT skills & robot pool</h2></div>
+          <span className={`status status-${preflightStatus}`}>{preflightStatus.toUpperCase()}</span>
+        </div>
+        <div className="mini-grid">
+          <div><b>Main Rally reserve</b><span>{leaderReservedNames.length ? leaderReservedNames.join(" + ") : "Need one usable hero from each class"}</span></div>
+          <div><b>Joiner hero usage</b><span>{projectedJoinerHeroNames.length}/{joinCount * 3} projected heroes for {joinCount} Joiner{joinCount === 1 ? "" : "s"}</span></div>
+          <div><b>Class pool after Main</b><span>{joinerRosterDiagnostics.counts.Shield} Shield • {joinerRosterDiagnostics.counts.Bomber} Bomber • {joinerRosterDiagnostics.counts.Shooter} Shooter</span></div>
+          <div><b>LEFT skill pool</b><span>{joinerRosterDiagnostics.leftSkills}/{joinCount} needed • {verifiedOnly ? "verified only" : "verified + known"}</span></div>
+          <div><b>Robot pool</b><span>{assignedRobotNames.length}/{requestedRobotSlots} projected assignments • {unassignedRobotNames.length} unassigned</span></div>
+          <div><b>Season evidence</b><span>{seasonHeroes.filter(hero => hero.season === season && hero.leftSkillVerified).length} verified LEFT skill{seasonHeroes.filter(hero => hero.season === season && hero.leftSkillVerified).length === 1 ? "" : "s"} entered for Season {season}</span></div>
+        </div>
+        {projectedJoinerHeroNames.length > 0 && (
+          <details className="preflight-details">
+            <summary>Show projected roster usage</summary>
+            <p><b>Main reserved:</b> {leaderReservedNames.join(", ") || "none"}</p>
+            <p><b>Joiners ({projectedJoinerHeroNames.length}/{joinCount * 3} heroes):</b> {projectedJoinerHeroNames.join(", ")}</p>
+          </details>
+        )}
+        {topRecoveryOptions.length > 0 && (
+          <details className="preflight-details">
+            <summary>Show ranked LEFT recovery order</summary>
+            <ol>{topRecoveryOptions.map(hero => <li key={hero.name}><b>{hero.name}</b> — {hero.cls} • Lv{hero.level} • {hero.verified ? "verified" : "unverified"}</li>)}</ol>
+          </details>
+        )}
+        {lockError && <div className="warning-box"><b>Configuration conflict:</b> {lockError}</div>}
+        {joinerRosterDiagnostics.blockers.length > 0 && <div className="warning-box">{joinerRosterDiagnostics.blockers.join(" ")}</div>}
+        {!lockError && joinerRosterDiagnostics.blockers.length === 0 && <p className="helper">Preflight found enough class coverage and LEFT-skill candidates for the requested Joiners. Robot shortages remain guidance only and never make a formation illegal.</p>}
       </section>
 
       <button className="generate" onClick={() => setGenerated(true)}>GENERATE MY CAGE SETUP</button>
@@ -646,7 +703,7 @@ export default function Home() {
                 : `Not enough compatible heroes to build all requested joiners. Check that you have at least ${joinCount} eligible LEFT-skill heroes plus one Shieldbearer, Bomber and Shooter for each march.`}
             </div>
           )}
-          <p className="helper">Leader heroes are reserved. Each joiner uses different heroes; supporting slots preserve priority LEFT skills for other marches.</p><div className="formation-list">
+          <p className="helper">Leader heroes are reserved. Each Joiner uses different heroes. MIDDLE and RIGHT are filled with lower-priority support heroes first so stronger LEFT-skill heroes remain available for later Joiners whenever the roster allows it.</p><div className="formation-list">
             {joinerFormations.map((f) => (
               <article className="formation-card" key={f.id}>
                 <div className="formation-head">
@@ -668,7 +725,7 @@ export default function Home() {
                     )}
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
-                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. War skill auto-ranked to Lv{f.leftSkillLevel} from the hero star unlock: 1★→Lv2, 2★→Lv3, 3★→Lv4, 4★+→Lv5. Skill priority comes first, with stars used by the generator. {f.left.leftSkillVerified ? "Skill progression verified." : "Exact progression is not verified."}</p></details>
+                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. The generator ranks LEFT candidates with the same skill-tier, War-skill-level and star model used during automatic formation building. War skill auto-ranks to Lv{f.leftSkillLevel} from the hero star unlock: 1★→Lv2, 2★→Lv3, 3★→Lv4, 4★+→Lv5. MIDDLE and RIGHT choices protect stronger unused LEFT candidates when possible. {f.left.leftSkillVerified ? "Skill progression verified from direct evidence." : "Exact progression is not yet verified."}</p></details>
                   </div>
                   <div className="slot">
                     <span>MIDDLE • {f.middle.cls}</span>

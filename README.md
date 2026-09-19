@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.63
+## Development Beta v1.73
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -26,6 +26,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - No troop-inventory or obsolete troop-plan configuration is required
 - Formation explanations showing why a LEFT hero was selected
 - Hero portraits/icons in generated formations
+- Season 7 hero support for Rin, Rex, Boogie and Fran & Pike with cropped in-game-style portraits
 - Copy-ready individual and group formation output
 
 ### Direct generator
@@ -48,7 +49,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - KOF event heroes are excluded from Trial Cage generation
 
 ### Other current features
-- Season filtering through currently entered hero data
+- Season filtering through Season 7 with screenshot-backed S7 hero data
 - Felon ownership and leader Yard Time support
 - Scorpion/Cobra core locks and rally-aware core selection
 - Formation sharing/copy tools
@@ -90,18 +91,31 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - **v1.62** — Formation cards improve mobile stacking, star visibility and LEFT-skill evidence labels.
 - **v1.63** — Cleaned stale current-feature documentation and synchronized release versions.
 
+## Beta v1.64–v1.73 development batch
+
+- **v1.64** — Promoted the Season 7 roster integration into the current release line, including Rin, Rex, Boogie and Fran & Pike.
+- **v1.65** — Fixed robot assignment so the Main Rally robot is not reused by J1; Joiners now receive the remaining selected robot pool.
+- **v1.66** — Added a robot-pool preflight summary showing projected assignments and unassigned selected robots without treating shortages as formation errors.
+- **v1.67** — Added a pre-generation roster simulator showing Main Rally reserves and the projected Joiner hero usage count/list.
+- **v1.68** — Recovery ordering now uses the exact same LEFT-slot scoring model as automatic formation generation.
+- **v1.69** — Added a Formation Preflight panel with class counts, LEFT-skill readiness, roster shortages and configuration conflicts before Generate.
+- **v1.70** — Hero cards now show consistent VERIFIED LEFT, UNVERIFIED LEFT, NO LEFT DATA and EXCLUDED evidence badges.
+- **v1.71** — Copy Instructions now includes the Main Rally plus roster blockers and ranked LEFT recovery options when Joiners are incomplete.
+- **v1.72** — Clarified why MIDDLE/RIGHT support heroes are chosen and how stronger unused LEFT candidates are protected for later Joiners.
+- **v1.73** — Updated exported formation-image branding/version/file name, synchronized package/UI versions and refreshed current documentation.
+
 ## What is next — next 10 changes
 
-1. **Season 6 screenshot intake** — add exact Otto/Wukong LEFT War-skill data only from direct evidence.
-2. **Six-Joiner roster simulator** — show the 18 heroes reserved/used before generation.
-3. **Recovery ranking** — rank LEFT alternatives with the automatic-generation scoring model.
-4. **Lock preflight panel** — show lock conflicts before Generate.
-5. **Robot pool summary** — show assigned versus unassigned robots without treating shortages as errors.
-6. **Formation explanation cleanup** — clarify supporting-slot preservation.
-7. **Copy-output polish** — include bottleneck/recovery notes for incomplete Joiners.
-8. **Hero evidence badges** — expose verified/unverified skill evidence consistently in hero selection.
-9. **Documentation archive cleanup** — separate historical beta notes from current behavior.
-10. **Production verification** — confirm the Vercel build/type check and fix genuine release blockers.
+1. **Season 6 evidence completion** — add exact Otto and Wukong War-skill progressions only when direct screenshots are available.
+2. **Season 7 Cage testing notes** — record real Trial Cage results for Rin, Rex and Boogie without turning untested assumptions into hard rankings.
+3. **LEFT comparison drawer** — show the next-best LEFT candidates beside each generated Joiner and explain the ranking inputs.
+4. **Roster shortage actions** — turn each class/LEFT shortage into a compact “what to add” recovery checklist.
+5. **Robot assignment controls** — allow optional per-march robot overrides while preserving no-reuse checks.
+6. **Formation share card polish** — bring exported image layout in line with the current on-page cards and Season 7 portraits.
+7. **Hero evidence details** — expose the verified Lv1–Lv5 progression and evidence note without cluttering the main hero grid.
+8. **Import report upgrade** — show matched, unmatched and duplicate hero rows after roster text import.
+9. **Data provenance pass** — add concise evidence/source notes to screenshot-verified season data and keep heuristic priority weights clearly separated from game percentages.
+10. **Production smoke check** — verify the deployed build after the batch and fix only genuine compile/runtime blockers.
 
 ## Evidence rules
 

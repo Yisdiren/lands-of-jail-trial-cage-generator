@@ -14,9 +14,9 @@ export async function downloadFormationImage(
   if (!ctx) throw new Error("This browser cannot create a formation image.");
   ctx.fillStyle = "#091522"; ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "#ffd44a"; ctx.font = "bold 30px sans-serif";
-  ctx.fillText("CCW TRIAL CAGE — " + player.slice(0, 45), 30, 46);
+  ctx.fillText("LANDS OF JAIL — TRIAL CAGE FORMATIONS", 30, 46);
   ctx.fillStyle = "#ffffff"; ctx.font = "18px sans-serif";
-  ctx.fillText("Beta v0.31 • LEFT / MIDDLE / RIGHT", 30, 80);
+  ctx.fillText("Beta v1.73 • LEFT / MIDDLE / RIGHT • " + player.slice(0, 45), 30, 80);
   const wrap = (text: string, x: number, y: number, width: number) => {
     let line = "";
     for (const word of text.split(" ")) {
@@ -54,6 +54,6 @@ export async function downloadFormationImage(
   }
   const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error("Image export failed.")), "image/png"));
   const url = URL.createObjectURL(blob);
-  const link = document.createElement("a"); link.href = url; link.download = "ccw-formations.png"; link.click();
+  const link = document.createElement("a"); link.href = url; link.download = "trial-cage-formations.png"; link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

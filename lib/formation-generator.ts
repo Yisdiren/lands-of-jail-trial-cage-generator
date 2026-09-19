@@ -16,16 +16,16 @@ const skillMultiplier = (hero: Hero, levels: WarSkillLevels) => {
   if (hero.leftSkillValues) { const actual=hero.leftSkillValues[level-1], max=hero.leftSkillValues[4]; return max>0?actual/max:0; }
   return level/5;
 };
-const leftScore = (hero: Hero, levels: WarSkillLevels, stars: HeroStarLevels) => (tier(hero)+(hero.leftValue??0))*skillMultiplier(hero,levels)+(starOf(hero,stars)-1)*3;
+export const scoreJoinerLeftHero = (hero: Hero, levels: WarSkillLevels, stars: HeroStarLevels) => (tier(hero)+(hero.leftValue??0))*skillMultiplier(hero,levels)+(starOf(hero,stars)-1)*3;
 const valuable = (hero: Hero) => hero.leftTier === "top" || hero.leftTier === "strong";
-const leftSorter = (levels: WarSkillLevels, stars: HeroStarLevels) => (a:Hero,b:Hero) => leftScore(b,levels,stars)-leftScore(a,levels,stars) || starOf(b,stars)-starOf(a,stars) || a.name.localeCompare(b.name);
+const leftSorter = (levels: WarSkillLevels, stars: HeroStarLevels) => (a:Hero,b:Hero) => scoreJoinerLeftHero(b,levels,stars)-scoreJoinerLeftHero(a,levels,stars) || starOf(b,stars)-starOf(a,stars) || a.name.localeCompare(b.name);
 const pickBest = (list:Hero[], cls:HeroClass, used:Set<string>, stars:HeroStarLevels) => list.filter(h=>h.cls===cls&&!used.has(h.name)).sort((a,b)=>starOf(b,stars)-starOf(a,stars)||a.name.localeCompare(b.name))[0];
 const chooseLeft = (eligible:Hero[],count:number,levels:WarSkillLevels,stars:HeroStarLevels,verifiedOnly:boolean) => eligible.filter(h=>!!h.leftSkill&&(!verifiedOnly||h.leftSkillVerified)).sort(leftSorter(levels,stars)).slice(0,count);
 const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedNames:Set<string>,levels:WarSkillLevels,stars:HeroStarLevels) => eligible.filter(h=>h.cls===cls&&!used.has(h.name)).sort((a,b)=>{
   const ap=protectedNames.has(a.name)?1:0,bp=protectedNames.has(b.name)?1:0;if(ap!==bp)return ap-bp;
   const av=valuable(a)?1:0,bv=valuable(b)?1:0;if(av!==bv)return av-bv;
   const al=a.leftSkill?1:0,bl=b.leftSkill?1:0;if(al!==bl)return al-bl;
-  return starOf(a,stars)-starOf(b,stars)||leftScore(a,levels,stars)-leftScore(b,levels,stars)||a.name.localeCompare(b.name);
+  return starOf(a,stars)-starOf(b,stars)||scoreJoinerLeftHero(a,levels,stars)-scoreJoinerLeftHero(b,levels,stars)||a.name.localeCompare(b.name);
 })[0];
 
 export function generateLeaderFormationSmart(availableHeroes:Hero[],ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{
