@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { felons, heroes, robots } from "../data/heroes";
 import {
   calculateTroopPlan,
@@ -70,6 +70,7 @@ export default function Home() {
   const [generated, setGenerated] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [notice, setNotice] = useState("");
+  const heroImportRef = useRef<HTMLInputElement>(null);
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
   const [showAdvancedTroops, setShowAdvancedTroops] = useState(false);
@@ -180,6 +181,46 @@ export default function Home() {
     setOwned([]);
     setGenerated(false);
   };
+  const importHeroList = async (file: File) => {
+    const text = await file.text();
+    const normalized = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const heroByName = new Map(seasonHeroes.map(hero => [normalized(hero.name), hero]));
+    const imported: string[] = [];
+    const stars: Record<string, number> = {};
+    const unknown: string[] = [];
+
+    text.split(/\r?\n/).map(line => line.trim()).filter(Boolean).forEach(line => {
+      const starMatch = line.match(/(?:★\s*){1,5}|★\s*([1-5])|\b([1-5])\s*(?:star|stars)\b/i);
+      let starLevel = 1;
+      if (starMatch) {
+        const repeatedStars = (starMatch[0].match(/★/g) || []).length;
+        starLevel = repeatedStars > 1 ? repeatedStars : Number(starMatch[1] || starMatch[2] || repeatedStars || 1);
+      }
+      const cleaned = line
+        .replace(/(?:★\s*){1,5}/g, " ")
+        .replace(/★\s*[1-5]/g, " ")
+        .replace(/\b[1-5]\s*(?:star|stars)\b/gi, " ")
+        .replace(/\b(?:SSR|SR|R)\b/gi, " ")
+        .replace(/\bRank\s*\d+\b/gi, " ")
+        .trim();
+      const key = normalized(cleaned);
+      let hero = heroByName.get(key);
+      if (!hero) hero = seasonHeroes.find(candidate => key.includes(normalized(candidate.name)) || normalized(candidate.name).includes(key));
+      if (hero && hero.cageAllowed) {
+        if (!imported.includes(hero.name)) imported.push(hero.name);
+        stars[hero.name] = Math.max(1, Math.min(5, starLevel));
+      } else {
+        unknown.push(line);
+      }
+    });
+
+    setOwned(imported);
+    setHeroStarLevels(current => ({ ...current, ...stars }));
+    setGenerated(false);
+    setNotice(imported.length
+      ? `Imported ${imported.length} hero${imported.length === 1 ? "" : "es"}${unknown.length ? `. Could not match: ${unknown.join(", ")}` : "."}`
+      : "No matching heroes were found in that text file.");
+  };
   const setSkillLevel = (name: string, level: number) => {
     setWarSkillLevels((current) => ({ ...current, [name]: level }));
     setGenerated(false);
@@ -254,7 +295,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.29 SIMPLE</div>
+        <div className="badge">DEV v1.30 SIMPLE</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -425,7 +466,20 @@ export default function Home() {
         <div className="quick-actions">
           <button onClick={selectAll}>Select all usable</button>
           <button onClick={clearAll}>Clear</button>
+          <button type="button" onClick={() => heroImportRef.current?.click()}>Import hero list (.txt)</button>
+          <input
+            ref={heroImportRef}
+            type="file"
+            accept=".txt,text/plain"
+            hidden
+            onChange={async event => {
+              const file = event.target.files?.[0];
+              if (file) await importHeroList(file);
+              event.currentTarget.value = "";
+            }}
+          />
         </div>
+        <p className="helper">Import one hero per line. Examples: <b>Tyronn ★4</b>, <b>Phoenix ★★★★★</b>, or <b>Ryuichi SSR ★5 Rank 1</b>. Matching heroes are selected and their star levels are filled automatically.</p>
         <div className="heroes">
           {seasonHeroes.map((hero) => {
             const selected = owned.includes(hero.name);
