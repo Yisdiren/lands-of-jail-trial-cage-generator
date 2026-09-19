@@ -22,7 +22,7 @@ import {
   type MemberRole,
 } from "../lib/profiles";
 import { evaluateMemberReadiness } from "../lib/readiness";
-import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings, capacityObservationLabel, type CapacityObservation } from "../lib/cage-buffs";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, previewCageCapacity, buffEffectLabel, defaultCageBuffProfile, preCageShareLines, preCageWarnings, capacityObservationLabel, capacityEvidenceStatus, type CapacityObservation } from "../lib/cage-buffs";
 import { parseAllianceBackup, serializeAllianceBackup } from "../lib/backup";
 import Image from "next/image";
 
@@ -640,7 +640,7 @@ export default function Home() {
 
       <section className="panel capacity-lab">
         <div className="title"><div><label>CAPACITY TEST RECORDER</label><h2>Record what the game actually displays</h2></div><span>{capacityObservations.length} tests</span></div>
-        <p className="helper">Use this after a normal Cage activation. It records evidence without guessing the stacking formula.</p>
+        <p className="helper">Use this after a normal Cage activation. It records evidence without guessing the stacking formula.</p><div className={`evidence-status evidence-${capacityEvidenceStatus(capacityObservations).status}`}>{capacityEvidenceStatus(capacityObservations).label}</div>
         <div className="capacity-test-form">
           <input id="capacity-felon" placeholder="Felon used (optional)" />
           <input id="capacity-displayed" type="number" min="1" placeholder="Displayed capacity" />
