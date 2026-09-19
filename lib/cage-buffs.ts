@@ -111,3 +111,14 @@ export function sanitizeCageBuffProfile(value?: Partial<CageBuffProfile> | null)
     activationLeadMinutes: Math.max(0, Math.min(120, Math.round(value?.activationLeadMinutes ?? 5))),
   };
 }
+
+export function validateCageBuffSelection(selectedIds: string[]) {
+  const known = new Set(cageBuffs.map(buff => buff.id));
+  const unknownIds = selectedIds.filter(id => !known.has(id));
+  const duplicates = selectedIds.filter((id,index) => selectedIds.indexOf(id) !== index);
+  return {
+    valid: unknownIds.length === 0 && duplicates.length === 0,
+    unknownIds: [...new Set(unknownIds)],
+    duplicates: [...new Set(duplicates)],
+  };
+}
