@@ -3,6 +3,7 @@ import { generateJoinerFormationsSmart, generateLeaderFormationSmart, type HeroS
 
 export type TroopPreset = "shooters" | "10-90";
 export type WarSkillLevels = Record<string, number>;
+export const maxWarSkillLevelForStars = (stars:number) => Math.min(5, Math.max(1, Math.floor(stars)) + 1);
 export type TroopClassKey = "shield" | "bomber" | "shooter";
 export type TroopTier = `T${number}`;
 export type TroopValues = Record<TroopClassKey, number>;
