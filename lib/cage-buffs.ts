@@ -199,3 +199,10 @@ export function compareCapacityObservations(observations: CapacityObservation[])
     percentOverBase: ((o.displayedCapacity - o.baseCapacity) / o.baseCapacity) * 100,
   }));
 }
+
+export function capacityEvidenceStatus(observations: CapacityObservation[]) {
+  if (!observations.length) return { status: "waiting" as const, label: "Waiting for in-game tests" };
+  const uniqueSetups = new Set(observations.map(o => [o.felon,[...o.selectedBuffIds].sort().join(",")].join("|")));
+  if (uniqueSetups.size < 3) return { status: "collecting" as const, label: "Collecting more combinations" };
+  return { status: "evidence" as const, label: "Evidence set available for stacking analysis" };
+}
