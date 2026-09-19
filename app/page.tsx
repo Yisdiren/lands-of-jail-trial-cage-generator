@@ -75,11 +75,9 @@ export default function Home() {
     bomber: "T10",
     shooter: "T10",
   });
-  const [availableTroops, setAvailableTroops] = useState<TroopValues>({
-    shield: 0,
-    bomber: 0,
-    shooter: 0,
-  });
+  // Inventory entry is intentionally removed from the public Cage workflow.
+  // Use effectively unlimited availability so plans are driven only by rally capacity + chosen ratio.
+  const availableTroops: TroopValues = { shield: 999999999, bomber: 999999999, shooter: 999999999 };
   const [joinCount, setJoinCount] = useState(6);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
@@ -125,7 +123,6 @@ export default function Home() {
     setJoinerRatios(profile.joinerRatios);
     setLeaderRatios(profile.leaderRatios);
     setTroopTiers(profile.troopTiers);
-    setAvailableTroops(profile.availableTroops);
     setTroopPreset(profile.troopPreset);
     setJoinCount(profile.joinCount);
     setVerifiedOnly(profile.verifiedOnly ?? false);
@@ -284,10 +281,6 @@ export default function Home() {
   };
   const updateTier = (key: TroopClassKey, value: TroopTier) => {
     setTroopTiers((current) => ({ ...current, [key]: value }));
-    setGenerated(false);
-  };
-  const updateAvailable = (key: TroopClassKey, value: number) => {
-    setAvailableTroops((current) => ({ ...current, [key]: value }));
     setGenerated(false);
   };
   const currentProfileSnapshot = (): MemberProfile => ({
