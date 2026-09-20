@@ -4,7 +4,23 @@ This file contains the detailed development history that was previously stored i
 
 For the current project overview, quick-use instructions, evidence policy, and development commands, see [README.md](README.md).
 
-> Current public release: **Beta v2.16**
+> Current public release: **Beta v2.19**
+
+## Beta v2.19 — simple results and reliability pass
+
+- Simplified normal Joiner result wording while keeping skill evidence available on demand.
+- Improved partial-roster messages to lead with the first actionable shortage.
+- Added Main Rally priority regression coverage.
+- Added Season 1–7 generation legality/no-reuse regression coverage.
+- Added hero database integrity and S6/S7 evidence-first regression guards.
+
+## Beta v2.18 — evidence and ranking regression guard
+
+- Added automated guards for verified pre-S6 LEFT progressions and neutral/unpromoted defensive utility heroes.
+
+## Beta v2.17 — remaining pre-S6 War-skill evidence
+
+- Recorded the remaining direct screenshot evidence for Marcus, Caesar, Zoltan, Gerd, Vesaryon, Whisper, and Platos.
 
 ## Beta v2.16 — pre-S6 audit and simple-results pass
 

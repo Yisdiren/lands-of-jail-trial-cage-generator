@@ -149,3 +149,51 @@ test("defensive and utility LEFT heroes are not accidentally promoted into Cage 
     assert.equal(hero.leftValue, undefined, `${name} should not receive a heuristic Cage priority weight`);
   }
 });
+
+
+test("Main Rally keeps documented class priorities across representative rosters", () => {
+  const pick = (names: string[], stars: Record<string, number> = {}) =>
+    generateLeaderFormation(heroes.filter(hero => names.includes(hero.name)), [], stars);
+  const preferred = pick(["Tyronn","Phoenix","Xuanming","Ryuichi","Vivian","Ada","Veronica"], { Tyronn:3, Phoenix:5, Xuanming:5 });
+  assert.ok(preferred); assert.equal(preferred.right.name,"Tyronn"); assert.equal(preferred.middle.name,"Ryuichi"); assert.equal(preferred.left.name,"Ada");
+  const fallback = pick(["Phoenix","Xuanming","Vivian","Veronica"], { Phoenix:3, Xuanming:5 });
+  assert.ok(fallback); assert.equal(fallback.right.name,"Xuanming"); assert.equal(fallback.middle.name,"Vivian"); assert.equal(fallback.left.name,"Veronica");
+});
+
+for (const season of [1,2,3,4,5,6,7]) {
+  test(`Season ${season} generation never duplicates heroes or violates classes`, () => {
+    const pool = heroes.filter(hero => (hero.season === 0 || hero.season <= season) && hero.cageAllowed && hero.rarity !== "R" && hero.rarity !== "KOF");
+    const stars = Object.fromEntries(pool.map(hero => [hero.name,5]));
+    const leader = generateLeaderFormation(pool, [], stars);
+    if (!leader) return;
+    const joiners = generateJoinerFormations(pool, 6, {}, [], false, stars, leader);
+    const all = [leader,...joiners], names = all.flatMap(f=>[f.left.name,f.middle.name,f.right.name]);
+    assert.equal(new Set(names).size,names.length);
+    for (const formation of all) assert.deepEqual(new Set([formation.left.cls,formation.middle.cls,formation.right.cls]).size,3);
+    assert.ok(joiners.flatMap(f=>[f.left,f.middle,f.right]).every(hero=>hero.rarity!=="KOF"&&hero.rarity!=="R"));
+  });
+}
+
+test("hero database integrity is internally consistent", () => {
+  const names = heroes.map(hero=>hero.name);
+  assert.equal(new Set(names).size,names.length,"hero names must be unique");
+  for (const hero of heroes) {
+    assert.ok(["Shield","Bomber","Shooter"].includes(hero.cls), `${hero.name} has an invalid class`);
+    assert.ok(Number.isInteger(hero.season) && hero.season >= 0 && hero.season <= 7, `${hero.name} has an invalid season`);
+    if (hero.leftSkillValues) {
+      assert.equal(hero.leftSkillValues.length,5,`${hero.name} LEFT progression must contain Lv1-Lv5`);
+      assert.ok(hero.leftSkillValues.every(value=>Number.isFinite(value)&&value>=0), `${hero.name} LEFT progression contains an invalid value`);
+    }
+    if (hero.leftSkillVerified) assert.ok(hero.leftSkill && hero.leftSkillValues, `${hero.name} verified LEFT data must include skill text and values`);
+    if (hero.rarity==="KOF") assert.equal(hero.cageAllowed,false,`${hero.name} KOF must stay excluded from normal Cage planning`);
+  }
+});
+
+test("untested future-season data stays evidence-first", () => {
+  const s6 = heroes.filter(hero=>hero.season===6);
+  const s7 = heroes.filter(hero=>hero.season===7);
+  assert.ok(s6.every(hero=>!hero.leftSkill || hero.leftSkillVerified), "S6 LEFT data must not be added as unverified guesses");
+  assert.ok(s7.every(hero=>!hero.leftSkill || hero.leftSkillVerified), "S7 LEFT data must not be added as unverified guesses");
+  const promotedS7=s7.filter(hero=>hero.leftTier);
+  assert.ok(promotedS7.every(hero=>hero.evidenceNote && hero.priorityNote), "promoted S7 heroes need evidence and an explicit heuristic/testing caveat");
+});

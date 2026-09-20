@@ -607,7 +607,7 @@ export default function Home() {
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v2.16 BETA</div>
+        <div className="badge">DEV v2.19 BETA</div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
@@ -1312,13 +1312,13 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <p className="result-intro">Each Joiner uses one Shield, one Bomber and one Shooter. The first hero shown is the LEFT hero whose War skill drives the Joiner recommendation.</p>
+          <p className="result-intro">LEFT hero first • 1 Shield + 1 Bomber + 1 Shooter • no hero reuse</p>
           {lockError && <div className="warning-box">{lockError}</div>}
           {joinerFormations.length === 0 && (
             <div className="warning-box">
               {verifiedOnly
                 ? "No legal formation uses a screenshot-verified LEFT skill from this roster. Add verified LEFT heroes or turn the filter off."
-                : `Not enough compatible heroes to build all requested joiners. Check that you have at least ${joinCount} eligible LEFT-skill heroes plus one Shieldbearer, Bomber and Shooter for each march.`}
+                : (simpleShortageItems[0] ?? "Not enough compatible heroes to build the requested Joiners.")}
             </div>
           )}
           <div className="formation-list">
@@ -1334,9 +1334,7 @@ export default function Home() {
                 </div>
                 <div className="slots">
                   <div className="slot left">
-                    <span>
-                      LEFT • ACTIVE RALLY SKILL • Lv{f.leftSkillLevel} • {f.left.leftSkillVerified ? "VERIFIED" : "UNVERIFIED"}
-                    </span>
+                    <span>LEFT • Lv{f.leftSkillLevel}</span>
                     {heroIconNames.has(f.left.name) && (
                       <Image className="formation-hero-icon"
                         src={heroIconPath(f.left.name)}
@@ -1344,7 +1342,7 @@ export default function Home() {
                     )}
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
-                    <details><summary>Why this hero?</summary><p>First War skill: {f.left.leftSkill}. The generator ranks LEFT candidates with the same skill-tier, War-skill-level and star model used during automatic formation building. War skill auto-ranks to Lv{f.leftSkillLevel} from the hero star unlock: 1★→Lv2, 2★→Lv3, 3★→Lv4, 4★+→Lv5. MIDDLE and RIGHT choices protect stronger unused LEFT candidates when possible. {f.left.leftSkillVerified ? "Skill progression verified from direct evidence." : "Exact progression is not yet verified."}</p></details>
+                    <details><summary>Skill details</summary><p>{f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p></details>
                   </div>
                   <div className="slot">
                     <span>MIDDLE • {f.middle.cls}</span>
@@ -1399,7 +1397,7 @@ export default function Home() {
               <div className="warning-box">
                 {verifiedOnly
                   ? `Verified-only mode produced ${joinerFormations.length} of ${joinCount} legal non-repeating formations. Add more screenshot-verified LEFT heroes or turn the filter off.`
-                  : `Only ${joinerFormations.length} legal non-repeating formation${joinerFormations.length === 1 ? "" : "s"} could be built. ${joinerRosterDiagnostics.bottleneck ? `Bottleneck: ${joinerRosterDiagnostics.bottleneck.cls} is short by ${joinerRosterDiagnostics.bottleneck.short}. ` : ""}${joinerRosterDiagnostics.blockers.join(" ")}${joinerRosterDiagnostics.leftAlternatives.length ? ` Eligible LEFT options: ${joinerRosterDiagnostics.leftAlternatives.join(", ")}.` : ""}` }
+                  : `Built ${joinerFormations.length} of ${joinCount} Joiners. ${simpleShortageItems[0] ?? "Add more eligible heroes to complete the remaining Joiners."}` }
               </div>
             )}
         </section>

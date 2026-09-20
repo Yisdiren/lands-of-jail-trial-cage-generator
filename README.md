@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.18**
+**Beta v2.19**
 
 The public workflow is intentionally simple:
 
@@ -74,6 +74,15 @@ Verified Cage-relevant Power Armor data currently includes:
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
 Unknown values are left unverified instead of being extrapolated.
+
+## Beta v2.19 — simple results and reliability pass
+
+- Simplified Joiner result wording and collapsed technical LEFT explanations into compact skill details.
+- Incomplete results now lead with the first plain-language shortage instead of a long diagnostic dump.
+- Added regression coverage for documented Main Rally class priorities.
+- Added season-by-season legality/no-reuse tests through Season 7.
+- Added hero database integrity checks for duplicate names, class/season validity, verified LEFT evidence, five-level skill arrays, and KOF exclusion.
+- Added evidence-first guards for S6/S7 LEFT data and explicit caveats on promoted S7 heuristic priorities.
 
 ## Beta v2.18 — evidence and ranking regression guard
 
