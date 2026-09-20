@@ -42,3 +42,22 @@ test("saved and imported stars reject corrupt values and unknown heroes", () => 
   assert.deepEqual(saved.owned, ["Tyronn"]);
   assert.deepEqual(saved.heroStarLevels, { Tyronn: 5 });
 });
+
+
+test("Season 5 visible roster can build Main plus six Joiners with SR Shield fallbacks", () => {
+  const visibleSr = new Set(["Lofili", "Lunarl", "Flameborne", "Samir", "Gerd", "Iwado", "Vesaryon"]);
+  const pool = heroes.filter(hero =>
+    hero.season <= 5 &&
+    hero.cageAllowed &&
+    hero.rarity !== "R" &&
+    hero.rarity !== "KOF" &&
+    (hero.rarity !== "SR" || visibleSr.has(hero.name))
+  );
+  const leader = generateLeaderFormation(pool);
+  assert.ok(leader);
+  const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader);
+  assert.equal(joiners.length, 6);
+  const allNames = [leader, ...joiners].flatMap(formation => [formation.left.name, formation.middle.name, formation.right.name]);
+  assert.equal(new Set(allNames).size, allNames.length);
+  assert.ok(joiners.some(formation => [formation.middle.name, formation.right.name].some(name => ["Gerd", "Iwado", "Vesaryon"].includes(name))));
+});

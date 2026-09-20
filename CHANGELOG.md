@@ -4,7 +4,15 @@ This file contains the detailed development history that was previously stored i
 
 For the current project overview, quick-use instructions, evidence policy, and development commands, see [README.md](README.md).
 
-> Current public release: **Beta v2.10**
+> Current public release: **Beta v2.11**
+
+## Beta v2.11 — Season 5 Shield fallback support
+
+- Added **Gerd, Iwado, and Vesaryon** to the streamlined hero picker as SR Shield support fallbacks.
+- Added cleaned hero icons for all three.
+- Main Rally SSR preference remains unchanged.
+- The three SR Shields carry no offensive LEFT priority; they fill support slots when the Season 5 SSR Shield pool cannot cover Main + six Joiners.
+- Added a regression test for a full Season 5 Main + J1–J6 using the visible fallback roster.
 
 ## Beta v2.10 — Season 6 evidence correction
 

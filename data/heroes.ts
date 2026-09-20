@@ -81,15 +81,16 @@ export const heroes: Hero[] = [
     season: 0,
     rarity: "SR",
     cageAllowed: true,
-    notes: "Defense-oriented; not a priority LEFT hero.",
+    notes: "SR Shield support fallback for completing Main + 6 Joiners when the SSR Shield pool is short. Defense-oriented; not a priority LEFT hero.",
   },
-  { name: "Iwado", cls: "Shield", season: 0, rarity: "SR", cageAllowed: true },
+  { name: "Iwado", cls: "Shield", season: 0, rarity: "SR", cageAllowed: true, notes: "SR Shield support fallback for completing Main + 6 Joiners when the SSR Shield pool is short; not a priority LEFT hero." },
   {
     name: "Vesaryon",
     cls: "Shield",
     season: 0,
     rarity: "SR",
     cageAllowed: true,
+    notes: "SR Shield support fallback for completing Main + 6 Joiners when the SSR Shield pool is short; not a priority LEFT hero.",
   },
   {
     name: "Omega Rugal",

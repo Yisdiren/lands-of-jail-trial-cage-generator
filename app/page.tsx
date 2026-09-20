@@ -76,19 +76,20 @@ const resolveRobotAssignments = (
     joiners: joiners.map(formation => assign(formation, "joiner")),
   };
 };
-const retainedSrHeroes = new Set(["Lofili", "Lunarl", "Flameborne", "Samir"]);
+const supportShieldNames = new Set(["Gerd", "Iwado", "Vesaryon"]);
+const retainedSrHeroes = new Set(["Lofili", "Lunarl", "Flameborne", "Samir", ...supportShieldNames]);
 const showHeroInGenerator = (hero: (typeof heroes)[number]) => hero.rarity !== "R" && (hero.rarity !== "SR" || retainedSrHeroes.has(hero.name));
 const heroIconNames = new Set([
   "Omega Rugal", "Terry Bogard", "Mai Shiranui", "Ada", "Ryuichi", "Edwin",
   "Koschevoi", "Mireya", "Marcus", "Whisper", "Drake", "Veronica", "Tyronn",
   "Xuanming", "Sawyer", "Tormund", "Mia Scarlet Pyros", "Phoenix", "Alph",
   "Zoltan", "Lunarl", "Lofili", "Vivian", "Lee", "Samir", "Caesar", "Flameborne",
-  "Devilian", "Inata", "Lanchester", "Otto", "Wukong", "Worrell", "Kate", "Rin", "Rex", "Boogie", "Fran & Pike",
+  "Devilian", "Inata", "Lanchester", "Gerd", "Iwado", "Vesaryon", "Otto", "Wukong", "Worrell", "Kate", "Rin", "Rex", "Boogie", "Fran & Pike",
 ]);
 const heroIconSlug = (name: string) =>
   name.toLowerCase().replace(/scarlet pyros/g, "scarlet-pyros").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const season7IconNames = new Set(["Rin", "Rex", "Boogie", "Fran & Pike"]);
-const heroIconPath = (name: string) => `/icons/${heroIconSlug(name)}.${season7IconNames.has(name) ? "jpg" : "png"}`;
+const jpgIconNames = new Set(["Rin", "Rex", "Boogie", "Fran & Pike", "Gerd", "Iwado", "Vesaryon"]);
+const heroIconPath = (name: string) => `/icons/${heroIconSlug(name)}.${jpgIconNames.has(name) ? "jpg" : "png"}`;
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
   const [season, setSeason] = useState(1);
@@ -603,7 +604,7 @@ export default function Home() {
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v2.10 BETA</div>
+        <div className="badge">DEV v2.11 BETA</div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
@@ -688,7 +689,9 @@ export default function Home() {
                             LEFT {hero.leftSkillVerified ? "VERIFIED" : "UNVERIFIED"}{hero.leftTier ? ` • ${hero.leftTier.toUpperCase()}` : ""}
                           </em>
                         )}
-                        {hero.cageAllowed && !hero.leftSkill && <em className="evidence-badge no-left">NO LEFT DATA</em>}
+                        {supportShieldNames.has(hero.name)
+                          ? <em className="evidence-badge no-left">SR SUPPORT • SHIELD FALLBACK</em>
+                          : hero.cageAllowed && !hero.leftSkill && <em className="evidence-badge no-left">NO LEFT DATA</em>}
                         {!hero.cageAllowed && <em className="evidence-badge excluded">EXCLUDED</em>}
                       </button>
                       {selected && !disabled && (

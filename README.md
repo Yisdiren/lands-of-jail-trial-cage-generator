@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.10**
+**Beta v2.11**
 
 The public workflow is intentionally simple:
 
@@ -74,6 +74,16 @@ Verified Cage-relevant Power Armor data currently includes:
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
 Unknown values are left unverified instead of being extrapolated.
+
+## v2.11 Season 5 Shield fallback support
+
+Season 5 has only six usable SSR Shield heroes, while one Main Rally plus six Joiners requires seven different Shields. To avoid forcing players to wait for or heavily spend on Otto in Season 6:
+
+- **Gerd, Iwado, and Vesaryon** are now visible as SR Shield support fallbacks.
+- The normal Main Rally still prefers the existing SSR Main choices.
+- These SR Shields have no offensive LEFT priority and are used as MIDDLE/RIGHT support when the SSR Shield pool runs short.
+- Added cleaned icons for all three support heroes.
+- This lets a Season 5 roster build a full Main + J1–J6 when the player owns enough heroes in the other classes.
 
 ## v2.10 Season 6 evidence correction
 
