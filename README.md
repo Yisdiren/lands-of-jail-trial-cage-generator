@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.98
+## Development Beta v2.08
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -62,8 +62,8 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Felon ownership and leader Yard Time support
 - Player-specific Power Armor level selection with screenshot-verified automatic effect values
 - Scorpion/Cobra core locks and rally-aware core selection
-- Formation sharing/copy tools
-- Browser-local saved data
+- Formation sharing/copy tools, including per-march copy buttons and a Results Only print/share view
+- Browser-local saved core setup so season, Joiner count, heroes and stars reopen where the player left them
 - Responsive desktop/mobile interface
 - Clean generator-focused interface for Main Rally and configurable Joiner formations
 - General Trial Cage branding; CCW-specific recommendation rules are no longer used as global rules
@@ -157,18 +157,31 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Copied alliance instructions omit the entire pre-Cage buff block when no buffs were selected.
 - Kept the essential troop rule as a single compact line beneath Generate instead of a separate configuration panel.
 
+## Beta v1.99–v2.08 simple workflow batch
+
+- **v1.99** — Added compact selected hero counts by Shield, Bomber and Shooter without adding search or class-filter controls to the main screen.
+- **v2.00** — Cleaned the generated Main/Joiner cards with clearer LEFT/MIDDLE/RIGHT labels and larger hero portraits.
+- **v2.01** — Added a small copy button to MAIN and every individual Joiner formation.
+- **v2.02** — Added a Results Only view plus print-friendly output for sharing the generated formations without the setup controls.
+- **v2.03** — The core quick setup now automatically remembers server season, Joiner count, selected heroes and star levels in the browser.
+- **v2.04** — Added a plain-language shortage message outside Advanced when the requested Main/Joiner set cannot be completed.
+- **v2.05** — Added a confirmed Start Over action that resets only the simple core setup.
+- **v2.06** — Added a mobile sticky Generate button so phone users do not have to scroll back after selecting heroes.
+- **v2.07** — Added a compact result summary showing Main readiness, Joiners built and selected hero count.
+- **v2.08** — Completed the production regression/deployment pass for the simple-workflow batch.
+
 ## What is next — next 10 changes
 
-1. **Hero search box** — quickly filter the visible hero roster by name without changing ownership selections.
-2. **Hero sort controls** — sort the roster by class, season, rarity, star level or LEFT evidence state.
-3. **Pin presets** — save and reapply a few favorite MAIN/J1–J6 pin layouts without hardcoding account-specific heroes.
-4. **Single-march copy** — copy one MAIN or Joiner formation without copying the entire Cage instruction block.
-5. **Comparison export** — export saved A/B formation comparisons as text or an image for alliance discussion.
-6. **Setup reset controls** — add targeted reset buttons for roster, pins, robots, buffs or the whole setup with confirmation.
-7. **Power Armor quick summary** — show selected Power Armor skill levels and verified effects in one compact line near generated results.
-8. **Backup validation report** — show exactly which backup fields were restored, skipped or corrected during JSON import.
-9. **Roster statistics panel** — show selected hero counts by class, rarity and season without treating counts as strength ratings.
-10. **Production regression pass** — run build/deployment checks after the next batch and fix only confirmed compile or runtime problems.
+1. **Keep the simple front page stable** — no hero search or class-filter controls unless the roster becomes much larger.
+2. **Compact saved-setup notice** — quietly show that the last roster was restored without adding another configuration panel.
+3. **Result card screenshot spacing** — fine-tune spacing specifically for phone screenshots of MAIN + J1–J6.
+4. **Single formation image export** — optionally save one MAIN/J1–J6 card as an image from its result card.
+5. **Copy format choices in Advanced** — optional compact vs detailed alliance copy text without changing the main workflow.
+6. **Roster completeness hint** — a small non-blocking note when the selected class counts obviously cannot support the requested number of rallies.
+7. **Season-change safety** — clearly mark selected heroes that become unavailable if a player changes to an earlier season.
+8. **Local setup migration** — preserve simple saved setups cleanly if future hero names/data structures change.
+9. **Accessibility regression pass** — verify mobile keyboard/focus behavior after result-card changes.
+10. **Production regression pass** — run build/deployment checks after the next batch and fix only confirmed issues.
 
 ### Deferred until direct account evidence is available
 

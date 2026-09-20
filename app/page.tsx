@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { felons, heroes, robots, type HeroClass } from "../data/heroes";
 import {
   generateJoinerFormations,
@@ -23,6 +23,12 @@ type Mode = "leader" | "joiner";
 type ImportReport = { matched: string[]; unmatched: string[]; duplicates: string[] };
 type FormationSnapshotLine = { id: string; left: string; middle: string; right: string; robot: string; status: string };
 type FormationSnapshot = { savedAt: string; lines: FormationSnapshotLine[] };
+type SimpleSavedSetup = {
+  season: number;
+  joinCount: number;
+  owned: string[];
+  heroStarLevels: Record<string, number>;
+};
 type GeneratorBackup = {
   format: "loj-trial-cage-backup";
   version: 1;
@@ -103,6 +109,8 @@ export default function Home() {
   const [leftClassFilter, setLeftClassFilter] = useState<HeroClass | "all">("all");
   const [comparisonA, setComparisonA] = useState<FormationSnapshot | null>(null);
   const [comparisonB, setComparisonB] = useState<FormationSnapshot | null>(null);
+  const [resultsOnly, setResultsOnly] = useState(false);
+  const [restoredSimpleSetup, setRestoredSimpleSetup] = useState(false);
   const [notice, setNotice] = useState("");
   const [importReport, setImportReport] = useState<ImportReport | null>(null);
   const heroImportRef = useRef<HTMLInputElement>(null);
@@ -111,6 +119,34 @@ export default function Home() {
   const [armorSettings, setArmorSettings] = useState<PrisonerArmorSettings>({});
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
   const [kofLeaderLinks, setKofLeaderLinks] = useState<Record<string,string>>({});
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("loj-trial-cage-simple-setup-v1");
+      if (raw) {
+        const saved = JSON.parse(raw) as Partial<SimpleSavedSetup>;
+        const validNames = new Set(heroes.filter(hero => hero.cageAllowed && showHeroInGenerator(hero)).map(hero => hero.name));
+        const nextSeason = Math.max(1, Math.min(7, Number(saved.season) || 1));
+        const nextOwned = Array.isArray(saved.owned) ? saved.owned.filter((name): name is string => typeof name === "string" && validNames.has(name)) : [];
+        const nextStars = saved.heroStarLevels && typeof saved.heroStarLevels === "object" ? saved.heroStarLevels : {};
+        setSeason(nextSeason);
+        setJoinCount(Math.max(1, Math.min(6, Number(saved.joinCount) || 6)));
+        setOwned(nextOwned);
+        setHeroStarLevels(nextStars);
+      }
+    } catch {
+      // A bad local value should never block the generator.
+    } finally {
+      setRestoredSimpleSetup(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!restoredSimpleSetup) return;
+    const saved: SimpleSavedSetup = { season, joinCount, owned, heroStarLevels };
+    window.localStorage.setItem("loj-trial-cage-simple-setup-v1", JSON.stringify(saved));
+  }, [restoredSimpleSetup, season, joinCount, owned, heroStarLevels]);
+
   const seasonHeroes = useMemo(
     () => heroes.filter((h) => (h.season === 0 || h.season <= season) && showHeroInGenerator(h)),
     [season],
@@ -127,6 +163,11 @@ export default function Home() {
     () => seasonHeroes.filter((h) => owned.includes(h.name) && h.cageAllowed),
     [seasonHeroes, owned],
   );
+  const selectedClassCounts = useMemo(() => ({
+    Shield: available.filter(hero => hero.cls === "Shield").length,
+    Bomber: available.filter(hero => hero.cls === "Bomber").length,
+    Shooter: available.filter(hero => hero.cls === "Shooter").length,
+  }), [available]);
   const generatorAvailable = useMemo(
     () => available.map(hero => {
       const hideAsLeft =
@@ -238,6 +279,11 @@ export default function Home() {
   if (joinerRosterDiagnostics.counts.Shooter < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shooter} eligible Shooter hero${joinCount - joinerRosterDiagnostics.counts.Shooter === 1 ? "" : "es"}.`);
   if (joinerRosterDiagnostics.leftSkills < joinCount) shortageActions.push(`Add or verify ${joinCount - joinerRosterDiagnostics.leftSkills} more ${verifiedOnly ? "screenshot-verified " : ""}LEFT-skill hero${joinCount - joinerRosterDiagnostics.leftSkills === 1 ? "" : "es"}.`);
   if (joinerRosterDiagnostics.heroShortage > 0) shortageActions.push(`Add ${joinerRosterDiagnostics.heroShortage} eligible hero${joinerRosterDiagnostics.heroShortage === 1 ? "" : "es"} overall for ${joinCount} full non-repeating Joiners.`);
+  const missingMainClasses = (["Shield","Bomber","Shooter"] as const).filter(cls => !available.some(hero => hero.cls === cls));
+  const simpleShortageItems = [
+    ...(missingMainClasses.length ? [`Main Rally needs: ${missingMainClasses.join(" + ")}.`] : []),
+    ...shortageActions.slice(0, 3),
+  ];
   const setRobotOverride = (formationId: string, robot: string) => {
     setRobotOverrides(current => {
       const next = { ...current };
@@ -271,6 +317,35 @@ export default function Home() {
   const clearAll = () => {
     setOwned([]);
     setGenerated(false);
+  };
+  const startOver = () => {
+    if (!window.confirm("Start over and clear your season, selected heroes and star levels?")) return;
+    setSeason(1);
+    setJoinCount(6);
+    setOwned([]);
+    setHeroStarLevels({});
+    setGenerated(false);
+    setResultsOnly(false);
+    setImportReport(null);
+    setNotice("Quick setup cleared.");
+  };
+  const generateNow = () => {
+    setResultsOnly(false);
+    setGenerated(true);
+  };
+  const copySingleFormation = async (formation: Formation, kind: "Main" | "Joiner") => {
+    const robot = formation.robot ? ` • Robot: ${formation.robot}` : "";
+    const leftLevel = kind === "Joiner" && formation.leftSkillLevel ? ` • LEFT Lv${formation.leftSkillLevel}` : "";
+    const text = [
+      `${formation.id}: ${formation.left.name} / ${formation.middle.name} / ${formation.right.name}${leftLevel}`,
+      `${kind} troops: ${formation.troopText}${robot}`,
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setNotice(`${formation.id} copied.`);
+    } catch {
+      setNotice("Clipboard access was blocked.");
+    }
   };
   const importHeroList = async (file: File) => {
     const text = await file.text();
@@ -503,7 +578,7 @@ export default function Home() {
   return (
     <>
     <a className="skip-link" href="#generator-main">Skip to generator setup</a>
-    <main id="generator-main">
+    <main id="generator-main" className={resultsOnly ? "results-only" : ""}>
       <header>
         <div>
           <span className="eyebrow">TRIAL CAGE TOOLS</span>
@@ -515,12 +590,12 @@ export default function Home() {
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v1.98 BETA</div>
+        <div className="badge">DEV v2.08 BETA</div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
 
-      <section className="panel controls simple-setup">
+      <section className="panel controls simple-setup setup-only">
         <div>
           <label>QUICK SETUP</label>
           <h2>Main Rally + up to 6 Joiners</h2>
@@ -530,17 +605,18 @@ export default function Home() {
         <div><label>JOINER MARCHES</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
       </section>
 
-      <section className="panel">
+      <section className="panel setup-only hero-picker-panel">
         <div className="title">
           <div>
             <label>YOUR HEROES</label>
             <h2>Select your heroes and set only their star levels</h2>
           </div>
-          <span>{available.length} selected</span>
+          <span className="selected-class-counts">{available.length} selected • {selectedClassCounts.Shield} Shield • {selectedClassCounts.Bomber} Bomber • {selectedClassCounts.Shooter} Shooter</span>
         </div>
         <div className="quick-actions">
           <button onClick={selectAll}>Select all usable</button>
-          <button onClick={clearAll}>Clear</button>
+          <button onClick={clearAll}>Clear heroes</button>
+          <button type="button" className="start-over-button" onClick={startOver}>Start over</button>
           <button type="button" onClick={() => heroImportRef.current?.click()}>Import hero list (.txt)</button>
           <input
             ref={heroImportRef}
@@ -634,7 +710,7 @@ export default function Home() {
         </div>
       </section>
 
-      <details className="advanced-tools">
+      <details className="advanced-tools setup-only">
         <summary>
           <span><b>Advanced / Optional Setup</b><small>Robots, Felons, Power Armor, buffs, filters, pins, evidence and backup tools</small></span>
         </summary>
@@ -1037,8 +1113,25 @@ export default function Home() {
         </div>
       </details>
 
-      <button className="generate" onClick={() => setGenerated(true)}>GENERATE MY CAGE SETUP</button>
-      <p className="core-troop-rule"><b>Main:</b> use your maximum troops. <b>Joiners:</b> 10,000 Bombers + 90,000 Shooters or 100,000 Shooters.</p>
+      <button className="generate setup-only" onClick={generateNow}>GENERATE MY CAGE SETUP</button>
+      <p className="core-troop-rule setup-only"><b>Main:</b> use your maximum troops. <b>Joiners:</b> 10,000 Bombers + 90,000 Shooters or 100,000 Shooters.</p>
+
+      {!generated && <button className="mobile-generate setup-only" onClick={generateNow}>GENERATE MAIN + {joinCount} JOINER{joinCount === 1 ? "" : "S"}</button>}
+
+      {generated && (
+        <div className="result-overview">
+          <b>{leaderFormation ? "MAIN READY" : "MAIN NEEDED"}</b>
+          <span>{joinerFormations.length}/{joinCount} JOINERS BUILT</span>
+          <span>{available.length} HEROES SELECTED</span>
+        </div>
+      )}
+
+      {generated && (simpleShortageItems.length > 0 || joinerFormations.length < joinCount) && (
+        <div className="simple-shortage">
+          <b>TO FINISH THIS SETUP</b>
+          <span>{simpleShortageItems.length ? simpleShortageItems.join(" ") : `Need more compatible heroes to build all ${joinCount} Joiners.`}</span>
+        </div>
+      )}
 
       {generated && seatHolder && (
         <div className="seat-bonus active">
@@ -1047,10 +1140,18 @@ export default function Home() {
         </div>
       )}
 
-      {generated && !lockError && (
-        <button className="copy-button" disabled={exportingImage || (!leaderFormation && !joinerFormations.length)} onClick={exportFormationImage}>
-          {exportingImage ? "CREATING IMAGE…" : "DOWNLOAD FORMATION IMAGE"}
-        </button>
+      {generated && (
+        <div className="result-toolbar">
+          <button className="copy-button" type="button" onClick={()=>setResultsOnly(current=>!current)}>
+            {resultsOnly ? "BACK TO SETUP" : "RESULTS ONLY"}
+          </button>
+          <button className="copy-button" type="button" onClick={()=>window.print()}>PRINT RESULTS</button>
+          {!lockError && (
+            <button className="copy-button" disabled={exportingImage || (!leaderFormation && !joinerFormations.length)} onClick={exportFormationImage}>
+              {exportingImage ? "CREATING IMAGE…" : "DOWNLOAD IMAGE"}
+            </button>
+          )}
+        </div>
       )}
 
       {generated &&
@@ -1058,13 +1159,14 @@ export default function Home() {
           <section className="result">
             <div className="result-title">
               <label>YOUR MAIN RALLY</label>
-              <span className={`status status-${leaderFormation.status}`}>
-                {leaderFormation.status.toUpperCase()}
-              </span>
+              <div className="result-card-actions">
+                <button type="button" className="mini-copy" onClick={()=>copySingleFormation(leaderFormation, "Main")}>COPY MAIN</button>
+                <span className={`status status-${leaderFormation.status}`}>{leaderFormation.status.toUpperCase()}</span>
+              </div>
             </div>
             <div className="slots">
-              <div className="slot">
-                <span>{leaderFormation.left.cls}</span>
+              <div className="slot left">
+                <span>LEFT • {leaderFormation.left.cls}</span>
                 {heroIconNames.has(leaderFormation.left.name) && (
                       <Image className="formation-hero-icon"
                         src={heroIconPath(leaderFormation.left.name)}
@@ -1073,7 +1175,7 @@ export default function Home() {
                     <b>{leaderFormation.left.name}</b><small>{heroStarLevels[leaderFormation.left.name] ? "★".repeat(heroStarLevels[leaderFormation.left.name]) : "Stars not set"}</small>
               </div>
               <div className="slot">
-                <span>{leaderFormation.middle.cls}</span>
+                <span>MIDDLE • {leaderFormation.middle.cls}</span>
                 {heroIconNames.has(leaderFormation.middle.name) && (
                       <Image className="formation-hero-icon"
                         src={heroIconPath(leaderFormation.middle.name)}
@@ -1082,7 +1184,7 @@ export default function Home() {
                     <b>{leaderFormation.middle.name}</b><small>{heroStarLevels[leaderFormation.middle.name] ? "★".repeat(heroStarLevels[leaderFormation.middle.name]) : "Stars not set"}</small>
               </div>
               <div className="slot">
-                <span>{leaderFormation.right.cls}</span>
+                <span>RIGHT • {leaderFormation.right.cls}</span>
                 {heroIconNames.has(leaderFormation.right.name) && (
                       <Image className="formation-hero-icon"
                         src={heroIconPath(leaderFormation.right.name)}
@@ -1176,12 +1278,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <p className="result-intro">
-            Every joiner uses exactly one Shieldbearer, one Bomber and one Shooter.
-            Use the joiner troop amount and composition set by your alliance. The first hero shown is physically
-            LEFT; LEFT War skill level and hero stars affect recommendation priority.
-            Owned robots are assigned without reuse.
-          </p>
+          <p className="result-intro">Each Joiner uses one Shield, one Bomber and one Shooter. The first hero shown is the LEFT hero whose War skill drives the Joiner recommendation.</p>
           {lockError && <div className="warning-box">{lockError}</div>}
           {joinerFormations.length === 0 && (
             <div className="warning-box">
@@ -1195,10 +1292,11 @@ export default function Home() {
               <article className="formation-card" key={f.id}>
                 <div className="formation-head">
                   <b>{f.id}</b>
-                  <span>Joiner troops: 10k Bombers + 90k Shooters OR 100k Shooters</span>
-                  <em className={`status status-${f.status}`}>
-                    {f.status.toUpperCase()}
-                  </em>
+                  <span>10k Bombers + 90k Shooters OR 100k Shooters</span>
+                  <div className="formation-head-actions">
+                    <button type="button" className="mini-copy" onClick={()=>copySingleFormation(f, "Joiner")}>COPY {f.id}</button>
+                    <em className={`status status-${f.status}`}>{f.status.toUpperCase()}</em>
+                  </div>
                 </div>
                 <div className="slots">
                   <div className="slot left">
@@ -1288,7 +1386,7 @@ export default function Home() {
         </section>
       )}
 
-      <section className="panel notes">
+      <section className="panel notes setup-only">
         <div>
           <label>RULES CURRENTLY ENFORCED</label>
           <p>
@@ -1298,7 +1396,7 @@ export default function Home() {
           </p>
         </div>
       </section>
-      <footer>
+      <footer className="setup-only">
         Community tool • Not affiliated with Lands of Jail. Unknown season
         numbers are marked “Legacy” instead of being guessed.
         <br />
