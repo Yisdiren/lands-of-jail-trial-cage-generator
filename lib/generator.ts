@@ -15,7 +15,7 @@ export function validateFormation(formation:Omit<Formation,"alerts"|"status">,mo
   const alerts:FormationAlert[]=[],formationHeroes=[formation.left,formation.middle,formation.right];
   if(new Set(formationHeroes.map(hero=>hero.cls)).size!==3)alerts.push({severity:"error",message:"Formation must contain exactly one Shield, one Bomber and one Shooter hero."});
   formationHeroes.forEach(hero=>{if(hero.rarity==="KOF"&&mode==="joiner")alerts.push({severity:"error",message:`${hero.name} is a KOF event hero and is excluded from Joiner generation.`})});
-  if(!formation.robot)alerts.push({severity:"warning",message:"No owned robot is assigned to this march. Use your best available Trial Cage robot when sending it."});
+  if(!formation.robot)alerts.push({severity:"info",message:"No robot selected. Robot setup is optional and does not affect formation legality."});
   if(mode==="joiner"){
     if(!formation.left.leftSkill)alerts.push({severity:"error",message:"The LEFT hero has no confirmed first War skill for rally joining."});
     else{if(formation.left.leftTier==="filler")alerts.push({severity:"warning",message:"Filler LEFT skill — use only after stronger LEFT heroes are exhausted."});if((formation.leftSkillLevel??5)<5)alerts.push({severity:"warning",message:`${formation.left.name}'s LEFT War skill is only Lv${formation.leftSkillLevel}.`});if(!formation.left.leftSkillVerified)alerts.push({severity:"info",message:`${formation.left.name}'s exact War skill percentage progression is not yet verified.`})}

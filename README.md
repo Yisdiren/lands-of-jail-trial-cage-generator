@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.97
+## Development Beta v1.98
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -37,6 +37,8 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Copy-ready individual and group formation output
 
 ### Direct generator
+- The main screen is intentionally simple: season, Joiner count, hero/star selection, Generate, and formation results
+- Robots, Felons, Power Armor, buffs, LEFT filters, pinning, evidence, comparison and backup tools live under one collapsed **Advanced / Optional Setup** section
 - Opens directly to Cage settings without player profiles or onboarding
 - No player name, server identity, member switching or alliance profile backups
 - Formation sharing and image download use the current selections
@@ -46,7 +48,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Detects missing hero classes
 - Checks whether enough eligible heroes exist for the requested marches
 - Checks whether enough LEFT-skill heroes exist for requested joiner marches
-- Robot assignment is guidance and does not determine formation legality
+- Robot assignment is optional guidance and does not downgrade an otherwise legal formation
 - Flags LEFT War skills below Lv5
 - Detects hero reuse across generated formations
 - Detects robot reuse
@@ -144,6 +146,16 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - **v1.95** — Added a two-slot formation comparison workspace for saving and comparing formation choices without presenting either setup as a guaranteed damage winner.
 - **v1.96** — Added keyboard/accessibility improvements including a skip link, visible focus states, ARIA pressed states and clearer control labels.
 - **v1.97** — Completed the production regression pass for this batch; deployment/build status is the release gate and only confirmed errors are patched afterward.
+
+## Beta v1.98 simplification pass
+
+- Returned the public experience to the original goal: select a season, choose 1–6 Joiners, select heroes/stars, and generate one Main Rally plus the requested Joiner rallies.
+- Added the requested top-page credit: **Created by Stiletto of Server 260**.
+- Moved Robots, Felons, Power Armor, Prison Buffs, advanced LEFT filters, hero pinning, evidence dashboards, comparison tools and JSON setup utilities behind one collapsed **Advanced / Optional Setup** section.
+- Robot selection is now truly optional: having no robot selected is informational and no longer turns a legal formation into REVIEW status.
+- Optional seat and Felon details stay out of generated results unless the player actually configured them.
+- Copied alliance instructions omit the entire pre-Cage buff block when no buffs were selected.
+- Kept the essential troop rule as a single compact line beneath Generate instead of a separate configuration panel.
 
 ## What is next — next 10 changes
 

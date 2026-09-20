@@ -463,8 +463,7 @@ export default function Home() {
     const lines = [
       "TRIAL CAGE FORMATIONS",
       `Season ${season} • ${verifiedOnly ? "Verified LEFT skills only" : "Standard LEFT skill priority"}`,
-      ...preCageShareLines({ selectedBuffIds, activationLeadMinutes }, armorSettings),
-      "",
+      ...(selectedBuffIds.length ? [...preCageShareLines({ selectedBuffIds, activationLeadMinutes }, armorSettings), ""] : []),
       ...(leaderFormation ? [
         `MAIN: ${leaderFormation.left.name} / ${leaderFormation.middle.name} / ${leaderFormation.right.name}`,
         `  Main troops: ${leaderFormation.troopText} • Robot: ${leaderFormation.robot ?? "none"} • ${leaderFormation.status.toUpperCase()}`,
@@ -508,260 +507,27 @@ export default function Home() {
       <header>
         <div>
           <span className="eyebrow">TRIAL CAGE TOOLS</span>
+          <p className="creator-line">Created by <b>Stiletto</b> of Server 260</p>
           <h1>
             Trial Cage <b>Formation Generator</b>
           </h1>
           <p>
-            Lands of Jail • class-legal formations • LEFT-slot aware • no hero
-            or robot reuse
+            Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v1.97 BETA</div>
+        <div className="badge">DEV v1.98 BETA</div>
       </header>
-
-      <section className="panel cage-buffs-panel">
-        <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Power Armor</h2></div></div>
-        <p className="helper">Prison Buffs use verified fixed values. For Power Armor, choose your skill level and the generator fills the screenshot-verified effect automatically. Infercore Comprehensive Command and Atlax Orbital Strike max at Lv9; Halo Overload Charge and Yokozuna Valiant Breach support Lv10. No unavailable or unverified level is guessed.</p>
-        <div className="buff-groups">
-          <div className="buff-group">
-            <h3>Prison Buffs</h3>
-            <div className="buff-grid">
-              {buffGroups.prisonBuffs.map(buff => (
-                <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}>
-                  <b>{buff.name}</b>
-                  <span>{buffEffectLabel(buff, armorSettings)}</span>
-                  <small>{buff.durationHours}h after activation</small>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="buff-group">
-            <h3>Power Armor</h3>
-            <p className="helper armor-helper">Pick the level shown on your account. Verified levels fill their exact effect automatically. If a skill reaches an unverified level later, the generator will ask for the value instead of guessing it.</p>
-            <div className="buff-grid armor-grid">
-              {buffGroups.prisonerArmor.map(buff => {
-                const setting = prisonerArmorSetting(buff, armorSettings);
-                const selected = selectedBuffIds.includes(buff.id);
-                return (
-                  <div className={selected ? "buff armor-buff selected" : "buff armor-buff"} key={buff.id}>
-                    <button type="button" className="armor-select" onClick={()=>toggleCageBuff(buff.id)} aria-pressed={selected}>
-                      <b>{buff.name}</b>
-                      <span>{selected ? "SELECTED" : "SELECT FOR CAGE"}</span>
-                    </button>
-                    <span className="armor-effect">{buffEffectLabel(buff, armorSettings)}</span>
-                    <div className="armor-meta">
-                      <span>{buff.armorRobot ? `${buff.armorRobot} skill` : "Power Armor skill"}</span>
-                      <span>{buff.durationHours}h duration • {buff.cooldownHours ?? 20}h cooldown</span>
-                    </div>
-                    <div className="armor-controls">
-                      <label>
-                        Your skill level
-                        <select value={setting.level} onChange={event => updateArmorSetting(buff.id, { level: Number(event.target.value) })}>
-                          {Array.from({ length: buff.maxSkillLevel ?? 10 }, (_, index) => index + 1).map(level => (
-                            <option key={level} value={level}>
-                              Lv.{level}{buff.levelValues?.[level - 1] !== undefined ? " • verified" : " • value needed"}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      {!isPowerArmorLevelVerified(buff, setting.level) && (
-                        <label>
-                          Unverified effect value
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.5"
-                            placeholder="Enter value shown in game"
-                            value={setting.value || ""}
-                            onChange={event => updateArmorSetting(buff.id, { value: Number(event.target.value) || 0 })}
-                          />
-                        </label>
-                      )}
-                    </div>
-                    {powerArmorBreakthroughLabel(buff, setting.level) && <small className="armor-breakthrough">{powerArmorBreakthroughLabel(buff, setting.level)}</small>}
-                    <small>{isPowerArmorLevelVerified(buff, setting.level) ? `Screenshot verified at Lv.${setting.level}` : `Lv.${setting.level} effect not yet screenshot verified — no value is guessed.`}</small>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main: maximum troops • Joiners: 10k Bombers + 90k Shooters or 100k Shooters</span><strong>{cageBuffSummaryText(selectedBuffIds, armorSettings)}</strong><label>Activate <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min before Cage</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
-      </section>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
 
-      <section className="panel controls">
+      <section className="panel controls simple-setup">
         <div>
-          <label>CAGE SETUP</label>
-          <h2>One-click Main Rally + Joiners</h2>
-          <p className="helper">Choose your heroes, robots and march settings, then generate your Main Rally and Joiners together.</p>
+          <label>QUICK SETUP</label>
+          <h2>Main Rally + up to 6 Joiners</h2>
+          <p className="helper">Pick your server season, choose how many Joiner rallies you want, select your heroes and stars, then Generate. Everything else is optional.</p>
         </div>
-        <label className="verified-toggle">
-          <input type="checkbox" checked={verifiedOnly} onChange={(event)=>{setVerifiedOnly(event.target.checked);setGenerated(false)}} />
-          <span><b>VERIFIED SKILLS ONLY</b><small>Use screenshot-confirmed LEFT War progressions only</small><small>{evidenceCounts.verified}/{evidenceCounts.total} available LEFT skills verified</small></span>
-        </label>
-        <label><input type="checkbox" checked={seatHolder} onChange={event => {setSeatHolder(event.target.checked);setGenerated(false)}} /> SCARLET BUTCHER SEAT • +10% ATK</label>
         <div><label>SERVER SEASON</label><select value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6,7].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
         <div><label>JOINER MARCHES</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
-      </section>
-
-      <section className="panel left-priority-panel" aria-labelledby="left-priority-heading">
-        <div className="title">
-          <div><label>LEFT PRIORITY FILTERS</label><h2 id="left-priority-heading">Control which heroes can lead Joiner marches</h2></div>
-        </div>
-        <div className="left-filter-controls">
-          <label className="verified-toggle">
-            <input type="checkbox" checked={hideFillerLeft} onChange={event=>{setHideFillerLeft(event.target.checked);setGenerated(false)}} />
-            <span><b>HIDE FILLER LEFT SKILLS</b><small>Filler heroes can still be used in MIDDLE or RIGHT support slots.</small></span>
-          </label>
-          <label>
-            LEFT hero class
-            <select value={leftClassFilter} onChange={event=>{setLeftClassFilter(event.target.value as HeroClass | "all");setGenerated(false)}}>
-              <option value="all">All classes</option>
-              <option value="Shield">Shield only</option>
-              <option value="Bomber">Bomber only</option>
-              <option value="Shooter">Shooter only</option>
-            </select>
-          </label>
-        </div>
-        <p className="helper">Verified Skills Only remains available above. These filters affect LEFT eligibility only; they do not remove heroes from legal support-slot filling.</p>
-      </section>
-
-      <section className="panel troop-panel">
-        <div className="title"><div><label>TROOP GUIDELINES</label><h2>Use your alliance's Cage troop rules</h2></div></div>
-        <p className="helper"><b>Main Rally:</b> use your maximum available troops. <b>Joiners:</b> use either 10,000 Bombers + 90,000 Shooters or 100,000 Shooters.</p>
-      </section>
-
-      <section className="panel simple-cage-tips">
-        <div className="title"><div><label>CAGE RECOMMENDATIONS</label><h2>Use these with the generated formations</h2></div></div>
-        <div className="mini-grid">
-          <div><b>Robots</b><span>Musashimaru + Phantom Cat are the current priority choices when owned.</span></div>
-          <div><b>Felons</b><span>Scorpion + Cobra core. Use Rage Fist for a full rally; Devil when expedition capacity is more useful.</span></div>
-          <div><b>2-hour buffs</b><span>Troops ATK +11%, Troops Lethality +11%, Expedition Capacity +11%. Activate about 5 minutes before Cage.</span></div>
-        </div>
-      </section>
-
-      <section className="panel">
-          <div className="title">
-            <div>
-              <label>YARD TIME FELONS</label>
-              <h2>Select owned felons and rally condition</h2>
-            </div>
-            <span>{ownedFelons.length} owned</span>
-          </div>
-          <div className="quick-actions">
-            <button
-              onClick={() => {
-                setOwnedFelons(felons.map((felon) => felon.name));
-                setGenerated(false);
-              }}
-            >
-              Select all
-            </button>
-            <button
-              onClick={() => {
-                setOwnedFelons([]);
-                setGenerated(false);
-              }}
-            >
-              Clear
-            </button>
-          </div>
-          <div className="felons">
-            {felons.map((felon) => (
-              <button
-                key={felon.name}
-                className={
-                  ownedFelons.includes(felon.name) ? "felon selected" : "felon"
-                }
-                onClick={() => toggleFelon(felon.name)}
-              >
-                <strong>{felon.name}</strong>
-                <small>{felon.effect}</small>
-              </button>
-            ))}
-          </div>
-          <div className="rally-condition">
-            <label>EXPECTED RALLY</label>
-            <div className="tabs">
-              <button
-                className={rallyFills ? "active" : ""}
-                onClick={() => {
-                  setRallyFills(true);
-                  setGenerated(false);
-                }}
-              >
-                Fills capacity
-              </button>
-              <button
-                className={!rallyFills ? "active" : ""}
-                onClick={() => {
-                  setRallyFills(false);
-                  setGenerated(false);
-                }}
-              >
-                Has open space
-              </button>
-            </div>
-          </div>
-          <p className="helper">
-            The optimizer keeps Scorpion and Cobra for attack and lethality,
-            then chooses Rage Fist for a full rally or Devil when personal
-            expedition capacity would otherwise be wasted.
-          </p>
-        </section>
-
-      <section className="panel">
-        <div className="title">
-          <div>
-            <label>YOUR ROBOTS</label>
-            <h2>Select robots this account owns</h2>
-          </div>
-          <span>{availableRobots.length} available</span>
-        </div>
-        <div className="quick-actions">
-          <button
-            onClick={() => {
-              setOwnedRobots(robots);
-              setGenerated(false);
-            }}
-          >
-            Select all
-          </button>
-          <button
-            onClick={() => {
-              setOwnedRobots([]);
-              setGenerated(false);
-            }}
-          >
-            Clear
-          </button>
-        </div>
-        <div className="robots">
-          {robotPriority.map((robot, index) => (
-            <div className={ownedRobots.includes(robot) ? "robot-priority-card selected" : "robot-priority-card"} key={robot}>
-              <button
-                type="button"
-                className={ownedRobots.includes(robot) ? "robot selected" : "robot"}
-                aria-pressed={ownedRobots.includes(robot)}
-                aria-label={`${ownedRobots.includes(robot) ? "Remove" : "Add"} ${robot} robot`}
-                onClick={() => toggleRobot(robot)}
-              >
-                <i>R{index + 1}</i>
-                <strong>{robot}</strong>
-                {index < 2 && <small>Auto priority {index + 1}</small>}
-              </button>
-              <div className="robot-order-controls">
-                <button type="button" onClick={()=>moveRobot(robot,-1)} disabled={index===0} aria-label={`Move ${robot} up in automatic priority`}>↑</button>
-                <button type="button" onClick={()=>moveRobot(robot,1)} disabled={index===robotPriority.length-1} aria-label={`Move ${robot} down in automatic priority`}>↓</button>
-              </div>
-            </div>
-          ))}
-        </div>
-        <p className="helper">
-          Robots are optional guidance, not a formation-legality requirement. Selected robots are assigned automatically without reuse; after generation you can pin a different owned robot to any individual march and the remaining marches will rebalance automatically. Cyber/Warlord-specific robot rules belong to Gorilla planning and are not applied to normal Trial Cage formations.
-        </p>
       </section>
 
       <section className="panel">
@@ -776,8 +542,6 @@ export default function Home() {
           <button onClick={selectAll}>Select all usable</button>
           <button onClick={clearAll}>Clear</button>
           <button type="button" onClick={() => heroImportRef.current?.click()}>Import hero list (.txt)</button>
-          <button type="button" onClick={exportRosterBackup}>Export setup (.json)</button>
-          <button type="button" onClick={() => backupImportRef.current?.click()}>Restore setup (.json)</button>
           <input
             ref={heroImportRef}
             type="file"
@@ -789,33 +553,8 @@ export default function Home() {
               event.currentTarget.value = "";
             }}
           />
-          <input
-            ref={backupImportRef}
-            type="file"
-            accept=".json,application/json"
-            hidden
-            onChange={async event => {
-              const file = event.target.files?.[0];
-              if (file) await importRosterBackup(file);
-              event.currentTarget.value = "";
-            }}
-          />
+
         </div>
-        {available.length > 0 && (
-          <details className="bulk-stars">
-            <summary>Bulk edit selected hero stars</summary>
-            <div className="bulk-star-grid">
-              {available.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(hero=>(
-                <label key={hero.name}>
-                  <span>{hero.name}</span>
-                  <select aria-label={`${hero.name} bulk star level`} value={heroStarLevels[hero.name] ?? 1} onChange={event=>setStarLevel(hero.name,Number(event.target.value))}>
-                    {[1,2,3,4,5].map(level=><option key={level} value={level}>{"★".repeat(level)} ({level})</option>)}
-                  </select>
-                </label>
-              ))}
-            </div>
-          </details>
-        )}
         <p className="helper">Import one hero per line. Examples: <b>Tyronn ★4</b>, <b>Phoenix ★★★★★</b>, or <b>Ryuichi SSR ★5 Rank 1</b>. Matching heroes are selected and their star levels are filled automatically.</p>
         {importReport && (
           <div className="import-report">
@@ -895,6 +634,275 @@ export default function Home() {
         </div>
       </section>
 
+      <details className="advanced-tools">
+        <summary>
+          <span><b>Advanced / Optional Setup</b><small>Robots, Felons, Power Armor, buffs, filters, pins, evidence and backup tools</small></span>
+        </summary>
+        <div className="advanced-tools-body">
+          <section className="panel">
+            <div className="title"><div><label>OPTIONAL CAGE SETTINGS</label><h2>Extra filters and modifiers</h2></div></div>
+            <div className="advanced-toggle-grid">
+              <label className="verified-toggle">
+                <input type="checkbox" checked={verifiedOnly} onChange={(event)=>{setVerifiedOnly(event.target.checked);setGenerated(false)}} />
+                <span><b>VERIFIED SKILLS ONLY</b><small>Use screenshot-confirmed LEFT War progressions only</small><small>{evidenceCounts.verified}/{evidenceCounts.total} available LEFT skills verified</small></span>
+              </label>
+              <label className="verified-toggle">
+                <input type="checkbox" checked={seatHolder} onChange={event => {setSeatHolder(event.target.checked);setGenerated(false)}} />
+                <span><b>SCARLET BUTCHER SEAT</b><small>Apply the +10% ATK seat reminder to your results.</small></span>
+              </label>
+            </div>
+          </section>
+      <section className="panel left-priority-panel" aria-labelledby="left-priority-heading">
+        <div className="title">
+          <div><label>LEFT PRIORITY FILTERS</label><h2 id="left-priority-heading">Control which heroes can lead Joiner marches</h2></div>
+        </div>
+        <div className="left-filter-controls">
+          <label className="verified-toggle">
+            <input type="checkbox" checked={hideFillerLeft} onChange={event=>{setHideFillerLeft(event.target.checked);setGenerated(false)}} />
+            <span><b>HIDE FILLER LEFT SKILLS</b><small>Filler heroes can still be used in MIDDLE or RIGHT support slots.</small></span>
+          </label>
+          <label>
+            LEFT hero class
+            <select value={leftClassFilter} onChange={event=>{setLeftClassFilter(event.target.value as HeroClass | "all");setGenerated(false)}}>
+              <option value="all">All classes</option>
+              <option value="Shield">Shield only</option>
+              <option value="Bomber">Bomber only</option>
+              <option value="Shooter">Shooter only</option>
+            </select>
+          </label>
+        </div>
+        <p className="helper">Verified Skills Only remains available above. These filters affect LEFT eligibility only; they do not remove heroes from legal support-slot filling.</p>
+      </section>
+
+
+      <section className="panel">
+        <div className="title">
+          <div>
+            <label>YOUR ROBOTS</label>
+            <h2>Select robots this account owns</h2>
+          </div>
+          <span>{availableRobots.length} available</span>
+        </div>
+        <div className="quick-actions">
+          <button
+            onClick={() => {
+              setOwnedRobots(robots);
+              setGenerated(false);
+            }}
+          >
+            Select all
+          </button>
+          <button
+            onClick={() => {
+              setOwnedRobots([]);
+              setGenerated(false);
+            }}
+          >
+            Clear
+          </button>
+        </div>
+        <div className="robots">
+          {robotPriority.map((robot, index) => (
+            <div className={ownedRobots.includes(robot) ? "robot-priority-card selected" : "robot-priority-card"} key={robot}>
+              <button
+                type="button"
+                className={ownedRobots.includes(robot) ? "robot selected" : "robot"}
+                aria-pressed={ownedRobots.includes(robot)}
+                aria-label={`${ownedRobots.includes(robot) ? "Remove" : "Add"} ${robot} robot`}
+                onClick={() => toggleRobot(robot)}
+              >
+                <i>R{index + 1}</i>
+                <strong>{robot}</strong>
+                {index < 2 && <small>Auto priority {index + 1}</small>}
+              </button>
+              <div className="robot-order-controls">
+                <button type="button" onClick={()=>moveRobot(robot,-1)} disabled={index===0} aria-label={`Move ${robot} up in automatic priority`}>↑</button>
+                <button type="button" onClick={()=>moveRobot(robot,1)} disabled={index===robotPriority.length-1} aria-label={`Move ${robot} down in automatic priority`}>↓</button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="helper">
+          Robots are optional guidance, not a formation-legality requirement. Selected robots are assigned automatically without reuse; after generation you can pin a different owned robot to any individual march and the remaining marches will rebalance automatically. Cyber/Warlord-specific robot rules belong to Gorilla planning and are not applied to normal Trial Cage formations.
+        </p>
+      </section>
+
+
+      <section className="panel">
+          <div className="title">
+            <div>
+              <label>YARD TIME FELONS</label>
+              <h2>Select owned felons and rally condition</h2>
+            </div>
+            <span>{ownedFelons.length} owned</span>
+          </div>
+          <div className="quick-actions">
+            <button
+              onClick={() => {
+                setOwnedFelons(felons.map((felon) => felon.name));
+                setGenerated(false);
+              }}
+            >
+              Select all
+            </button>
+            <button
+              onClick={() => {
+                setOwnedFelons([]);
+                setGenerated(false);
+              }}
+            >
+              Clear
+            </button>
+          </div>
+          <div className="felons">
+            {felons.map((felon) => (
+              <button
+                key={felon.name}
+                className={
+                  ownedFelons.includes(felon.name) ? "felon selected" : "felon"
+                }
+                onClick={() => toggleFelon(felon.name)}
+              >
+                <strong>{felon.name}</strong>
+                <small>{felon.effect}</small>
+              </button>
+            ))}
+          </div>
+          <div className="rally-condition">
+            <label>EXPECTED RALLY</label>
+            <div className="tabs">
+              <button
+                className={rallyFills ? "active" : ""}
+                onClick={() => {
+                  setRallyFills(true);
+                  setGenerated(false);
+                }}
+              >
+                Fills capacity
+              </button>
+              <button
+                className={!rallyFills ? "active" : ""}
+                onClick={() => {
+                  setRallyFills(false);
+                  setGenerated(false);
+                }}
+              >
+                Has open space
+              </button>
+            </div>
+          </div>
+          <p className="helper">
+            The optimizer keeps Scorpion and Cobra for attack and lethality,
+            then chooses Rage Fist for a full rally or Devil when personal
+            expedition capacity would otherwise be wasted.
+          </p>
+        </section>
+
+
+      <section className="panel cage-buffs-panel">
+        <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Power Armor</h2></div></div>
+        <p className="helper">Prison Buffs use verified fixed values. For Power Armor, choose your skill level and the generator fills the screenshot-verified effect automatically. Infercore Comprehensive Command and Atlax Orbital Strike max at Lv9; Halo Overload Charge and Yokozuna Valiant Breach support Lv10. No unavailable or unverified level is guessed.</p>
+        <div className="buff-groups">
+          <div className="buff-group">
+            <h3>Prison Buffs</h3>
+            <div className="buff-grid">
+              {buffGroups.prisonBuffs.map(buff => (
+                <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}>
+                  <b>{buff.name}</b>
+                  <span>{buffEffectLabel(buff, armorSettings)}</span>
+                  <small>{buff.durationHours}h after activation</small>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="buff-group">
+            <h3>Power Armor</h3>
+            <p className="helper armor-helper">Pick the level shown on your account. Verified levels fill their exact effect automatically. If a skill reaches an unverified level later, the generator will ask for the value instead of guessing it.</p>
+            <div className="buff-grid armor-grid">
+              {buffGroups.prisonerArmor.map(buff => {
+                const setting = prisonerArmorSetting(buff, armorSettings);
+                const selected = selectedBuffIds.includes(buff.id);
+                return (
+                  <div className={selected ? "buff armor-buff selected" : "buff armor-buff"} key={buff.id}>
+                    <button type="button" className="armor-select" onClick={()=>toggleCageBuff(buff.id)} aria-pressed={selected}>
+                      <b>{buff.name}</b>
+                      <span>{selected ? "SELECTED" : "SELECT FOR CAGE"}</span>
+                    </button>
+                    <span className="armor-effect">{buffEffectLabel(buff, armorSettings)}</span>
+                    <div className="armor-meta">
+                      <span>{buff.armorRobot ? `${buff.armorRobot} skill` : "Power Armor skill"}</span>
+                      <span>{buff.durationHours}h duration • {buff.cooldownHours ?? 20}h cooldown</span>
+                    </div>
+                    <div className="armor-controls">
+                      <label>
+                        Your skill level
+                        <select value={setting.level} onChange={event => updateArmorSetting(buff.id, { level: Number(event.target.value) })}>
+                          {Array.from({ length: buff.maxSkillLevel ?? 10 }, (_, index) => index + 1).map(level => (
+                            <option key={level} value={level}>
+                              Lv.{level}{buff.levelValues?.[level - 1] !== undefined ? " • verified" : " • value needed"}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      {!isPowerArmorLevelVerified(buff, setting.level) && (
+                        <label>
+                          Unverified effect value
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            placeholder="Enter value shown in game"
+                            value={setting.value || ""}
+                            onChange={event => updateArmorSetting(buff.id, { value: Number(event.target.value) || 0 })}
+                          />
+                        </label>
+                      )}
+                    </div>
+                    {powerArmorBreakthroughLabel(buff, setting.level) && <small className="armor-breakthrough">{powerArmorBreakthroughLabel(buff, setting.level)}</small>}
+                    <small>{isPowerArmorLevelVerified(buff, setting.level) ? `Screenshot verified at Lv.${setting.level}` : `Lv.${setting.level} effect not yet screenshot verified — no value is guessed.`}</small>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main: maximum troops • Joiners: 10k Bombers + 90k Shooters or 100k Shooters</span><strong>{cageBuffSummaryText(selectedBuffIds, armorSettings)}</strong><label>Activate <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min before Cage</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
+      </section>
+
+
+          <section className="panel">
+            <div className="title"><div><label>ROSTER UTILITIES</label><h2>Optional setup tools</h2></div></div>
+            <div className="quick-actions">
+              <button type="button" onClick={exportRosterBackup}>Export setup (.json)</button>
+              <button type="button" onClick={() => backupImportRef.current?.click()}>Restore setup (.json)</button>
+              <input
+                ref={backupImportRef}
+                type="file"
+                accept=".json,application/json"
+                hidden
+                onChange={async event => {
+                  const file = event.target.files?.[0];
+                  if (file) await importRosterBackup(file);
+                  event.currentTarget.value = "";
+                }}
+              />
+            </div>
+            {available.length > 0 && (
+              <details className="bulk-stars">
+                <summary>Bulk edit selected hero stars</summary>
+                <div className="bulk-star-grid">
+                  {available.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(hero=>(
+                    <label key={hero.name}>
+                      <span>{hero.name}</span>
+                      <select aria-label={`${hero.name} bulk star level`} value={heroStarLevels[hero.name] ?? 1} onChange={event=>setStarLevel(hero.name,Number(event.target.value))}>
+                        {[1,2,3,4,5].map(level=><option key={level} value={level}>{"★".repeat(level)} ({level})</option>)}
+                      </select>
+                    </label>
+                  ))}
+                </div>
+              </details>
+            )}
+          </section>
       <section className="panel pinning-panel" aria-labelledby="pinning-heading">
         <div className="title"><div><label>FORMATION PINNING</label><h2 id="pinning-heading">Pin heroes, then regenerate the rest</h2></div><button type="button" className="small-action" onClick={()=>{setLeaderLocks({});setLocks({});setGenerated(false)}}>Clear all pins</button></div>
         <p className="helper">Pins use the existing legality engine. A hero cannot be reused, every formation still needs one Shield/Bomber/Shooter hero, and Joiner LEFT pins must pass the active LEFT filters.</p>
@@ -930,6 +938,7 @@ export default function Home() {
         </div>
       </section>
 
+
       <section className="panel evidence-dashboard" aria-labelledby="evidence-heading">
         <div className="title"><div><label>EVIDENCE COMPLETENESS</label><h2 id="evidence-heading">Hero data by season</h2></div></div>
         <div className="evidence-grid">
@@ -945,6 +954,7 @@ export default function Home() {
         </div>
         <p className="helper">“Deferred” means we intentionally wait for direct account evidence instead of filling unknown values from assumptions.</p>
       </section>
+
 
       <section className="panel preflight-panel">
         <div className="result-title">
@@ -983,16 +993,57 @@ export default function Home() {
         {!lockError && joinerRosterDiagnostics.blockers.length === 0 && <p className="helper">Preflight found enough class coverage and LEFT-skill candidates for the requested Joiners. Robot shortages remain guidance only and never make a formation illegal.</p>}
       </section>
 
-      <button className="generate" onClick={() => setGenerated(true)}>GENERATE MY CAGE SETUP</button>
 
-      {generated && (
-        <div className={`seat-bonus ${seatHolder ? "active" : "inactive"}`}>
-          <b>{seatHolder ? "+10% ATK ACTIVE" : "NO SEAT ATK BONUS"}</b>
-          <span>
-            {seatHolder
-              ? "You are a seat holder: +10% ATK against Imprisoned Scarlet Butcher."
-              : "Seat holder is turned off; no seat modifier is applied."}
-          </span>
+      <section className="panel simple-cage-tips">
+        <div className="title"><div><label>CAGE RECOMMENDATIONS</label><h2>Use these with the generated formations</h2></div></div>
+        <div className="mini-grid">
+          <div><b>Robots</b><span>Musashimaru + Phantom Cat are the current priority choices when owned.</span></div>
+          <div><b>Felons</b><span>Scorpion + Cobra core. Use Rage Fist for a full rally; Devil when expedition capacity is more useful.</span></div>
+          <div><b>2-hour buffs</b><span>Troops ATK +11%, Troops Lethality +11%, Expedition Capacity +11%. Activate about 5 minutes before Cage.</span></div>
+        </div>
+      </section>
+
+
+      <section className="panel comparison-workspace" aria-labelledby="comparison-heading">
+        <div className="title"><div><label>FORMATION COMPARISON</label><h2 id="comparison-heading">Compare two saved setups</h2></div></div>
+        <p className="helper">This compares formation choices only. It does not predict Cage damage or claim one setup will outperform the other.</p>
+        <div className="comparison-actions">
+          <button type="button" onClick={()=>saveComparison("A")} disabled={!leaderFormation && joinerFormations.length===0}>Save current as A</button>
+          <button type="button" onClick={()=>saveComparison("B")} disabled={!leaderFormation && joinerFormations.length===0}>Save current as B</button>
+          <button type="button" onClick={()=>{setComparisonA(null);setComparisonB(null)}} disabled={!comparisonA&&!comparisonB}>Clear comparison</button>
+        </div>
+        <div className="snapshot-grid">
+          {[["A",comparisonA],["B",comparisonB]].map(([label,snapshot])=>(
+            <div className="snapshot-card" key={String(label)}>
+              <b>SETUP {String(label)}</b>
+              {snapshot ? (
+                <>
+                  <small>Saved {(snapshot as FormationSnapshot).savedAt}</small>
+                  {(snapshot as FormationSnapshot).lines.map(line=>(
+                    <div className="snapshot-line" key={`${String(label)}-${line.id}`}>
+                      <strong>{line.id}</strong>
+                      <span>{line.left} / {line.middle} / {line.right}</span>
+                      <small>Robot: {line.robot} • {line.status.toUpperCase()}</small>
+                    </div>
+                  ))}
+                </>
+              ) : <span>Not saved yet.</span>}
+            </div>
+          ))}
+        </div>
+      </section>
+
+
+        </div>
+      </details>
+
+      <button className="generate" onClick={() => setGenerated(true)}>GENERATE MY CAGE SETUP</button>
+      <p className="core-troop-rule"><b>Main:</b> use your maximum troops. <b>Joiners:</b> 10,000 Bombers + 90,000 Shooters or 100,000 Shooters.</p>
+
+      {generated && seatHolder && (
+        <div className="seat-bonus active">
+          <b>+10% ATK ACTIVE</b>
+          <span>You are a seat holder: +10% ATK against Imprisoned Scarlet Butcher.</span>
         </div>
       )}
 
@@ -1044,42 +1095,44 @@ export default function Home() {
               Use your maximum available troops for your Main Rally. Follow your alliance’s current Trial Cage troop composition rules.
             </p>
             {Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).length > 0 && <div className="kof-active-links"><b>KOF MAIN RALLY LINKS</b>{Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).map(([name,target])=><span key={name}>{name} → replaces {target}</span>)}</div>}
-            <div className="mini-grid">
-              <div className="robot-control">
-                <b>Robot assignment</b>
-                <span>{leaderFormation.robot ?? "No owned robot selected"}</span>
-                <select
-                  aria-label="Main Rally robot override"
-                  value={robotOverrides.MAIN ?? ""}
-                  onChange={event => setRobotOverride("MAIN", event.target.value)}
-                >
-                  <option value="">Auto ({leaderFormation.robot ?? "none"})</option>
-                  {availableRobots.map(robot => <option key={robot} value={robot}>{robot}</option>)}
-                </select>
-              </div>
-              <div>
-                <b>Yard Time core</b>
-                <span>
-                  {felonPlan.selected
-                    .filter(
-                      (felon) =>
-                        felon.name === "Scorpion" || felon.name === "Cobra",
-                    )
-                    .map((felon) => felon.name)
-                    .join(" + ") || "No owned core felons"}
-                </span>
-              </div>
-              <div>
-                <b>3rd felon</b>
-                <span>
-                  {felonPlan.selected.find(
-                    (felon) =>
-                      felon.name !== "Scorpion" && felon.name !== "Cobra",
-                  )?.name ?? `Missing ${felonPlan.preferredThird}`}
-                </span>
-              </div>
-            </div>
-            {felonPlan.warning && (
+            {(availableRobots.length > 0 || ownedFelons.length > 0) && (
+                          <div className="mini-grid">
+                            <div className="robot-control">
+                              <b>Robot assignment</b>
+                              <span>{leaderFormation.robot ?? "No owned robot selected"}</span>
+                              <select
+                                aria-label="Main Rally robot override"
+                                value={robotOverrides.MAIN ?? ""}
+                                onChange={event => setRobotOverride("MAIN", event.target.value)}
+                              >
+                                <option value="">Auto ({leaderFormation.robot ?? "none"})</option>
+                                {availableRobots.map(robot => <option key={robot} value={robot}>{robot}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <b>Yard Time core</b>
+                              <span>
+                                {felonPlan.selected
+                                  .filter(
+                                    (felon) =>
+                                      felon.name === "Scorpion" || felon.name === "Cobra",
+                                  )
+                                  .map((felon) => felon.name)
+                                  .join(" + ") || "No owned core felons"}
+                              </span>
+                            </div>
+                            <div>
+                              <b>3rd felon</b>
+                              <span>
+                                {felonPlan.selected.find(
+                                  (felon) =>
+                                    felon.name !== "Scorpion" && felon.name !== "Cobra",
+                                )?.name ?? `Missing ${felonPlan.preferredThird}`}
+                              </span>
+                            </div>
+                          </div>
+            )}
+            {ownedFelons.length > 0 && felonPlan.warning && (
               <div className="warning-box">{felonPlan.warning}</div>
             )}
             {leaderFormation.alerts
@@ -1180,18 +1233,20 @@ export default function Home() {
                     <b>{f.right.name}</b><small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
                   </div>
                 </div>
-                <div className={f.robot ? "robot-assignment" : "robot-assignment missing"}>
-                  <span>ROBOT</span>
-                  <b>{f.robot ?? "No owned robot available"}</b>
-                  <select
-                    aria-label={`${f.id} robot override`}
-                    value={robotOverrides[f.id] ?? ""}
-                    onChange={event => setRobotOverride(f.id, event.target.value)}
-                  >
-                    <option value="">Auto ({f.robot ?? "none"})</option>
-                    {availableRobots.map(robot => <option key={robot} value={robot}>{robot}</option>)}
-                  </select>
-                </div>
+                {availableRobots.length > 0 && (
+                                  <div className={f.robot ? "robot-assignment" : "robot-assignment missing"}>
+                                    <span>ROBOT</span>
+                                    <b>{f.robot ?? "No owned robot available"}</b>
+                                    <select
+                                      aria-label={`${f.id} robot override`}
+                                      value={robotOverrides[f.id] ?? ""}
+                                      onChange={event => setRobotOverride(f.id, event.target.value)}
+                                    >
+                                      <option value="">Auto ({f.robot ?? "none"})</option>
+                                      {availableRobots.map(robot => <option key={robot} value={robot}>{robot}</option>)}
+                                    </select>
+                                  </div>
+                )}
                 <details className="left-comparison">
                   <summary>Compare next-best LEFT heroes</summary>
                   <p className="comparison-note">Comparison score is an internal generator heuristic, not an in-game damage percentage. It combines skill tier, verified progression at the auto War-skill level, and hero stars.</p>
@@ -1232,35 +1287,6 @@ export default function Home() {
             )}
         </section>
       )}
-
-      <section className="panel comparison-workspace" aria-labelledby="comparison-heading">
-        <div className="title"><div><label>FORMATION COMPARISON</label><h2 id="comparison-heading">Compare two saved setups</h2></div></div>
-        <p className="helper">This compares formation choices only. It does not predict Cage damage or claim one setup will outperform the other.</p>
-        <div className="comparison-actions">
-          <button type="button" onClick={()=>saveComparison("A")} disabled={!leaderFormation && joinerFormations.length===0}>Save current as A</button>
-          <button type="button" onClick={()=>saveComparison("B")} disabled={!leaderFormation && joinerFormations.length===0}>Save current as B</button>
-          <button type="button" onClick={()=>{setComparisonA(null);setComparisonB(null)}} disabled={!comparisonA&&!comparisonB}>Clear comparison</button>
-        </div>
-        <div className="snapshot-grid">
-          {[["A",comparisonA],["B",comparisonB]].map(([label,snapshot])=>(
-            <div className="snapshot-card" key={String(label)}>
-              <b>SETUP {String(label)}</b>
-              {snapshot ? (
-                <>
-                  <small>Saved {(snapshot as FormationSnapshot).savedAt}</small>
-                  {(snapshot as FormationSnapshot).lines.map(line=>(
-                    <div className="snapshot-line" key={`${String(label)}-${line.id}`}>
-                      <strong>{line.id}</strong>
-                      <span>{line.left} / {line.middle} / {line.right}</span>
-                      <small>Robot: {line.robot} • {line.status.toUpperCase()}</small>
-                    </div>
-                  ))}
-                </>
-              ) : <span>Not saved yet.</span>}
-            </div>
-          ))}
-        </div>
-      </section>
 
       <section className="panel notes">
         <div>
