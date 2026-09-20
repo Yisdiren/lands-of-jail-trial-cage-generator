@@ -20,6 +20,29 @@ import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks
 import { downloadFormationImage } from "../lib/formation-image";
 import { normalizeSimpleSetup, normalizeStars, simpleSetupKey } from "../lib/simple-setup";
 
+
+type UiLanguage = "en" | "es" | "pt" | "de" | "fr" | "it" | "pl" | "tr" | "ru" | "ja" | "ko" | "zh";
+const languageOptions: { code: UiLanguage; label: string }[] = [
+  { code:"en", label:"English" }, { code:"es", label:"Español" }, { code:"pt", label:"Português" },
+  { code:"de", label:"Deutsch" }, { code:"fr", label:"Français" }, { code:"it", label:"Italiano" },
+  { code:"pl", label:"Polski" }, { code:"tr", label:"Türkçe" }, { code:"ru", label:"Русский" },
+  { code:"ja", label:"日本語" }, { code:"ko", label:"한국어" }, { code:"zh", label:"简体中文" },
+];
+const uiText: Record<UiLanguage, Record<string,string>> = {
+ en:{tools:"TRIAL CAGE TOOLS",created:"Created by Stiletto of Server 260",title:"Trial Cage Formation Generator",subtitle:"{t.subtitle}",quick:"QUICK SETUP",quickTitle:"Main Rally + up to 6 Joiners",helper:"{t.helper}",season:"SERVER SEASON",joiners:"JOINER MARCHES",heroes:"YOUR HEROES",heroTitle:"Select your heroes and set only their star levels",selectAll:"Select all usable",clear:"Clear",advanced:"Advanced / Optional Setup",generate:"GENERATE MY CAGE SETUP",main:"YOUR MAIN RALLY",troops:"Main: use your maximum troops. Joiners: 10,000 Bombers + 90,000 Shooters or 100,000 Shooters."},
+ es:{tools:"HERRAMIENTAS DE TRIAL CAGE",created:"Creado por Stiletto del Servidor 260",title:"Generador de formaciones Trial Cage",subtitle:"Crea una Rally principal y hasta 6 rallies de apoyo con tus héroes",quick:"CONFIGURACIÓN RÁPIDA",quickTitle:"Rally principal + hasta 6 apoyos",helper:"Elige tu temporada, número de rallies de apoyo, héroes y estrellas; luego genera. Todo lo demás es opcional.",season:"TEMPORADA",joiners:"RALLIES DE APOYO",heroes:"TUS HÉROES",heroTitle:"Selecciona tus héroes y sus estrellas",selectAll:"Seleccionar utilizables",clear:"Limpiar",advanced:"Avanzado / Opcional",generate:"GENERAR MI CONFIGURACIÓN",main:"TU RALLY PRINCIPAL",troops:"Principal: usa el máximo de tropas. Apoyos: 10.000 Bombarderos + 90.000 Tiradores o 100.000 Tiradores."},
+ pt:{tools:"FERRAMENTAS TRIAL CAGE",created:"Criado por Stiletto do Servidor 260",title:"Gerador de formações Trial Cage",subtitle:"Monte um Rally principal e até 6 rallies de apoio com seus heróis",quick:"CONFIGURAÇÃO RÁPIDA",quickTitle:"Rally principal + até 6 apoios",helper:"Escolha a temporada, quantidade de rallies, heróis e estrelas; depois gere. O restante é opcional.",season:"TEMPORADA",joiners:"RALLIES DE APOIO",heroes:"SEUS HERÓIS",heroTitle:"Selecione seus heróis e defina as estrelas",selectAll:"Selecionar utilizáveis",clear:"Limpar",advanced:"Avançado / Opcional",generate:"GERAR MINHA CONFIGURAÇÃO",main:"SEU RALLY PRINCIPAL",troops:"Principal: use o máximo de tropas. Apoios: 10.000 Bombardeiros + 90.000 Atiradores ou 100.000 Atiradores."},
+ de:{tools:"TRIAL-CAGE-WERKZEUGE",created:"Erstellt von Stiletto, Server 260",title:"Trial-Cage-Formationsgenerator",subtitle:"Erstelle eine Hauptrallye und bis zu 6 Beitrittsrallyes mit deinen Helden",quick:"SCHNELLEINRICHTUNG",quickTitle:"Hauptrallye + bis zu 6 Beitritte",helper:"Wähle Saison, Anzahl der Beitrittsrallyes, Helden und Sterne und erstelle dann dein Setup.",season:"SERVER-SAISON",joiners:"BEITRITTSRALLYES",heroes:"DEINE HELDEN",heroTitle:"Wähle deine Helden und ihre Sterne",selectAll:"Alle nutzbaren wählen",clear:"Leeren",advanced:"Erweitert / Optional",generate:"CAGE-SETUP ERSTELLEN",main:"DEINE HAUPTRALLYE",troops:"Hauptrallye: maximale Truppen. Beitritte: 10.000 Bomber + 90.000 Schützen oder 100.000 Schützen."},
+ fr:{tools:"OUTILS TRIAL CAGE",created:"Créé par Stiletto du Serveur 260",title:"Générateur de formations Trial Cage",subtitle:"Créez un rallye principal et jusqu’à 6 rallyes de soutien avec vos héros",quick:"CONFIGURATION RAPIDE",quickTitle:"Rallye principal + jusqu’à 6 soutiens",helper:"Choisissez saison, nombre de soutiens, héros et étoiles, puis générez. Le reste est facultatif.",season:"SAISON",joiners:"RALLYES DE SOUTIEN",heroes:"VOS HÉROS",heroTitle:"Sélectionnez vos héros et leurs étoiles",selectAll:"Sélectionner les utilisables",clear:"Effacer",advanced:"Avancé / Facultatif",generate:"GÉNÉRER MA CONFIGURATION",main:"VOTRE RALLYE PRINCIPAL",troops:"Principal : utilisez le maximum de troupes. Soutiens : 10 000 Bombardiers + 90 000 Tireurs ou 100 000 Tireurs."},
+ it:{tools:"STRUMENTI TRIAL CAGE",created:"Creato da Stiletto del Server 260",title:"Generatore formazioni Trial Cage",subtitle:"Crea un Rally principale e fino a 6 rally di supporto con i tuoi eroi",quick:"CONFIGURAZIONE RAPIDA",quickTitle:"Rally principale + fino a 6 supporti",helper:"Scegli stagione, numero di rally, eroi e stelle, poi genera. Il resto è facoltativo.",season:"STAGIONE",joiners:"RALLY DI SUPPORTO",heroes:"I TUOI EROI",heroTitle:"Seleziona gli eroi e imposta le stelle",selectAll:"Seleziona utilizzabili",clear:"Cancella",advanced:"Avanzato / Opzionale",generate:"GENERA CONFIGURAZIONE",main:"IL TUO RALLY PRINCIPALE",troops:"Principale: usa il massimo delle truppe. Supporti: 10.000 Bombardieri + 90.000 Tiratori o 100.000 Tiratori."},
+ pl:{tools:"NARZĘDZIA TRIAL CAGE",created:"Stworzone przez Stiletto z Serwera 260",title:"Generator formacji Trial Cage",subtitle:"Zbuduj główny rajd i do 6 rajdów dołączających ze swoich bohaterów",quick:"SZYBKA KONFIGURACJA",quickTitle:"Główny rajd + do 6 dołączeń",helper:"Wybierz sezon, liczbę rajdów, bohaterów i gwiazdki, a następnie wygeneruj.",season:"SEZON",joiners:"RAJDY DOŁĄCZAJĄCE",heroes:"TWOI BOHATEROWIE",heroTitle:"Wybierz bohaterów i ustaw gwiazdki",selectAll:"Wybierz dostępnych",clear:"Wyczyść",advanced:"Zaawansowane / Opcjonalne",generate:"GENERUJ USTAWIENIE",main:"TWÓJ GŁÓWNY RAJD",troops:"Główny: maksymalna liczba wojsk. Dołączenia: 10 000 Bombowców + 90 000 Strzelców lub 100 000 Strzelców."},
+ tr:{tools:"TRIAL CAGE ARAÇLARI",created:"Server 260'tan Stiletto tarafından oluşturuldu",title:"Trial Cage Dizilim Oluşturucu",subtitle:"Kahramanlarınla Ana Rally ve 6 adede kadar katılım rallysi oluştur",quick:"HIZLI KURULUM",quickTitle:"Ana Rally + 6 katılıma kadar",helper:"Sezonu, rally sayısını, kahramanları ve yıldızları seçip oluştur.",season:"SEZON",joiners:"KATILIM RALLYLERİ",heroes:"KAHRAMANLARIN",heroTitle:"Kahramanlarını ve yıldızlarını seç",selectAll:"Kullanılabilirleri seç",clear:"Temizle",advanced:"Gelişmiş / İsteğe Bağlı",generate:"CAGE DİZİLİMİ OLUŞTUR",main:"ANA RALLY'N",troops:"Ana Rally: maksimum asker. Katılımlar: 10.000 Bomber + 90.000 Shooter veya 100.000 Shooter."},
+ ru:{tools:"ИНСТРУМЕНТЫ TRIAL CAGE",created:"Создано Stiletto, сервер 260",title:"Генератор построений Trial Cage",subtitle:"Создайте основной ралли и до 6 ралли поддержки из своих героев",quick:"БЫСТРАЯ НАСТРОЙКА",quickTitle:"Основной ралли + до 6 поддержек",helper:"Выберите сезон, число ралли, героев и звёзды, затем создайте построения.",season:"СЕЗОН",joiners:"РАЛЛИ ПОДДЕРЖКИ",heroes:"ВАШИ ГЕРОИ",heroTitle:"Выберите героев и их звёзды",selectAll:"Выбрать доступных",clear:"Очистить",advanced:"Дополнительно / Необязательно",generate:"СОЗДАТЬ ПОСТРОЕНИЯ",main:"ВАШ ОСНОВНОЙ РАЛЛИ",troops:"Основной: максимум войск. Поддержка: 10 000 бомберов + 90 000 стрелков или 100 000 стрелков."},
+ ja:{tools:"TRIAL CAGE ツール",created:"Server 260 の Stiletto が作成",title:"Trial Cage 編成ジェネレーター",subtitle:"所持ヒーローからメインラリーと最大6つの参加ラリーを作成",quick:"クイック設定",quickTitle:"メインラリー + 最大6参加",helper:"シーズン、参加数、ヒーロー、星を選んで生成してください。その他は任意です。",season:"サーバーシーズン",joiners:"参加ラリー",heroes:"所持ヒーロー",heroTitle:"ヒーローを選び星を設定",selectAll:"使用可能を全選択",clear:"クリア",advanced:"詳細 / オプション設定",generate:"CAGE編成を生成",main:"メインラリー",troops:"メイン：最大兵力を使用。参加：Bombers 10,000 + Shooters 90,000、または Shooters 100,000。"},
+ ko:{tools:"TRIAL CAGE 도구",created:"Server 260 Stiletto 제작",title:"Trial Cage 편성 생성기",subtitle:"보유 영웅으로 메인 랠리와 최대 6개의 참가 랠리를 구성하세요",quick:"빠른 설정",quickTitle:"메인 랠리 + 최대 6 참가",helper:"시즌, 참가 랠리 수, 영웅과 별을 선택한 뒤 생성하세요. 나머지는 선택 사항입니다.",season:"서버 시즌",joiners:"참가 랠리",heroes:"보유 영웅",heroTitle:"영웅을 선택하고 별을 설정하세요",selectAll:"사용 가능 모두 선택",clear:"지우기",advanced:"고급 / 선택 설정",generate:"CAGE 편성 생성",main:"메인 랠리",troops:"메인: 최대 병력을 사용. 참가: Bombers 10,000 + Shooters 90,000 또는 Shooters 100,000."},
+ zh:{tools:"TRIAL CAGE 工具",created:"由 Server 260 的 Stiletto 创建",title:"Trial Cage 阵容生成器",subtitle:"使用你的英雄创建主集结和最多6个加入集结",quick:"快速设置",quickTitle:"主集结 + 最多6个加入集结",helper:"选择赛季、加入集结数量、英雄和星级，然后生成。其他设置均为可选。",season:"服务器赛季",joiners:"加入集结",heroes:"你的英雄",heroTitle:"选择英雄并设置星级",selectAll:"选择所有可用英雄",clear:"清除",advanced:"高级 / 可选设置",generate:"生成 CAGE 阵容",main:"你的主集结",troops:"主集结：使用最大兵力。加入集结：10,000 Bombers + 90,000 Shooters，或 100,000 Shooters。"}
+};
+
 type Mode = "leader" | "joiner";
 type ImportReport = { matched: string[]; unmatched: string[]; duplicates: string[] };
 type FormationSnapshotLine = { id: string; left: string; middle: string; right: string; robot: string; status: string };
@@ -92,6 +115,8 @@ const jpgIconNames = new Set(["Rin", "Rex", "Boogie", "Fran & Pike"]);
 const heroIconPath = (name: string) => `/icons/${heroIconSlug(name)}.${jpgIconNames.has(name) ? "jpg" : "png"}`;
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
+  const [language, setLanguage] = useState<UiLanguage>("en");
+  const t = uiText[language];
   const [season, setSeason] = useState(1);
   const [owned, setOwned] = useState<string[]>([]);
   const [joinCount, setJoinCount] = useState(6);
@@ -121,6 +146,19 @@ export default function Home() {
   const [armorSettings, setArmorSettings] = useState<PrisonerArmorSettings>({});
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
   const [kofLeaderLinks, setKofLeaderLinks] = useState<Record<string,string>>({});
+
+  useEffect(() => {
+    try {
+      const savedLanguage = window.localStorage.getItem("loj-ui-language") as UiLanguage | null;
+      const browserLanguage = navigator.language.toLowerCase().split("-")[0];
+      const supported = languageOptions.some(item => item.code === browserLanguage) ? browserLanguage as UiLanguage : "en";
+      setLanguage(savedLanguage && languageOptions.some(item => item.code === savedLanguage) ? savedLanguage : supported);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try { window.localStorage.setItem("loj-ui-language", language); document.documentElement.lang = language === "zh" ? "zh-CN" : language; } catch {}
+  }, [language]);
 
   useEffect(() => {
     try {
@@ -598,41 +636,41 @@ export default function Home() {
     <main id="generator-main" className={resultsOnly ? "results-only" : ""}>
       <header>
         <div>
-          <span className="eyebrow">TRIAL CAGE TOOLS</span>
-          <p className="creator-line">Created by <b>Stiletto</b> of Server 260</p>
+          <span className="eyebrow">{t.tools}</span>
+          <p className="creator-line">{t.created}</p>
           <h1>
-            Trial Cage <b>Formation Generator</b>
+            {t.title}
           </h1>
           <p>
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v2.19 BETA</div>
+        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.20 BETA</div></div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
 
       <section className="panel controls simple-setup setup-only">
         <div>
-          <label>QUICK SETUP</label>
-          <h2>Main Rally + up to 6 Joiners</h2>
+          <label>{t.quick}</label>
+          <h2>{t.quickTitle}</h2>
           <p className="helper">Pick your server season, choose how many Joiner rallies you want, select your heroes and stars, then Generate. Everything else is optional.</p>
         </div>
-        <div><label>SERVER SEASON</label><select value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6,7].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
-        <div><label>JOINER MARCHES</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
+        <div><label>{t.season}</label><select value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6,7].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
+        <div><label>{t.joiners}</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
         {unavailableSelected.length > 0 && <p role="status" className="helper">Unavailable in Season {season}: {unavailableSelected.join(", ")}. Your selections return when you switch back.</p>}
       </section>
 
       <section className="panel setup-only hero-picker-panel">
         <div className="title">
           <div>
-            <label>YOUR HEROES</label>
-            <h2 id="hero-picker-heading">Select your heroes and set only their star levels</h2>
+            <label>{t.heroes}</label>
+            <h2 id="hero-picker-heading">{t.heroTitle}</h2>
           </div>
           <span className="selected-class-counts">{available.length} selected • {selectedClassCounts.Shield} Shield • {selectedClassCounts.Bomber} Bomber • {selectedClassCounts.Shooter} Shooter</span>
         </div>
         <div className="quick-actions">
-          <button onClick={selectAll}>Select all usable</button>
+          <button onClick={selectAll}>{t.selectAll}</button>
           <button onClick={clearAll}>Clear heroes</button>
           <button type="button" className="start-over-button" onClick={startOver}>Start over</button>
           <button type="button" onClick={() => heroImportRef.current?.click()}>Import hero list (.txt)</button>
@@ -736,7 +774,7 @@ export default function Home() {
 
       <details className="advanced-tools setup-only">
         <summary>
-          <span><b>Advanced / Optional Setup</b><small>Robots, Felons, Power Armor, buffs, filters, pins, evidence and backup tools</small></span>
+          <span><b>{t.advanced}</b><small>Robots, Felons, Power Armor, buffs, filters, pins, evidence and backup tools</small></span>
         </summary>
         <div className="advanced-tools-body">
           <section className="panel">
@@ -1137,10 +1175,10 @@ export default function Home() {
         </div>
       </details>
 
-      <button className="generate setup-only" onClick={generateNow}>GENERATE MY CAGE SETUP</button>
+      <button className="generate setup-only" onClick={generateNow}>{t.generate}</button>
       <p className="helper setup-only">LEFT skill levels assume the maximum unlocked by stars unless you set an actual level in Advanced.</p>
       <p className="helper">Main Shield: Tyronn is preferred at 3+ stars. If he is unavailable or below 3 stars, use Phoenix or Xuanming at 3+ stars. Set your owned heroes’ stars above.</p>
-      <p className="core-troop-rule setup-only"><b>Main:</b> use your maximum troops. <b>Joiners:</b> 10,000 Bombers + 90,000 Shooters or 100,000 Shooters.</p>
+      <p className="core-troop-rule setup-only">{t.troops}</p>
 
       {!generated && <button className="mobile-generate setup-only" onClick={generateNow}>GENERATE MAIN + {joinCount} JOINER{joinCount === 1 ? "" : "S"}</button>}
 
@@ -1192,7 +1230,7 @@ export default function Home() {
         (leaderFormation ? (
           <section className="result">
             <div className="result-title">
-              <label>YOUR MAIN RALLY</label>
+              <label>{t.main}</label>
               <div className="result-card-actions">
                 <button type="button" className="mini-copy" onClick={()=>copySingleFormation(leaderFormation, "Main")}>COPY MAIN</button>
                 <span className={`status status-${leaderFormation.status}`}>{leaderFormation.status.toUpperCase()}</span>

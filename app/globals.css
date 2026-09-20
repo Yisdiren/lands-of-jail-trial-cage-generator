@@ -1142,3 +1142,5 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
 .simple-shortage > div { min-width: 0; overflow-wrap: anywhere; }
 .slots > * { min-width: 0; }
 .slots select { max-width: 100%; min-width: 0; }
+
+.header-actions{display:flex;align-items:center;gap:10px}.language-picker{display:flex;align-items:center;gap:6px;letter-spacing:0;color:#d9e7f6}.language-picker select{width:auto;min-width:130px;margin:0;padding:8px 10px}@media(max-width:700px){header{gap:12px;flex-direction:column}.header-actions{width:100%;justify-content:space-between}.language-picker select{min-width:150px}}

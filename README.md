@@ -8,7 +8,11 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.19**
+**Beta v2.20**
+
+### Beta v2.20 — multilingual public interface
+
+The header now includes a compact language selector for English, Spanish, Portuguese, German, French, Italian, Polish, Turkish, Russian, Japanese, Korean, and Simplified Chinese. The browser language is used on first visit when supported, the visitor's choice is remembered locally, and English remains the fallback. Core public setup/results labels are translated; hero, skill, robot, and other in-game proper names remain unchanged unless official localized names are verified.
 
 The public workflow is intentionally simple:
 

@@ -4,7 +4,14 @@ This file contains the detailed development history that was previously stored i
 
 For the current project overview, quick-use instructions, evidence policy, and development commands, see [README.md](README.md).
 
-> Current public release: **Beta v2.19**
+> Current public release: **Beta v2.20**
+
+## Beta v2.20 — multilingual public interface
+
+- Added a compact header language selector with 12 languages.
+- Uses a supported browser language on first visit and remembers the visitor's manual choice.
+- Translated the core public setup, generation, troop-rule, and Main Rally labels while preserving official game proper names.
+- English remains the fallback; Advanced game-data terminology remains evidence-first.
 
 ## Beta v2.19 — simple results and reliability pass
 
