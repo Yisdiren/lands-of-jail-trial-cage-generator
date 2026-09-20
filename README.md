@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.17**
+**Beta v2.18**
 
 The public workflow is intentionally simple:
 
@@ -74,6 +74,16 @@ Verified Cage-relevant Power Armor data currently includes:
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
 Unknown values are left unverified instead of being extrapolated.
+
+## Beta v2.18 — evidence and ranking regression guard
+
+The current pre-S6 evidence pass is now protected by regression tests:
+
+- Every pre-S6 non-R Cage hero that has a recorded LEFT skill must keep a verified five-level progression.
+- Marcus, Caesar, Zoltan, Gerd, Vesaryon, Whisper, and Platos are explicitly guarded against accidental Cage-priority promotion until direct Cage evidence supports one.
+- The existing Season 5 Main + six-Joiner legality/no-reuse/KOF/R regression tests remain in place.
+
+The audit found no remaining pre-S6 non-R hero with a recorded LEFT skill that lacks a verified Lv1-Lv5 progression. Heroes whose skills have not been directly captured remain unguessed.
 
 ## Beta v2.17 — remaining pre-S6 War-skill evidence
 

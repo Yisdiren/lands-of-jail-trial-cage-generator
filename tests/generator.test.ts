@@ -129,3 +129,23 @@ test("Season 5 six-Joiner generation excludes KOF and R heroes from Joiners", ()
   assert.equal(new Set(used.map(h => h.name)).size, used.length);
   assert.ok(joiners.flatMap(f => [f.left, f.middle, f.right]).every(h => h.rarity !== "KOF" && h.rarity !== "R"));
 });
+
+
+test("all pre-S6 non-R Cage heroes with recorded LEFT skills have verified progressions", () => {
+  const recorded = heroes.filter(hero => hero.season <= 5 && hero.cageAllowed && hero.rarity !== "R" && hero.leftSkill);
+  assert.ok(recorded.length > 0);
+  for (const hero of recorded) {
+    assert.equal(hero.leftSkillVerified, true, `${hero.name} LEFT skill should be evidence-verified`);
+    assert.equal(hero.leftSkillValues?.length, 5, `${hero.name} should have Lv1-Lv5 LEFT values`);
+  }
+});
+
+test("defensive and utility LEFT heroes are not accidentally promoted into Cage priority tiers", () => {
+  const neutral = ["Marcus", "Caesar", "Zoltan", "Gerd", "Vesaryon", "Whisper", "Platos"];
+  for (const name of neutral) {
+    const hero = heroes.find(candidate => candidate.name === name);
+    assert.ok(hero, `${name} should exist`);
+    assert.equal(hero.leftTier, undefined, `${name} should remain neutral until Cage evidence supports promotion`);
+    assert.equal(hero.leftValue, undefined, `${name} should not receive a heuristic Cage priority weight`);
+  }
+});
