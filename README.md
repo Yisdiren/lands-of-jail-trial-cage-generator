@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.12**
+**Beta v2.13**
 
 The public workflow is intentionally simple:
 
@@ -74,6 +74,14 @@ Verified Cage-relevant Power Armor data currently includes:
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
 Unknown values are left unverified instead of being extrapolated.
+
+## v2.13 War-skill evidence expansion
+
+Direct screenshots supplied on 2026-09-20 now verify complete War-skill sets for **Samir, Flameborne, Lee, Tormund, Alph, and Lanchester**.
+
+- The hero database records the exact displayed Lv1–Lv5 progressions.
+- First/LEFT skills are identified separately from second/third War skills so useful support effects do not get mistaken for LEFT bonuses.
+- Existing Cage priority tiers are not promoted solely from these screenshots; effects that need Cage testing remain conservatively ranked.
 
 ## v2.11 Season 5 Shield fallback support
 

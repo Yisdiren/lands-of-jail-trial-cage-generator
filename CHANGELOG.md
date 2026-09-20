@@ -4,7 +4,13 @@ This file contains the detailed development history that was previously stored i
 
 For the current project overview, quick-use instructions, evidence policy, and development commands, see [README.md](README.md).
 
-> Current public release: **Beta v2.12**
+> Current public release: **Beta v2.13**
+
+## Beta v2.13 — War-skill evidence expansion
+
+- Added screenshot-verified War-skill data for Samir, Flameborne, Lee, Tormund, Alph, and Lanchester.
+- Recorded their first/LEFT skill Lv1–Lv5 progressions and the verified second/third War-skill effects in hero evidence notes.
+- Preserved conservative Trial Cage priority where screenshots verify mechanics but do not prove Cage performance.
 
 ## Beta v2.12 — Clearer Shield recovery
 
