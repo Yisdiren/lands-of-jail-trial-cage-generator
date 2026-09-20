@@ -1,11 +1,15 @@
 import type { Hero } from "../data/heroes";
 import { validateFormation, type Formation, type WarSkillLevels } from "./generator";
-import type { HeroStarLevels } from "./formation-generator";
+import { meetsMainShieldStars, type HeroStarLevels } from "./formation-generator";
 export type Locks = Record<string,string>;
 export const slots=["left","middle","right"] as const;
 export function buildLockedFormations(pool:Hero[],count:number,locks:Locks,levels:WarSkillLevels,robots:string[],verified:boolean,leader:Formation|null,mode:"leader"|"joiner",stars:HeroStarLevels={}):Formation[]{
+  if(mode==="leader") for(const name of Object.values(locks)){
+    const hero=pool.find(h=>h.name===name);
+    if(hero&&!meetsMainShieldStars(hero,stars)) throw new Error(`${name} needs at least 3 stars for the Main Rally. Use Tyronn, Phoenix, or Xuanming at 3+ stars.`);
+  }
   const reserved=mode==="joiner"&&leader?new Set(slots.map(s=>leader[s].name)):new Set<string>();
-  const allowed=pool.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!reserved.has(h.name));
+  const allowed=pool.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!reserved.has(h.name)&&(mode!=="leader"||meetsMainShieldStars(h,stars)));
   const active=Object.entries(locks).filter(([key,name])=>name&&Number(key.split(":")[0])<count),names=active.map(([,name])=>name);
   if(new Set(names).size!==names.length){const duplicate=names.find((name,index)=>names.indexOf(name)!==index);throw new Error(`Lock conflict: ${duplicate??"a hero"} is locked into more than one slot.`);}
   for(const[key,name]of active)if(!allowed.some(h=>h.name===name))throw new Error(`Lock conflict at ${key}: ${name} is unavailable, excluded, or reserved for the Main Rally.`);

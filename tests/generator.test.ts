@@ -20,7 +20,7 @@ test("one displayed Main reserves its heroes and robot from six Joiners", () => 
 
 test("Joiners reserve pinned Main heroes rather than a separately calculated Main", () => {
   const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
-  const pinned = buildLockedFormations(pool, 1, { "0:left": "Phoenix" }, {}, [], false, null, "leader")[0];
+  const pinned = buildLockedFormations(pool, 1, { "0:left": "Phoenix" }, {}, [], false, null, "leader", { Phoenix: 3 })[0];
   assert.equal(pinned.left.name, "Phoenix");
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, pinned);
   assert.ok(joiners.every(formation => ![formation.left, formation.middle, formation.right].some(hero => hero.name === "Phoenix")));
@@ -28,7 +28,7 @@ test("Joiners reserve pinned Main heroes rather than a separately calculated Mai
 
 test("a partial roster returns only legal, non-repeating Joiners", () => {
   const pool = heroes.filter(hero => ["Tyronn", "Ryuichi", "Ada", "Phoenix", "Worrell", "Kate"].includes(hero.name));
-  const leader = generateLeaderFormation(pool);
+  const leader = generateLeaderFormation(pool, [], { Tyronn: 3 });
   assert.ok(leader);
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader);
   assert.equal(joiners.length, 1);
@@ -72,4 +72,20 @@ test("SR Shield fallbacks survive saved quick-setup restore", () => {
   });
   assert.deepEqual(saved.owned, ["Gerd", "Iwado", "Vesaryon"]);
   assert.deepEqual(saved.heroStarLevels, { Gerd: 5, Iwado: 4, Vesaryon: 5 });
+});
+
+
+test("Main Shield requires three stars and prefers eligible Tyronn", () => {
+  const pool = heroes.filter(h => ["Tyronn", "Phoenix", "Xuanming", "Ada", "Ryuichi"].includes(h.name));
+  const shield = (stars: Record<string, number>, available = pool) => generateLeaderFormation(available, [], stars)?.right.name;
+  assert.equal(shield({ Tyronn: 2, Phoenix: 3, Xuanming: 2 }), "Phoenix");
+  assert.equal(shield({ Tyronn: 1, Phoenix: 2, Xuanming: 3 }), "Xuanming");
+  assert.equal(shield({ Phoenix: 3 }, pool.filter(h => h.name !== "Tyronn")), "Phoenix");
+  assert.equal(shield({ Tyronn: 3, Phoenix: 5, Xuanming: 5 }), "Tyronn");
+  assert.equal(shield({ Tyronn: 2, Phoenix: 2, Xuanming: 2 }), undefined);
+  assert.equal(shield({}), undefined);
+  for (const name of ["Tyronn", "Phoenix", "Xuanming"]) {
+    assert.throws(() => buildLockedFormations(pool, 1, { "0:right": name }, {}, [], false, null, "leader", { [name]: 2 }), /at least 3 stars/);
+    assert.equal(buildLockedFormations(pool, 1, { "0:right": name }, {}, [], false, null, "leader", { [name]: 3 })[0].right.name, name);
+  }
 });

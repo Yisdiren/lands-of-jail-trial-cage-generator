@@ -10,6 +10,9 @@ const isBaseJoinerEligible = (hero: Hero) => hero.cageAllowed && hero.rarity !==
 const tier = (hero: Hero) => hero.leftTier === "top" ? 300 : hero.leftTier === "strong" ? 200 : hero.leftTier === "filler" ? 100 : 0;
 const levelOf = (hero: Hero, levels: WarSkillLevels) => Math.min(5, Math.max(1, levels[hero.name] ?? 5));
 const starOf = (hero: Hero, stars: HeroStarLevels) => Math.min(5, Math.max(1, stars[hero.name] ?? 1));
+// These Main Rally Shields need their three-star unlock; support Joiners are unaffected.
+export const meetsMainShieldStars = (hero: Hero, stars: HeroStarLevels) =>
+  !["Tyronn", "Phoenix", "Xuanming"].includes(hero.name) || starOf(hero, stars) >= 3;
 const skillMultiplier = (hero: Hero, levels: WarSkillLevels) => {
   if (!hero.leftSkill) return 0;
   const level = levelOf(hero, levels);
@@ -30,12 +33,12 @@ const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedName
 
 export function generateLeaderFormationSmart(availableHeroes:Hero[],ownedRobots:string[]=[],heroStarLevels:HeroStarLevels={},kofLeaderLinks:KofLeaderLinks={}):Formation|null{
   const leaderExcluded=new Set(["Mia","Tormund"]);
-  const eligible=availableHeroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!leaderExcluded.has(h.name));
+  const eligible=availableHeroes.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!leaderExcluded.has(h.name)&&meetsMainShieldStars(h,heroStarLevels));
   const ssr=eligible.filter(h=>h.rarity==="SSR");
   const hasFullSsr=classOrder.every(cls=>ssr.some(h=>h.cls===cls));
   const leaderPool=hasFullSsr?ssr:eligible,used=new Set<string>();
   // Trial Cage main-rally BIS priority: Tyronn remains the preferred Shield
-  // whenever owned, regardless of star count. Stars only rank fallback Shields.
+  // at three stars or higher. Phoenix/Xuanming also need at least three stars.
   const tyronn=leaderPool.find(h=>h.cls==="Shield"&&h.name==="Tyronn");
   const preferredFallbackShields=new Set(["Phoenix","Xuanming"]);
   const preferredShieldPool=leaderPool.filter(h=>h.cls==="Shield"&&preferredFallbackShields.has(h.name));

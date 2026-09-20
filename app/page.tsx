@@ -1139,6 +1139,7 @@ export default function Home() {
 
       <button className="generate setup-only" onClick={generateNow}>GENERATE MY CAGE SETUP</button>
       <p className="helper setup-only">LEFT skill levels assume the maximum unlocked by stars unless you set an actual level in Advanced.</p>
+      <p className="helper">Main Shield: Tyronn is preferred at 3+ stars. If he is unavailable or below 3 stars, use Phoenix or Xuanming at 3+ stars. Set your owned heroes’ stars above.</p>
       <p className="core-troop-rule setup-only"><b>Main:</b> use your maximum troops. <b>Joiners:</b> 10,000 Bombers + 90,000 Shooters or 100,000 Shooters.</p>
 
       {!generated && <button className="mobile-generate setup-only" onClick={generateNow}>GENERATE MAIN + {joinCount} JOINER{joinCount === 1 ? "" : "S"}</button>}
