@@ -50,6 +50,12 @@ export const heroes: Hero[] = [
     cls: "Shield",
     season: 0,
     rarity: "SSR",
+    leftSkill: "Mountain Cleaver: increases all allied troops’ Lethality",
+    leftSkillValues: [5, 10, 15, 20, 25],
+    leftSkillVerified: true,
+    evidenceNote: "All three War skills verified from in-game screenshots supplied 2026-09-20 (091037, 091046, 091055).",
+    priorityNote: "Verified Lethality progression; no Cage priority tier inferred from screenshots. Main Shield alternative at 3+ stars when Tyronn is unavailable or below 3 stars.",
+    notes: "Mountain Cleaver: allied troop Lethality +5/10/15/20/25%. Ironclad Protection: allied troop DEF +5/10/15/20/25%. Vital Surge: troop DMG taken reduction 4/8/12/16/20%; after battle, if the force is reduced to 80% or less of its initial number, immediately recovers 2/4/6/8/10% of lightly wounded soldiers. Screenshot skill levels: 5/4/4; these are account-specific, not defaults for alliance members.",
     cageAllowed: true,
   },
   {

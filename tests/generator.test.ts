@@ -89,3 +89,13 @@ test("Main Shield requires three stars and prefers eligible Tyronn", () => {
     assert.equal(buildLockedFormations(pool, 1, { "0:right": name }, {}, [], false, null, "leader", { [name]: 3 })[0].right.name, name);
   }
 });
+
+
+test("verified Xuanming first War skill can lead a Joiner when Main does not reserve him", () => {
+  const pool = heroes.filter(h => ["Xuanming", "Ada", "Alph"].includes(h.name));
+  const joiners = generateJoinerFormations(pool, 1, { Xuanming: 4 }, [], true, { Xuanming: 3 }, null);
+  assert.equal(joiners.length, 1);
+  assert.equal(joiners[0].left.name, "Xuanming");
+  assert.equal(joiners[0].leftSkillPercent, 20);
+  assert.match(joiners[0].left.leftSkill!, /Lethality/);
+});
