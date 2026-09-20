@@ -59,8 +59,9 @@ export function generateLeaderFormationSmart(availableHeroes:Hero[],ownedRobots:
 export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:number,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={},leaderFormation:Formation|null=null):Formation[]{
   const reserved=new Set(leaderFormation?[leaderFormation.left.name,leaderFormation.middle.name,leaderFormation.right.name]:[]);
   const eligible=availableHeroes.filter(h=>isBaseJoinerEligible(h)&&!reserved.has(h.name));
-  const planned=chooseLeft(eligible,count,warSkillLevels,heroStarLevels,verifiedOnly),protectedNames=new Set(planned.map(h=>h.name)),used=new Set<string>(),results:Formation[]=[];
-  for(const left of planned){
+  const candidates=chooseLeft(eligible,eligible.length,warSkillLevels,heroStarLevels,verifiedOnly);
+  const protectedNames=new Set(candidates.map(h=>h.name)),used=new Set<string>(),results:Formation[]=[];
+  for(const left of candidates){
     if(results.length>=count||used.has(left.name))continue;
     const missing=classOrder.filter(cls=>cls!==left.cls),local=new Set(used);local.add(left.name);
     const middle=pickFiller(eligible,missing[0],local,protectedNames,warSkillLevels,heroStarLevels);if(!middle)continue;local.add(middle.name);

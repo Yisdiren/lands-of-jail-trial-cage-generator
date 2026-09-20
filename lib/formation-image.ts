@@ -40,7 +40,7 @@ export async function downloadFormationImage(
   ctx.fillText("LANDS OF JAIL — TRIAL CAGE FORMATIONS", 30, 44);
   ctx.fillStyle = "#e7d8b5";
   ctx.font = "17px sans-serif";
-  ctx.fillText(`Beta v1.83 • ${context} • LEFT / MIDDLE / RIGHT`, 30, 77);
+  ctx.fillText(`${context} • LEFT / MIDDLE / RIGHT`, 30, 77);
   ctx.fillStyle = "#9fb1c3";
   ctx.fillText("Main Rally uses maximum troops • Joiners use 10k Bombers + 90k Shooters or 100k Shooters", 30, 101);
 

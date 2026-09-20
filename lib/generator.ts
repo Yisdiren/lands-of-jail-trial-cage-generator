@@ -23,9 +23,9 @@ export function validateFormation(formation:Omit<Formation,"alerts"|"status">,mo
   return{alerts,status:alerts.some(a=>a.severity==="error")?"blocked":alerts.some(a=>a.severity==="warning")?"review":"ready"};
 }
 
-export function generateJoinerFormations(availableHeroes:Hero[],count=6,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={}):Formation[]{
+export function generateJoinerFormations(availableHeroes:Hero[],count=6,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={},leader?:Formation|null):Formation[]{
   const heroPool=streamlinedHeroes(availableHeroes);
-  const leaderFormation=generateLeaderFormationSmart(heroPool,ownedRobots,heroStarLevels);
+  const leaderFormation=leader===undefined?generateLeaderFormationSmart(heroPool,ownedRobots,heroStarLevels):leader;
   const joinerRobots=leaderFormation?.robot?ownedRobots.filter(robot=>robot!==leaderFormation.robot):ownedRobots;
   return generateJoinerFormationsSmart(heroPool,count,warSkillLevels,joinerRobots,verifiedOnly,heroStarLevels,leaderFormation);
 }

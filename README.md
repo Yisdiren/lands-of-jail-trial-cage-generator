@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v2.08
+## Development Beta v2.09
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -170,24 +170,30 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - **v2.07** — Added a compact result summary showing Main readiness, Joiners built and selected hero count.
 - **v2.08** — Completed the production regression/deployment pass for the simple-workflow batch.
 
-## What is next — next 10 changes
+## One-click reliability and Season 6 readiness
 
-1. **Keep the simple front page stable** — no hero search or class-filter controls unless the roster becomes much larger.
-2. **Compact saved-setup notice** — quietly show that the last roster was restored without adding another configuration panel.
-3. **Result card screenshot spacing** — fine-tune spacing specifically for phone screenshots of MAIN + J1–J6.
-4. **Single formation image export** — optionally save one MAIN/J1–J6 card as an image from its result card.
-5. **Copy format choices in Advanced** — optional compact vs detailed alliance copy text without changing the main workflow.
-6. **Roster completeness hint** — a small non-blocking note when the selected class counts obviously cannot support the requested number of rallies.
-7. **Season-change safety** — clearly mark selected heroes that become unavailable if a player changes to an earlier season.
-8. **Local setup migration** — preserve simple saved setups cleanly if future hero names/data structures change.
-9. **Accessibility regression pass** — verify mobile keyboard/focus behavior after result-card changes.
-10. **Production regression pass** — run build/deployment checks after the next batch and fix only confirmed issues.
+### v2.09 changes
 
-### Deferred until direct account evidence is available
+1. Main and Joiners share the displayed Main formation for hero and robot reservation.
+2. Generator and setup regression tests cover reuse, pinned Main, partial rosters, and bad saved data.
+3. A LEFT candidate that cannot complete a march no longer stops consideration of later candidates.
+4. Quick local storage and JSON restore sanitize star values; local save errors do not block generation.
+5. Changing to an earlier season reports temporarily unavailable selected heroes without erasing them.
+6. Results explain the star-based skill-level assumption; hero evidence details accept an actual skill level.
+7. Incomplete results link directly to hero selection and give class/LEFT shortage guidance.
+8. Season 6 hero evidence intake records the verified and pending skill data.
+9. Season 6 robot acceptance checks are recorded; game data remains pending screenshots.
+10. README release guidance and exported image version text were synchronized; tests and build pass.
 
-- **Season 6 evidence completion** — wait until Season 6 reaches Server 260, then capture exact Otto and Wukong War-skill progressions from direct screenshots.
-- **Season 6 robot intake** — Season 6 also unlocks a new robot. Its name, icon, stats and Cage usefulness are currently unknown, so do not guess or add placeholder game data; capture it from Server 260 when Season 6 arrives.
-- **Season 7 Cage testing notes** — wait until the Server 10004 account is developed enough for useful Trial Cage testing, then record real Rin, Rex and Boogie results without turning untested assumptions into hard rankings.
+The quick path is season → Joiner count → owned heroes and stars → Generate. The displayed Main Rally is the source of truth for hero and robot reservation in Joiners, including a pinned Main. Joiner generation considers additional LEFT candidates if an earlier candidate cannot fill all three classes. A partial result shows a recovery message and a link to hero selection. Robots remain optional.
+
+Selected heroes from later seasons remain saved when switching to an earlier season; they are labeled unavailable and return when that season is selected again. Browser-local quick setup saves season, Joiner count, roster, and stars. Unknown heroes and invalid star values are discarded on restore; unavailable browser storage never blocks generation. JSON restore applies the same star checks.
+
+Stars establish the highest *unlocked* LEFT War-skill level, not proof of the level upgraded in-game. The default result assumes that unlocked maximum. Set a lower actual level in a hero's optional Skill & evidence details when known. Such manual skill levels are for the current page session; the quick saved setup only includes the four fields listed above.
+
+[Season 6 evidence intake](docs/season-6-evidence.md) tracks Otto, Wukong and the new robot. Their unknown data stays out of the generator until direct evidence exists. Worrell and Kate already have recorded LEFT progressions. A robot will be added only after its identity and effects are verified.
+
+Run `npm test` for generation and saved-setup regression checks, then `npm run build` before release. Review the Main plus six Joiner output at phone width, including focus and print views. Update this section in the same PR as any behavior change.
 
 ## Evidence rules
 
@@ -275,7 +281,7 @@ This batch is intentionally being developed away from `main` so intermediate bet
 - **v0.59** — Added pre-Cage timing/reminder helper based on selected buff duration.
 - **v0.60** — Consolidated and documented the first complete pre-Cage buff framework without guessing the game's capacity stacking formula.
 
-Verified screenshot data currently represented includes the common 2-hour Prison Buffs and the four Cage-relevant Power Armor skills now used by the public setup: Comprehensive Command Lv1–9, Overload Charge Lv1–9, Orbital Strike Lv1–9, and Valiant Breach Lv1–10. The screenshots confirm a 2-hour effect duration and 20-hour cooldown for these Power Armor skills. Values outside the captured level ranges are not inferred.
+Historical v0.60 note: the initial evidence covered common 2-hour Prison Buffs and four Cage-relevant Power Armor skills. Later verified levels, including Halo Overload Charge Lv10, are listed above. The screenshots confirm a 2-hour effect duration and 20-hour cooldown for these Power Armor skills. Values outside the captured level ranges are not inferred.
 
 
 ## Beta v0.61–v0.70 development batch
@@ -354,7 +360,7 @@ The capacity recorder is intentionally evidence-first. It records actual display
 - **v1.19** — Generalized remaining backup wording.
 - **v1.20** — Synchronized the visible development badge and package versions for the stabilization milestone.
 
-Season 6 hero work is intentionally deferred until direct in-game evidence is available.
+Historical note: at v1.20, Season 6 hero work was deferred; current evidence status is tracked above.
 
 ## Beta v1.23 — Complete inventory-free Cage setup
 - Removed remaining troop-count inputs from guided onboarding and inventory shortage checks from saved-player and alliance generation.

@@ -1,10 +1,11 @@
 {
   "name": "lands-of-jail-trial-cage-generator",
-  "version": "2.08.0",
+  "version": "2.09.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "test": "node --import tsx --test tests/*.test.ts",
     "start": "next start"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "tsx": "^4.23.13",
     "typescript": "^5.7.0"
   }
 }
