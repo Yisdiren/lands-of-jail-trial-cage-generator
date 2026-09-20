@@ -1,5 +1,6 @@
 import './globals.css';
 import FormationIconEnhancer from './FormationIconEnhancer';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata = {
   title: 'Lands of Jail Trial Cage Generator',
@@ -12,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <FormationIconEnhancer />
+        <Analytics />
       </body>
     </html>
   );
