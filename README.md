@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.13**
+**Beta v2.14**
 
 The public workflow is intentionally simple:
 
@@ -74,6 +74,14 @@ Verified Cage-relevant Power Armor data currently includes:
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
 Unknown values are left unverified instead of being extrapolated.
+
+## v2.14 War-skill evidence expansion II
+
+Direct screenshots supplied on 2026-09-20 now verify complete War-skill sets for **Ada, Mireya, Drake, Sawyer, Devilian, Inata, and Mia Scarlet Pyros**.
+
+- Added exact displayed Lv1–Lv5 progressions for all seven first/LEFT War skills.
+- Recorded the verified second and third War-skill mechanics in hero evidence notes.
+- Kept utility and conditional skills from receiving unsupported Trial Cage priority changes.
 
 ## v2.13 War-skill evidence expansion
 

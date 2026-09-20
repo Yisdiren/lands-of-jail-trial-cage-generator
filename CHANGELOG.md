@@ -4,7 +4,13 @@ This file contains the detailed development history that was previously stored i
 
 For the current project overview, quick-use instructions, evidence policy, and development commands, see [README.md](README.md).
 
-> Current public release: **Beta v2.13**
+> Current public release: **Beta v2.14**
+
+## Beta v2.14 — War-skill evidence expansion II
+
+- Added screenshot-verified complete War-skill data for Ada, Mireya, Drake, Sawyer, Devilian, Inata, and Mia Scarlet Pyros.
+- Added exact Lv1-Lv5 first/LEFT skill progressions and evidence notes for their remaining War skills.
+- Preserved existing Cage priorities unless the screenshots themselves support a safe generator change.
 
 ## Beta v2.13 — War-skill evidence expansion
 
