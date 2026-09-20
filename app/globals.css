@@ -1080,3 +1080,7 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
 
 /* Beta v1.84 — player-specific Power Armor levels and effects */
 .armor-helper{margin:0 0 10px}.armor-grid{align-items:stretch}.armor-buff{cursor:default}.armor-select{width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}.armor-select b,.armor-select span{display:block}.armor-select span{margin-top:5px;color:#d5a43a;font-size:10px;font-weight:900;letter-spacing:.7px}.armor-effect{display:block;margin-top:8px;color:#f0ce75;font-weight:800}.armor-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.armor-controls label{display:grid;gap:5px;color:#b9c8d7;font-size:10px;letter-spacing:.4px}.armor-controls select,.armor-controls input{width:100%;margin:0;padding:7px}.armor-buff>small{display:block;margin-top:8px;line-height:1.4}.armor-buff.selected .armor-select span{color:#85e6aa}@media(max-width:650px){.armor-controls{grid-template-columns:1fr}}
+
+
+/* Beta v1.85 — screenshot-verified automatic Power Armor scaling */
+.armor-meta{display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:7px;color:#9fb1c3;font-size:10px}.armor-controls:has(label:only-child){grid-template-columns:1fr}.armor-breakthrough{color:#f0cf7a!important;font-weight:800}.armor-buff .armor-effect{font-size:15px}

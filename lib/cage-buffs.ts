@@ -6,6 +6,10 @@ export type CageBuff = {
   stat: "atk" | "lethality" | "hp" | "enemy-def-reduction" | "expedition-capacity-percent" | "expedition-capacity-flat" | "rally-capacity-flat";
   value: number;
   referenceLevel?: number;
+  levelValues?: number[];
+  cooldownHours?: number;
+  armorRobot?: string;
+  breakthroughLevels?: Record<number, number>;
 };
 
 export type PrisonerArmorSetting = {
@@ -20,9 +24,11 @@ export function prisonerArmorSetting(
   settings: PrisonerArmorSettings = {},
 ): PrisonerArmorSetting {
   const saved = settings[buff.id];
+  const level = Math.max(1, Math.min(10, Math.round(saved?.level ?? 1)));
+  const verifiedValue = buff.levelValues?.[level - 1];
   return {
-    level: Math.max(1, Math.min(10, Math.round(saved?.level ?? 1))),
-    value: Math.max(0, Number.isFinite(saved?.value) ? Number(saved.value) : 0),
+    level,
+    value: verifiedValue ?? Math.max(0, Number.isFinite(saved?.value) ? Number(saved.value) : 0),
   };
 }
 
@@ -30,14 +36,70 @@ export function effectiveBuffValue(buff: CageBuff, settings: PrisonerArmorSettin
   return buff.source === "prisoner-armor" ? prisonerArmorSetting(buff, settings).value : buff.value;
 }
 
+export function isPowerArmorLevelVerified(buff: CageBuff, level: number) {
+  return buff.source === "prisoner-armor" && buff.levelValues?.[level - 1] !== undefined;
+}
+
+export function powerArmorBreakthroughLabel(buff: CageBuff, level: number) {
+  const breakthrough = buff.breakthroughLevels?.[level];
+  return breakthrough ? `Unlocks after Power Armor breakthrough Lv.${breakthrough}` : "";
+}
+
 export const cageBuffs: CageBuff[] = [
   { id: "troops-atk-2h", name: "Troops ATK (2h)", source: "prison-buff", durationHours: 2, stat: "atk", value: 11 },
   { id: "troops-lethality-2h", name: "Troops Lethality (2h)", source: "prison-buff", durationHours: 2, stat: "lethality", value: 11 },
   { id: "expedition-capacity-2h", name: "Expedition Capacity (2h)", source: "prison-buff", durationHours: 2, stat: "expedition-capacity-percent", value: 11 },
-  { id: "comprehensive-command", name: "Comprehensive Command", source: "prisoner-armor", durationHours: 2, stat: "expedition-capacity-flat", value: 11250, referenceLevel: 9 },
-  { id: "overload-charge", name: "Overload Charge", source: "prisoner-armor", durationHours: 2, stat: "rally-capacity-flat", value: 96000, referenceLevel: 6 },
-  { id: "valiant-breach", name: "Valiant Breach", source: "prisoner-armor", durationHours: 2, stat: "lethality", value: 4, referenceLevel: 4 },
-  { id: "orbital-strike", name: "Orbital Strike", source: "prisoner-armor", durationHours: 2, stat: "atk", value: 4, referenceLevel: 5 },
+  {
+    id: "comprehensive-command",
+    name: "Comprehensive Command",
+    source: "prisoner-armor",
+    durationHours: 2,
+    cooldownHours: 20,
+    stat: "expedition-capacity-flat",
+    value: 11250,
+    referenceLevel: 9,
+    armorRobot: "Infercore",
+    levelValues: [1250, 2500, 3750, 5000, 6250, 7500, 8750, 10000, 11250],
+  },
+  {
+    id: "overload-charge",
+    name: "Overload Charge",
+    source: "prisoner-armor",
+    durationHours: 2,
+    cooldownHours: 20,
+    stat: "rally-capacity-flat",
+    value: 96000,
+    referenceLevel: 6,
+    armorRobot: "Halo",
+    levelValues: [16000, 32000, 48000, 64000, 80000, 96000, 112000, 128000, 144000],
+    breakthroughLevels: { 7: 70, 8: 80, 9: 90 },
+  },
+  {
+    id: "valiant-breach",
+    name: "Valiant Breach",
+    source: "prisoner-armor",
+    durationHours: 2,
+    cooldownHours: 20,
+    stat: "lethality",
+    value: 4,
+    referenceLevel: 4,
+    armorRobot: "Yokozuna",
+    levelValues: [2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10],
+    breakthroughLevels: { 5: 50, 6: 60, 7: 70, 8: 80, 9: 90, 10: 100 },
+  },
+  {
+    id: "orbital-strike",
+    name: "Orbital Strike",
+    source: "prisoner-armor",
+    durationHours: 2,
+    cooldownHours: 20,
+    stat: "atk",
+    value: 4,
+    referenceLevel: 5,
+    armorRobot: "Atlax",
+    levelValues: [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6],
+    breakthroughLevels: { 6: 60, 7: 70, 8: 80, 9: 90 },
+  },
 ];
 
 export function summarizeSelectedBuffs(selectedIds: string[], armorSettings: PrisonerArmorSettings = {}) {
@@ -94,8 +156,10 @@ export function previewCageCapacity(baseCapacity: number, selectedIds: string[],
 export function buffEffectLabel(buff: CageBuff, armorSettings: PrisonerArmorSettings = {}) {
   const pctStats = new Set(["atk","lethality","hp","enemy-def-reduction","expedition-capacity-percent"]);
   const effective = effectiveBuffValue(buff, armorSettings);
-  const value = buff.source === "prisoner-armor" && effective <= 0
-    ? "— enter your in-game value"
+  const armor = buff.source === "prisoner-armor" ? prisonerArmorSetting(buff, armorSettings) : null;
+  const verified = armor ? isPowerArmorLevelVerified(buff, armor.level) : true;
+  const value = buff.source === "prisoner-armor" && !verified && effective <= 0
+    ? "— value not verified"
     : pctStats.has(buff.stat) ? `+${effective}%` : `+${effective.toLocaleString("en-US")}`;
   const labels: Record<CageBuff["stat"], string> = {
     atk: "Troops ATK",

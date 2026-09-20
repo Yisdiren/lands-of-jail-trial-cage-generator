@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.84
+## Development Beta v1.85
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -54,7 +54,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 ### Other current features
 - Season filtering through Season 7 with screenshot-backed S7 hero data
 - Felon ownership and leader Yard Time support
-- Player-specific Power Armor levels/effect values instead of Server 260 armor levels being used as defaults
+- Player-specific Power Armor level selection with screenshot-verified automatic effect values
 - Scorpion/Cobra core locks and rally-aware core selection
 - Formation sharing/copy tools
 - Browser-local saved data
@@ -121,9 +121,10 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - **v1.82** — Grouped the hero browser into current-season additions and earlier/legacy heroes so new unlocks are easier to scan.
 - **v1.83** — Tightened mobile Preflight, status, robot, comparison, evidence and formation layouts without hiding warning/evidence details.
 
-## Beta v1.84 Power Armor configuration update
+## Beta v1.84–v1.85 Power Armor configuration update
 
-- **v1.84** — Power Armor is no longer tied to the original Server 260 armor levels. Each visitor can select their own Lv1–Lv10 armor level and enter the exact effect value shown in-game. Existing screenshot values remain visible only as reference examples, so the generator does not invent unknown level scaling.
+- **v1.84** — Power Armor was separated from the original Server 260 armor levels so each player could enter their own level/effect instead of inheriting one account's values.
+- **v1.85** — Replaced manual effect entry for verified levels with direct screenshot-backed level tables: Comprehensive Command Lv1–9 (+1,250 to +11,250 expedition capacity), Overload Charge Lv1–9 (+16,000 to +144,000 rally capacity), Orbital Strike Lv1–9 (+2.0% to +6.0% expedition-troop ATK), and Valiant Breach Lv1–10 (+2.0% to +10.0% troops lethality). All four screenshots confirm 2h duration and 20h cooldown. Unknown higher-level values remain manual/blank instead of being guessed.
 
 ## What is next — next 10 changes
 
@@ -230,7 +231,7 @@ This batch is intentionally being developed away from `main` so intermediate bet
 - **v0.59** — Added pre-Cage timing/reminder helper based on selected buff duration.
 - **v0.60** — Consolidated and documented the first complete pre-Cage buff framework without guessing the game's capacity stacking formula.
 
-Verified screenshot data currently represented: Troops ATK +11%, Troops Lethality +11%, Expedition Capacity +11%, Comprehensive Command Lv.9 +11,250 expedition capacity, Pinpoint Suppression Lv.10 +10% HP, Overload Charge Lv.6 +96,000 rally capacity, Valiant Breach Lv.4 +4% Lethality, Penetrating Ray Lv.10 +10% enemy DEF reduction, and Orbital Strike Lv.5 +4% expedition ATK. All shown effects last 2 hours after activation.
+Verified screenshot data currently represented includes the common 2-hour Prison Buffs and the four Cage-relevant Power Armor skills now used by the public setup: Comprehensive Command Lv1–9, Overload Charge Lv1–9, Orbital Strike Lv1–9, and Valiant Breach Lv1–10. The screenshots confirm a 2-hour effect duration and 20-hour cooldown for these Power Armor skills. Values outside the captured level ranges are not inferred.
 
 
 ## Beta v0.61–v0.70 development batch

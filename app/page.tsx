@@ -12,7 +12,7 @@ import {
   validateFormation,
   type Formation,
 } from "../lib/generator";
-import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, buffEffectLabel, preCageShareLines, prisonerArmorSetting, type PrisonerArmorSettings } from "../lib/cage-buffs";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, buffEffectLabel, preCageShareLines, prisonerArmorSetting, isPowerArmorLevelVerified, powerArmorBreakthroughLabel, type PrisonerArmorSettings } from "../lib/cage-buffs";
 import Image from "next/image";
 
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
@@ -342,11 +342,13 @@ export default function Home() {
     if (!buff || buff.source !== "prisoner-armor") return;
     setArmorSettings(current => {
       const base = prisonerArmorSetting(buff, current);
+      const level = Math.max(1, Math.min(10, Math.round(patch.level ?? base.level)));
+      const verifiedValue = buff.levelValues?.[level - 1];
       return {
         ...current,
         [id]: {
-          level: Math.max(1, Math.min(10, Math.round(patch.level ?? base.level))),
-          value: Math.max(0, patch.value ?? base.value),
+          level,
+          value: verifiedValue ?? Math.max(0, patch.value ?? base.value),
         },
       };
     });
@@ -364,12 +366,12 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.84 BETA</div>
+        <div className="badge">DEV v1.85 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
         <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Power Armor</h2></div></div>
-        <p className="helper">Prison Buffs use the entered verified fixed values. Power Armor is player-specific: choose your own armor level and enter the exact effect value shown in your game. The old Server 260 levels are reference data only and are no longer used as defaults.</p>
+        <p className="helper">Prison Buffs use verified fixed values. For Power Armor, choose your skill level and the generator fills the screenshot-verified effect automatically. Comprehensive Command, Overload Charge and Orbital Strike are verified through Lv9; Valiant Breach is verified through Lv10. No unverified level value is guessed.</p>
         <div className="buff-groups">
           <div className="buff-group">
             <h3>Prison Buffs</h3>
@@ -385,7 +387,7 @@ export default function Home() {
           </div>
           <div className="buff-group">
             <h3>Power Armor</h3>
-            <p className="helper armor-helper">Set the level and effect to match your own armor. For percentage effects enter the number shown in game (for example, enter 4 for +4%). Flat capacity effects use the full number.</p>
+            <p className="helper armor-helper">Pick the level shown on your account. Verified levels fill their exact effect automatically. If a skill reaches an unverified level later, the generator will ask for the value instead of guessing it.</p>
             <div className="buff-grid armor-grid">
               {buffGroups.prisonerArmor.map(buff => {
                 const setting = prisonerArmorSetting(buff, armorSettings);
@@ -397,26 +399,37 @@ export default function Home() {
                       <span>{selected ? "SELECTED" : "SELECT FOR CAGE"}</span>
                     </button>
                     <span className="armor-effect">{buffEffectLabel(buff, armorSettings)}</span>
+                    <div className="armor-meta">
+                      <span>{buff.armorRobot ? `${buff.armorRobot} skill` : "Power Armor skill"}</span>
+                      <span>{buff.durationHours}h duration • {buff.cooldownHours ?? 20}h cooldown</span>
+                    </div>
                     <div className="armor-controls">
                       <label>
-                        Your level
+                        Your skill level
                         <select value={setting.level} onChange={event => updateArmorSetting(buff.id, { level: Number(event.target.value) })}>
-                          {Array.from({ length: 10 }, (_, index) => index + 1).map(level => <option key={level} value={level}>Lv.{level}</option>)}
+                          {Array.from({ length: 10 }, (_, index) => index + 1).map(level => (
+                            <option key={level} value={level}>
+                              Lv.{level}{buff.levelValues?.[level - 1] !== undefined ? " • verified" : " • value needed"}
+                            </option>
+                          ))}
                         </select>
                       </label>
-                      <label>
-                        Your effect value
-                        <input
-                          type="number"
-                          min="0"
-                          step="1"
-                          placeholder="Enter game value"
-                          value={setting.value || ""}
-                          onChange={event => updateArmorSetting(buff.id, { value: Number(event.target.value) || 0 })}
-                        />
-                      </label>
+                      {!isPowerArmorLevelVerified(buff, setting.level) && (
+                        <label>
+                          Unverified effect value
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            placeholder="Enter value shown in game"
+                            value={setting.value || ""}
+                            onChange={event => updateArmorSetting(buff.id, { value: Number(event.target.value) || 0 })}
+                          />
+                        </label>
+                      )}
                     </div>
-                    <small>{buff.durationHours}h after activation • Reference only: Lv.{buff.referenceLevel ?? "?"} = {buff.value.toLocaleString("en-US")}{["atk","lethality","hp","enemy-def-reduction","expedition-capacity-percent"].includes(buff.stat) ? "%" : ""}</small>
+                    {powerArmorBreakthroughLabel(buff, setting.level) && <small className="armor-breakthrough">{powerArmorBreakthroughLabel(buff, setting.level)}</small>}
+                    <small>{isPowerArmorLevelVerified(buff, setting.level) ? `Screenshot verified at Lv.${setting.level}` : `Lv.${setting.level} effect not yet screenshot verified — no value is guessed.`}</small>
                   </div>
                 );
               })}
