@@ -4,7 +4,15 @@ This file contains the detailed development history that was previously stored i
 
 For the current project overview, quick-use instructions, evidence policy, and development commands, see [README.md](README.md).
 
-> Current public release: **Beta v2.09**
+> Current public release: **Beta v2.10**
+
+## Beta v2.10 — Season 6 evidence correction
+
+- Corrected the stale Otto/Wukong deferred-evidence notes.
+- Recorded Otto's screenshot-verified **Natural Hymn** first/LEFT skill: Tactical DMG Taken Reduction 12/24/36/48/60% and Basic Attack DMG Taken Reduction 8/16/24/32/40%.
+- Recorded Wukong's screenshot-verified **Calamity Inferno** first/LEFT progression: 30/60/90/120/150%.
+- Kept Otto and Wukong without an asserted offensive Trial Cage priority tier until testing supports one.
+- Season 6 robot identity/effects remain pending direct evidence.
 
 ## Beta v1.40–v1.46 development batch
 

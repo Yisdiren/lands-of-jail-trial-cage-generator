@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.09**
+**Beta v2.10**
 
 The public workflow is intentionally simple:
 
@@ -55,8 +55,9 @@ None of those are required to generate normal Main + Joiner formations.
 - Season-aware hero support through **Season 7**
 - Screenshot-backed S7 data for **Rin, Rex, Boogie, and Fran & Pike**
 - Season 6 hero entries for **Otto, Wukong, Worrell, and Kate**
-- Worrell and Kate have recorded LEFT progressions
-- Otto and Wukong remain evidence-first where exact values are not yet verified
+- All four S6 heroes now have direct screenshot-backed first/LEFT War-skill evidence recorded
+- **Otto — Natural Hymn:** Tactical DMG Taken Reduction 12/24/36/48/60% and Basic Attack DMG Taken Reduction 8/16/24/32/40%
+- **Wukong — Calamity Inferno:** Lv1–Lv5 progression 30/60/90/120/150%
 - The new Season 6 robot is intentionally not added until direct screenshots verify its identity and effects
 
 See [Season 6 evidence intake](docs/season-6-evidence.md).
@@ -73,6 +74,13 @@ Verified Cage-relevant Power Armor data currently includes:
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
 Unknown values are left unverified instead of being extrapolated.
+
+## v2.10 Season 6 evidence correction
+
+- Corrected the older Otto/Wukong “deferred” note after reviewing the screenshots already supplied.
+- Added Otto's verified **Natural Hymn** first/LEFT skill progression to hero data.
+- Added Wukong's verified **Calamity Inferno** Lv1–Lv5 progression to hero data.
+- Kept their generator priority neutral unless Trial Cage testing supports a stronger ranking.
 
 ## v2.09 reliability work
 

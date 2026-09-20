@@ -603,7 +603,7 @@ export default function Home() {
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v2.09 BETA</div>
+        <div className="badge">DEV v2.10 BETA</div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}

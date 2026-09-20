@@ -1,15 +1,32 @@
 # Season 6 evidence intake
 
-Record direct game screenshots before changing a skill value, robot, or priority. For each capture note the account/server, date, hero or robot name, War-skill level, exact effect, and image location. Only mark a progression verified when the required levels are visible. An effect described at Lv5 alone does not verify Lv1–Lv4.
+Direct in-game screenshots are the source of truth for Season 6 hero and robot data. Do not infer missing values from a single level or from another hero.
 
 | Item | Current status | Evidence needed for next data change |
 | --- | --- | --- |
-| Worrell LEFT skill | Lv1–Lv5 recorded in hero data | Recheck against new screenshots if the game changes |
-| Kate LEFT skill | Lv1–Lv5 recorded in hero data | Recheck against new screenshots if the game changes |
-| Otto LEFT skill | No confirmed LEFT progression | Skill position and Lv1–Lv5 screenshots, including exact effect text |
-| Wukong LEFT skill | No confirmed LEFT progression | Skill position and Lv1–Lv5 screenshots, including exact effect text |
+| Worrell LEFT skill | Lv1–Lv5 recorded in hero data | Recheck only if the game changes |
+| Kate LEFT skill | Lv1–Lv5 recorded in hero data | Recheck only if the game changes |
+| Otto LEFT / first skill — Natural Hymn | Verified from direct screenshots | Recheck only if the game changes |
+| Wukong LEFT / first skill — Calamity Inferno | Verified Lv1–Lv5 from direct screenshots | Recheck only if the game changes |
 | New Season 6 robot | Identity and Cage effects unverified | Name, icon, ownership screen, skills at displayed levels, and Trial Cage applicability |
+
+## Verified Otto data
+
+**Natural Hymn** is Otto's first/LEFT War skill.
+
+- Tactical DMG Taken Reduction: **12 / 24 / 36 / 48 / 60%**
+- Basic Attack DMG Taken Reduction: **8 / 16 / 24 / 32 / 40%**
+
+This is a defensive LEFT skill. The screenshots verify the progression, but they do not by themselves establish an offensive Trial Cage priority tier.
+
+## Verified Wukong data
+
+**Calamity Inferno** is Wukong's first/LEFT War skill.
+
+- Lv1–Lv5 progression: **30 / 60 / 90 / 120 / 150%**
+
+The progression is recorded as verified. Generator priority remains neutral until Trial Cage testing supports a stronger ranking.
 
 ## Robot acceptance check
 
-After evidence is captured, add its verified name to the optional robot pool, provide an icon only if the image is available, and check Main plus six Joiners for assignment without reuse. Leave its priority neutral until Cage testing supports a ranking. No placeholder robot is shown to players.
+After direct evidence is captured, add the Season 6 robot's verified name to the optional robot pool, provide an icon only if the image is available, and check Main plus six Joiners for assignment without reuse. Leave its priority neutral until Cage testing supports a ranking. No placeholder robot is shown to players.
