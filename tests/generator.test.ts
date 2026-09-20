@@ -61,3 +61,15 @@ test("Season 5 visible roster can build Main plus six Joiners with SR Shield fal
   assert.equal(new Set(allNames).size, allNames.length);
   assert.ok(joiners.some(formation => [formation.middle.name, formation.right.name].some(name => ["Gerd", "Iwado", "Vesaryon"].includes(name))));
 });
+
+
+test("SR Shield fallbacks survive saved quick-setup restore", () => {
+  const saved = normalizeSimpleSetup({
+    season: 5,
+    joinCount: 6,
+    owned: ["Gerd", "Iwado", "Vesaryon"],
+    heroStarLevels: { Gerd: 5, Iwado: 4, Vesaryon: 5 },
+  });
+  assert.deepEqual(saved.owned, ["Gerd", "Iwado", "Vesaryon"]);
+  assert.deepEqual(saved.heroStarLevels, { Gerd: 5, Iwado: 4, Vesaryon: 5 });
+});

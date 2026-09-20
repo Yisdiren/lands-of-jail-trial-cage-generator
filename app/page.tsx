@@ -88,7 +88,7 @@ const heroIconNames = new Set([
 ]);
 const heroIconSlug = (name: string) =>
   name.toLowerCase().replace(/scarlet pyros/g, "scarlet-pyros").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-const jpgIconNames = new Set(["Rin", "Rex", "Boogie", "Fran & Pike", "Gerd", "Iwado", "Vesaryon"]);
+const jpgIconNames = new Set(["Rin", "Rex", "Boogie", "Fran & Pike"]);
 const heroIconPath = (name: string) => `/icons/${heroIconSlug(name)}.${jpgIconNames.has(name) ? "jpg" : "png"}`;
 export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both

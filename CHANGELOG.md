@@ -10,6 +10,7 @@ For the current project overview, quick-use instructions, evidence policy, and d
 
 - Added **Gerd, Iwado, and Vesaryon** to the streamlined hero picker as SR Shield support fallbacks.
 - Added cleaned hero icons for all three.
+- Follow-up wiring fix: the core generator and saved quick-setup allow-list now include all three SR Shield fallbacks, matching the visible picker.
 - Main Rally SSR preference remains unchanged.
 - The three SR Shields carry no offensive LEFT priority; they fill support slots when the Season 5 SSR Shield pool cannot cover Main + six Joiners.
 - Added a regression test for a full Season 5 Main + J1–J6 using the visible fallback roster.

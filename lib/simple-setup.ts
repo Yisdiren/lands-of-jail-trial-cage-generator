@@ -11,7 +11,7 @@ export const normalizeStars = (value: unknown): Record<string, number> => {
 export const normalizeSimpleSetup = (value: unknown) => {
   const saved = value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
   const valid = new Set(heroes.filter(hero => hero.cageAllowed && hero.rarity !== "R" &&
-    (hero.rarity !== "SR" || ["Lofili", "Lunarl", "Flameborne", "Samir"].includes(hero.name))).map(hero => hero.name));
+    (hero.rarity !== "SR" || ["Lofili", "Lunarl", "Flameborne", "Samir", "Gerd", "Iwado", "Vesaryon"].includes(hero.name))).map(hero => hero.name));
   const season = Number(saved.season), joinCount = Number(saved.joinCount);
   return {
     season: Number.isInteger(season) ? Math.max(1, Math.min(7, season)) : 1,

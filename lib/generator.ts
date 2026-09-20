@@ -4,7 +4,7 @@ import { generateJoinerFormationsSmart, generateLeaderFormationSmart, scoreJoine
 export type WarSkillLevels = Record<string, number>;
 export const maxWarSkillLevelForStars = (stars:number) => Math.min(5, Math.max(1, Math.floor(stars)) + 1);
 
-const retainedSrHeroes = new Set(["Lofili", "Lunarl", "Flameborne", "Samir"]);
+const retainedSrHeroes = new Set(["Lofili", "Lunarl", "Flameborne", "Samir", "Gerd", "Iwado", "Vesaryon"]);
 const streamlinedHeroes = (pool: Hero[]) => pool.filter(hero => hero.rarity !== "R" && (hero.rarity !== "SR" || retainedSrHeroes.has(hero.name)));
 
 export type FormationAlert = { severity: "error" | "warning" | "info"; message: string };
