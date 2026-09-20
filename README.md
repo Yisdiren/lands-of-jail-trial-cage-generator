@@ -120,6 +120,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 ### Deferred until direct account evidence is available
 
 - **Season 6 evidence completion** — wait until Season 6 reaches Server 260, then capture exact Otto and Wukong War-skill progressions from direct screenshots.
+- **Season 6 robot intake** — Season 6 also unlocks a new robot. Its name, icon, stats and Cage usefulness are currently unknown, so do not guess or add placeholder game data; capture it from Server 260 when Season 6 arrives.
 - **Season 7 Cage testing notes** — wait until the Server 10004 account is developed enough for useful Trial Cage testing, then record real Rin, Rex and Boogie results without turning untested assumptions into hard rankings.
 
 ## Evidence rules
