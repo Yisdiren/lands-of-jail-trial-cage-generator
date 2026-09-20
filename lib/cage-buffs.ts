@@ -10,6 +10,7 @@ export type CageBuff = {
   cooldownHours?: number;
   armorRobot?: string;
   breakthroughLevels?: Record<number, number>;
+  maxSkillLevel?: number;
 };
 
 export type PrisonerArmorSetting = {
@@ -24,7 +25,8 @@ export function prisonerArmorSetting(
   settings: PrisonerArmorSettings = {},
 ): PrisonerArmorSetting {
   const saved = settings[buff.id];
-  const level = Math.max(1, Math.min(10, Math.round(saved?.level ?? 1)));
+  const maxLevel = buff.maxSkillLevel ?? 10;
+  const level = Math.max(1, Math.min(maxLevel, Math.round(saved?.level ?? 1)));
   const verifiedValue = buff.levelValues?.[level - 1];
   return {
     level,
@@ -59,6 +61,7 @@ export const cageBuffs: CageBuff[] = [
     value: 11250,
     referenceLevel: 9,
     armorRobot: "Infercore",
+    maxSkillLevel: 9,
     levelValues: [1250, 2500, 3750, 5000, 6250, 7500, 8750, 10000, 11250],
   },
   {
@@ -97,6 +100,7 @@ export const cageBuffs: CageBuff[] = [
     value: 4,
     referenceLevel: 5,
     armorRobot: "Atlax",
+    maxSkillLevel: 9,
     levelValues: [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6],
     breakthroughLevels: { 6: 60, 7: 70, 8: 80, 9: 90 },
   },

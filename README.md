@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.85
+## Development Beta v1.86
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -121,10 +121,11 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - **v1.82** — Grouped the hero browser into current-season additions and earlier/legacy heroes so new unlocks are easier to scan.
 - **v1.83** — Tightened mobile Preflight, status, robot, comparison, evidence and formation layouts without hiding warning/evidence details.
 
-## Beta v1.84–v1.85 Power Armor configuration update
+## Beta v1.84–v1.86 Power Armor configuration update
 
 - **v1.84** — Power Armor was separated from the original Server 260 armor levels so each player could enter their own level/effect instead of inheriting one account's values.
-- **v1.85** — Replaced manual effect entry for verified levels with direct screenshot-backed level tables: Comprehensive Command Lv1–9 (+1,250 to +11,250 expedition capacity), Overload Charge Lv1–9 (+16,000 to +144,000 rally capacity), Orbital Strike Lv1–9 (+2.0% to +6.0% expedition-troop ATK), and Valiant Breach Lv1–10 (+2.0% to +10.0% troops lethality). All four screenshots confirm 2h duration and 20h cooldown. Unknown higher-level values remain manual/blank instead of being guessed.
+- **v1.85** — Replaced manual effect entry for verified levels with direct screenshot-backed level tables: Comprehensive Command Lv1–9 (+1,250 to +11,250 expedition capacity), Overload Charge Lv1–9 (+16,000 to +144,000 rally capacity), Orbital Strike Lv1–9 (+2.0% to +6.0% expedition-troop ATK), and Valiant Breach Lv1–10 (+2.0% to +10.0% troops lethality). All four screenshots confirm 2h duration and 20h cooldown.
+- **v1.86** — Corrected robot-specific skill caps: Infercore Comprehensive Command and Atlax Orbital Strike stop at Lv9 because those Power Armor tracks max at Lv90, so Lv10 is no longer offered for either skill.
 
 ## What is next — next 10 changes
 

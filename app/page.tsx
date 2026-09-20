@@ -342,7 +342,7 @@ export default function Home() {
     if (!buff || buff.source !== "prisoner-armor") return;
     setArmorSettings(current => {
       const base = prisonerArmorSetting(buff, current);
-      const level = Math.max(1, Math.min(10, Math.round(patch.level ?? base.level)));
+      const level = Math.max(1, Math.min(buff.maxSkillLevel ?? 10, Math.round(patch.level ?? base.level)));
       const verifiedValue = buff.levelValues?.[level - 1];
       return {
         ...current,
@@ -366,12 +366,12 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.85 BETA</div>
+        <div className="badge">DEV v1.86 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
         <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Power Armor</h2></div></div>
-        <p className="helper">Prison Buffs use verified fixed values. For Power Armor, choose your skill level and the generator fills the screenshot-verified effect automatically. Comprehensive Command, Overload Charge and Orbital Strike are verified through Lv9; Valiant Breach is verified through Lv10. No unverified level value is guessed.</p>
+        <p className="helper">Prison Buffs use verified fixed values. For Power Armor, choose your skill level and the generator fills the screenshot-verified effect automatically. Infercore Comprehensive Command and Atlax Orbital Strike max at Lv9; Valiant Breach supports Lv10. No unavailable or unverified level is guessed.</p>
         <div className="buff-groups">
           <div className="buff-group">
             <h3>Prison Buffs</h3>
@@ -407,7 +407,7 @@ export default function Home() {
                       <label>
                         Your skill level
                         <select value={setting.level} onChange={event => updateArmorSetting(buff.id, { level: Number(event.target.value) })}>
-                          {Array.from({ length: 10 }, (_, index) => index + 1).map(level => (
+                          {Array.from({ length: buff.maxSkillLevel ?? 10 }, (_, index) => index + 1).map(level => (
                             <option key={level} value={level}>
                               Lv.{level}{buff.levelValues?.[level - 1] !== undefined ? " • verified" : " • value needed"}
                             </option>
