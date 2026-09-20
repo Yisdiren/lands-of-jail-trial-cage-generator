@@ -64,6 +64,7 @@ export const heroes: Hero[] = [
     season: 0,
     rarity: "SSR",
     cageAllowed: true,
+    evidenceNote: "Pre-S6 audit 2026-09-20: complete War-skill screenshot set still needed.",
   },
   {
     name: "Caesar",
@@ -71,6 +72,7 @@ export const heroes: Hero[] = [
     season: 0,
     rarity: "SSR",
     cageAllowed: true,
+    evidenceNote: "Pre-S6 audit 2026-09-20: complete War-skill screenshot set still needed.",
   },
   {
     name: "Zoltan",
@@ -78,6 +80,7 @@ export const heroes: Hero[] = [
     season: 0,
     rarity: "SSR",
     cageAllowed: true,
+    evidenceNote: "Pre-S6 audit 2026-09-20: complete War-skill screenshot set still needed.",
   },
   { name: "Durga", cls: "Shield", season: 0, rarity: "R", cageAllowed: true },
   { name: "Harton", cls: "Shield", season: 0, rarity: "R", cageAllowed: true },
@@ -88,6 +91,7 @@ export const heroes: Hero[] = [
     rarity: "SR",
     cageAllowed: true,
     notes: "SR Shield support fallback for completing Main + 6 Joiners when the SSR Shield pool is short. Defense-oriented; not a priority LEFT hero.",
+    evidenceNote: "Pre-S6 audit 2026-09-20: complete War-skill screenshot set still needed; retained as Shield support fallback.",
   },
   { name: "Iwado", cls: "Shield", season: 0, rarity: "SR", cageAllowed: true, notes: "SR Shield support fallback for completing Main + 6 Joiners when the SSR Shield pool is short; not a priority LEFT hero." },
   {
@@ -97,6 +101,7 @@ export const heroes: Hero[] = [
     rarity: "SR",
     cageAllowed: true,
     notes: "SR Shield support fallback for completing Main + 6 Joiners when the SSR Shield pool is short; not a priority LEFT hero.",
+    evidenceNote: "Pre-S6 audit 2026-09-20: complete War-skill screenshot set still needed; retained as Shield support fallback.",
   },
   {
     name: "Omega Rugal",
@@ -212,6 +217,7 @@ export const heroes: Hero[] = [
     rarity: "SSR",
     cageAllowed: true,
     notes: "First War skill Curse reduces enemy troop DEF (4%/8%/12%/14%/20%); not used as a Trial Cage LEFT damage skill.",
+    evidenceNote: "Pre-S6 audit 2026-09-20: Curse progression is recorded in notes, but a complete three-War-skill screenshot set is still needed.",
   },
   {
     name: "Lee",
@@ -351,6 +357,8 @@ export const heroes: Hero[] = [
     season: 0,
     rarity: "SSR",
     leftSkill: "Sweet Smile: reduces all enemy troops' DEF and HP",
+    leftValue: 72,
+    leftTier: "strong",
     leftSkillValues: [2, 4, 6, 8, 10],
     leftSkillVerified: true,
     cageAllowed: true,
@@ -375,6 +383,8 @@ export const heroes: Hero[] = [
     season: 0,
     rarity: "SSR",
     leftSkill: "Charged Barrage: every third round Shooters launch an extra tactical attack",
+    leftValue: 45,
+    leftTier: "filler",
     leftSkillValues: [22, 44, 66, 88, 110],
     leftSkillVerified: true,
     cageAllowed: true,
@@ -399,6 +409,8 @@ export const heroes: Hero[] = [
     season: 0,
     rarity: "SSR",
     leftSkill: "Rust Erosion: reduces enemy troops' HP",
+    leftValue: 68,
+    leftTier: "strong",
     leftSkillValues: [4, 8, 12, 16, 20],
     leftSkillVerified: true,
     cageAllowed: true,
@@ -452,6 +464,7 @@ export const heroes: Hero[] = [
     season: 0,
     rarity: "SR",
     cageAllowed: true,
+    evidenceNote: "Pre-S6 audit 2026-09-20: complete War-skill screenshot set still needed.",
   },
   {
     name: "Mai Shiranui",

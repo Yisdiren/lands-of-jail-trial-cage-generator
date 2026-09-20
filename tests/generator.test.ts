@@ -99,3 +99,33 @@ test("verified Xuanming first War skill can lead a Joiner when Main does not res
   assert.equal(joiners[0].leftSkillPercent, 20);
   assert.match(joiners[0].left.leftSkill!, /Lethality/);
 });
+
+
+test("Season 5 full visible roster builds Main plus six legal Joiners across star scenarios", () => {
+  const visibleSr = new Set(["Lofili", "Lunarl", "Flameborne", "Samir", "Gerd", "Iwado", "Vesaryon"]);
+  const pool = heroes.filter(hero => hero.season <= 5 && hero.cageAllowed && hero.rarity !== "R" && hero.rarity !== "KOF" && (hero.rarity !== "SR" || visibleSr.has(hero.name)));
+  for (let stars = 1; stars <= 5; stars++) {
+    const levels = Object.fromEntries(pool.map(hero => [hero.name, stars]));
+    levels.Tyronn = 3;
+    const leader = generateLeaderFormation(pool, [], levels);
+    assert.ok(leader);
+    const joiners = generateJoinerFormations(pool, 6, {}, [], false, levels, leader);
+    assert.equal(joiners.length, 6);
+    const all = [leader, ...joiners];
+    const names = all.flatMap(f => [f.left.name, f.middle.name, f.right.name]);
+    assert.equal(new Set(names).size, names.length);
+    for (const formation of all) assert.equal(new Set([formation.left.cls, formation.middle.cls, formation.right.cls]).size, 3);
+  }
+});
+
+test("Season 5 six-Joiner generation excludes KOF and R heroes from Joiners", () => {
+  const pool = heroes.filter(hero => hero.season <= 5 && hero.cageAllowed);
+  const stars = Object.fromEntries(pool.map(hero => [hero.name, 5]));
+  const leader = generateLeaderFormation(pool, [], stars);
+  assert.ok(leader);
+  const joiners = generateJoinerFormations(pool, 6, {}, [], false, stars, leader);
+  assert.equal(joiners.length, 6);
+  const used = [leader, ...joiners].flatMap(f => [f.left, f.middle, f.right]);
+  assert.equal(new Set(used.map(h => h.name)).size, used.length);
+  assert.ok(joiners.flatMap(f => [f.left, f.middle, f.right]).every(h => h.rarity !== "KOF" && h.rarity !== "R"));
+});

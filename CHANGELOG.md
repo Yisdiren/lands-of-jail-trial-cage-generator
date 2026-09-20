@@ -4,7 +4,15 @@ This file contains the detailed development history that was previously stored i
 
 For the current project overview, quick-use instructions, evidence policy, and development commands, see [README.md](README.md).
 
-> Current public release: **Beta v2.15**
+> Current public release: **Beta v2.16**
+
+## Beta v2.16 — pre-S6 audit and simple-results pass
+
+- Audited pre-S6 hero evidence and marked remaining screenshot gaps.
+- Rechecked newly verified first/LEFT skills and kept defensive/utility skills out of offensive priority promotion.
+- Added stronger Season 5 Main + six-Joiner legality and no-reuse regression coverage.
+- Simplified normal results by removing technical comparison and informational noise.
+- Kept unknown Season 6 data frozen pending direct evidence.
 
 ## Beta v2.15 — Edwin War-skill evidence
 

@@ -607,7 +607,7 @@ export default function Home() {
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v2.15 BETA</div>
+        <div className="badge">DEV v2.16 BETA</div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
@@ -1273,7 +1273,7 @@ export default function Home() {
             )}
             {leaderFormation.alerts
               
-              .map((alert) => (
+              .filter((alert) => alert.severity !== "info").map((alert) => (
                 <div
                   className={`formation-alert alert-${alert.severity}`}
                   key={`${alert.severity}-${alert.message}`}
@@ -1321,7 +1321,7 @@ export default function Home() {
                 : `Not enough compatible heroes to build all requested joiners. Check that you have at least ${joinCount} eligible LEFT-skill heroes plus one Shieldbearer, Bomber and Shooter for each march.`}
             </div>
           )}
-          <p className="helper">Leader heroes are reserved. Each Joiner uses different heroes. MIDDLE and RIGHT are filled with lower-priority support heroes first so stronger LEFT-skill heroes remain available for later Joiners whenever the roster allows it.</p><div className="formation-list">
+          <div className="formation-list">
             {joinerFormations.map((f) => (
               <article className="formation-card" key={f.id}>
                 <div className="formation-head">
@@ -1379,25 +1379,10 @@ export default function Home() {
                                     </select>
                                   </div>
                 )}
-                <details className="left-comparison">
-                  <summary>Compare next-best LEFT heroes</summary>
-                  <p className="comparison-note">Comparison score is an internal generator heuristic, not an in-game damage percentage. It combines skill tier, verified progression at the auto War-skill level, and hero stars.</p>
-                  <div className="left-comparison-grid">
-                    {joinerRosterDiagnostics.rankedLeftAlternatives
-                      .filter(candidate => candidate.name !== f.left.name)
-                      .slice(0, 3)
-                      .map(candidate => (
-                        <div key={`${f.id}-${candidate.name}`}>
-                          <b>{candidate.name}</b>
-                          <span>{candidate.cls} • Lv{candidate.level} • {candidate.verified ? "verified" : "unverified"}</span>
-                          <small>Generator score {Math.round(candidate.score)} • {leaderReservedNames.includes(candidate.name) || projectedJoinerHeroNames.includes(candidate.name) ? "currently used" : "available"}</small>
-                        </div>
-                      ))}
-                  </div>
-                </details>
+                
                 {f.alerts
                   
-                  .map((alert) => (
+                  .filter((alert) => alert.severity !== "info").map((alert) => (
                     <div
                       className={`formation-alert alert-${alert.severity}`}
                       key={`${f.id}-${alert.severity}-${alert.message}`}

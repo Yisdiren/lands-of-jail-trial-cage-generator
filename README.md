@@ -75,6 +75,16 @@ Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where direct
 
 Unknown values are left unverified instead of being extrapolated.
 
+## Beta v2.16 — pre-S6 audit and simple-results pass
+
+Five-part maintenance pass completed without adding controls to the simple setup:
+
+1. **Hero evidence audit:** remaining pre-S6 screenshot gaps are explicitly marked for Marcus, Caesar, Zoltan, Gerd, Vesaryon, Whisper, and Platos.
+2. **Cage priority audit:** newly verified offensive first/LEFT skills receive conservative generator weights only where the screenshots support an offensive effect; defensive and utility skills remain unpromoted.
+3. **Season 5 six-Joiner regression:** tests exercise Main + J1-J6 across star scenarios and assert class legality, no reuse, and no KOF/R Joiners.
+4. **Simple results cleanup:** technical next-best LEFT comparisons and informational formation notices are removed from the normal results path; actionable warnings remain.
+5. **Season 6 freeze:** unknown Season 6 hero and robot values remain deferred until direct evidence is available.
+
 ## v2.15 Edwin War-skill evidence
 
 Direct screenshots supplied on 2026-09-20 now verify Edwin's complete three-skill War kit and Lv1-Lv5 progressions.
