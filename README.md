@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.73
+## Development Beta v1.83
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -27,6 +27,9 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Formation explanations showing why a LEFT hero was selected
 - Hero portraits/icons in generated formations
 - Season 7 hero support for Rin, Rex, Boogie and Fran & Pike with cropped in-game-style portraits
+- Per-march robot overrides with automatic no-reuse rebalancing
+- LEFT comparison drawers and roster recovery actions
+- Season-grouped hero browsing, evidence details and import reports
 - Copy-ready individual and group formation output
 
 ### Direct generator
@@ -104,18 +107,31 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - **v1.72** — Clarified why MIDDLE/RIGHT support heroes are chosen and how stronger unused LEFT candidates are protected for later Joiners.
 - **v1.73** — Updated exported formation-image branding/version/file name, synchronized package/UI versions and refreshed current documentation.
 
+## Beta v1.74–v1.83 development batch
+
+- **v1.74** — Added per-Joiner LEFT comparison drawers showing the next-ranked candidates, War-skill level, evidence state and clearly labeled internal generator score.
+- **v1.75** — Added a compact “What to add” recovery checklist for Shield, Bomber, Shooter, LEFT-skill and total-roster shortages.
+- **v1.76** — Added optional per-march robot overrides. Pinning a robot automatically rebalances the other marches while preserving the no-reuse rule.
+- **v1.77** — Rebuilt the downloadable formation share card to match the current dark/gold UI more closely and include hero portraits, stars, LEFT evidence, troops and robot assignments.
+- **v1.78** — Added expandable hero evidence details with Lv1–Lv5 progression, evidence notes, priority-model notes and existing hero notes.
+- **v1.79** — Upgraded text roster import with a visible report for matched heroes, unmatched rows and duplicate rows.
+- **v1.80** — Added explicit provenance notes to entered S6/S7 data and separated heuristic generator priority weights from actual in-game percentages.
+- **v1.81** — Kept production build/type checking as the release gate for the combined batch; only genuine compile/runtime blockers are to be fixed after deployment.
+- **v1.82** — Grouped the hero browser into current-season additions and earlier/legacy heroes so new unlocks are easier to scan.
+- **v1.83** — Tightened mobile Preflight, status, robot, comparison, evidence and formation layouts without hiding warning/evidence details.
+
 ## What is next — next 10 changes
 
-1. **LEFT comparison drawer** — show the next-best LEFT candidates beside each generated Joiner and explain the ranking inputs.
-2. **Roster shortage actions** — turn each class/LEFT shortage into a compact “what to add” recovery checklist.
-3. **Robot assignment controls** — allow optional per-march robot overrides while preserving no-reuse checks.
-4. **Formation share card polish** — bring exported image layout in line with the current on-page cards and Season 7 portraits.
-5. **Hero evidence details** — expose the verified Lv1–Lv5 progression and evidence note without cluttering the main hero grid.
-6. **Import report upgrade** — show matched, unmatched and duplicate hero rows after roster text import.
-7. **Data provenance pass** — add concise evidence/source notes to screenshot-verified season data and keep heuristic priority weights clearly separated from game percentages.
-8. **Production smoke check** — verify the deployed build after the batch and fix only genuine compile/runtime blockers.
-9. **Season-aware roster polish** — make season labels, newly unlocked heroes and current-season additions easier to scan in the hero grid.
-10. **Mobile results polish** — tighten the Preflight and generated-formation layouts for smaller screens without hiding evidence or warning details.
+1. **Formation pinning UI** — expose the existing slot-lock engine so a player can pin one or more heroes to MAIN/J1–J6 and regenerate the remaining legal slots.
+2. **LEFT priority filters** — let players hide filler LEFT skills, show only verified skills, or focus on a single hero class while comparing options.
+3. **Robot priority ordering** — allow drag/order-style preference for automatic robot assignment without requiring per-march overrides.
+4. **Bulk star editor** — add a compact table for updating many selected heroes’ star levels faster than opening each hero card.
+5. **Roster export** — export the selected hero roster, stars, robots and season settings to a portable text or JSON backup.
+6. **Roster backup import** — restore a generator backup in one step while keeping the current plain-text hero importer.
+7. **Evidence completeness dashboard** — show which entered seasons/heroes have verified LEFT progressions, partial evidence or intentionally deferred data.
+8. **Formation comparison workspace** — compare two generated Cage setups side by side without treating either as a guaranteed damage result.
+9. **Keyboard/accessibility pass** — improve focus states, labels, keyboard navigation and screen-reader descriptions across setup/results.
+10. **Production regression pass** — run another deployment/build smoke check after the next batch and remove only confirmed stale code or release blockers.
 
 ### Deferred until direct account evidence is available
 

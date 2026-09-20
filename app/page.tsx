@@ -9,6 +9,8 @@ import {
   type WarSkillLevels,
   maxWarSkillLevelForStars,
   diagnoseJoinerRoster,
+  validateFormation,
+  type Formation,
 } from "../lib/generator";
 import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, buffEffectLabel, preCageShareLines } from "../lib/cage-buffs";
 import Image from "next/image";
@@ -18,6 +20,34 @@ import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks
 import { downloadFormationImage } from "../lib/formation-image";
 
 type Mode = "leader" | "joiner";
+type ImportReport = { matched: string[]; unmatched: string[]; duplicates: string[] };
+
+const withRobotAssignment = (formation: Formation, robot: string | undefined, mode: Mode): Formation => {
+  const { alerts: _alerts, status: _status, ...base } = formation;
+  const next = { ...base, robot };
+  return { ...next, ...validateFormation(next, mode) };
+};
+
+const resolveRobotAssignments = (
+  leader: Formation | null,
+  joiners: Formation[],
+  availableRobots: string[],
+  overrides: Record<string, string>,
+) => {
+  const used = new Set<string>();
+  const assign = (formation: Formation, mode: Mode) => {
+    const requested = overrides[formation.id];
+    const candidates = [requested, formation.robot, ...availableRobots].filter((robot): robot is string => Boolean(robot));
+    const robot = candidates.find(candidate => availableRobots.includes(candidate) && !used.has(candidate));
+    if (robot) used.add(robot);
+    return withRobotAssignment(formation, robot, mode);
+  };
+  const resolvedLeader = leader ? assign(leader, "leader") : null;
+  return {
+    leader: resolvedLeader,
+    joiners: joiners.map(formation => assign(formation, "joiner")),
+  };
+};
 const retainedSrHeroes = new Set(["Lofili", "Lunarl", "Flameborne", "Samir"]);
 const showHeroInGenerator = (hero: (typeof heroes)[number]) => hero.rarity !== "R" && (hero.rarity !== "SR" || retainedSrHeroes.has(hero.name));
 const heroIconNames = new Set([
@@ -39,6 +69,7 @@ export default function Home() {
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
+  const [robotOverrides, setRobotOverrides] = useState<Record<string, string>>({});
   const [ownedFelons, setOwnedFelons] = useState<string[]>([]);
   const [rallyFills, setRallyFills] = useState(true);
   const [seatHolder, setSeatHolder] = useState(false);
@@ -47,6 +78,7 @@ export default function Home() {
   const [generated, setGenerated] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [notice, setNotice] = useState("");
+  const [importReport, setImportReport] = useState<ImportReport | null>(null);
   const heroImportRef = useRef<HTMLInputElement>(null);
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
@@ -54,6 +86,14 @@ export default function Home() {
   const seasonHeroes = useMemo(
     () => heroes.filter((h) => (h.season === 0 || h.season <= season) && showHeroInGenerator(h)),
     [season],
+  );
+  const currentSeasonHeroes = useMemo(
+    () => seasonHeroes.filter(hero => hero.season === season),
+    [seasonHeroes, season],
+  );
+  const earlierSeasonHeroes = useMemo(
+    () => seasonHeroes.filter(hero => hero.season !== season),
+    [seasonHeroes, season],
   );
   const available = useMemo(
     () => seasonHeroes.filter((h) => owned.includes(h.name) && h.cageAllowed),
@@ -121,6 +161,9 @@ export default function Home() {
     joinerFormations = [];
     if (mode === "leader") leaderFormation = null;
   }
+  const resolvedRobots = resolveRobotAssignments(leaderFormation, joinerFormations, availableRobots, robotOverrides);
+  leaderFormation = resolvedRobots.leader;
+  joinerFormations = resolvedRobots.joiners;
   const currentLocks = mode === "leader" ? leaderLocks : locks;
   const updateLock = (key: string, name: string) => {
     (mode === "leader" ? setLeaderLocks : setLocks)(value => ({...value, [key]: name}));
@@ -133,6 +176,26 @@ export default function Home() {
   const requestedRobotSlots = (leaderFormation ? 1 : 0) + joinCount;
   const preflightStatus = lockError || !leaderFormation ? "blocked" : joinerFormations.length < joinCount ? "review" : "ready";
   const topRecoveryOptions = joinerRosterDiagnostics.rankedLeftAlternatives.slice(0, 6);
+  const shortageActions: string[] = [];
+  if (joinerRosterDiagnostics.counts.Shield < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shield} eligible Shield hero${joinCount - joinerRosterDiagnostics.counts.Shield === 1 ? "" : "es"}.`);
+  if (joinerRosterDiagnostics.counts.Bomber < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Bomber} eligible Bomber hero${joinCount - joinerRosterDiagnostics.counts.Bomber === 1 ? "" : "es"}.`);
+  if (joinerRosterDiagnostics.counts.Shooter < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shooter} eligible Shooter hero${joinCount - joinerRosterDiagnostics.counts.Shooter === 1 ? "" : "es"}.`);
+  if (joinerRosterDiagnostics.leftSkills < joinCount) shortageActions.push(`Add or verify ${joinCount - joinerRosterDiagnostics.leftSkills} more ${verifiedOnly ? "screenshot-verified " : ""}LEFT-skill hero${joinCount - joinerRosterDiagnostics.leftSkills === 1 ? "" : "es"}.`);
+  if (joinerRosterDiagnostics.heroShortage > 0) shortageActions.push(`Add ${joinerRosterDiagnostics.heroShortage} eligible hero${joinerRosterDiagnostics.heroShortage === 1 ? "" : "es"} overall for ${joinCount} full non-repeating Joiners.`);
+  const setRobotOverride = (formationId: string, robot: string) => {
+    setRobotOverrides(current => {
+      const next = { ...current };
+      Object.entries(next).forEach(([id, assigned]) => {
+        if (id !== formationId && robot && assigned === robot) delete next[id];
+      });
+      if (robot) next[formationId] = robot;
+      else delete next[formationId];
+      return next;
+    });
+    setNotice(robot
+      ? `${robot} pinned to ${formationId}. Other marches will be reassigned automatically without robot reuse.`
+      : `${formationId} returned to automatic robot assignment.`);
+  };
   const felonPlan = useMemo(
     () => optimizeFelons(felons, ownedFelons, rallyFills),
     [ownedFelons, rallyFills],
@@ -160,6 +223,8 @@ export default function Home() {
     const imported: string[] = [];
     const stars: Record<string, number> = {};
     const unknown: string[] = [];
+    const duplicates: string[] = [];
+    const seen = new Set<string>();
 
     text.split(/\r?\n/).map(line => line.trim()).filter(Boolean).forEach(line => {
       const normalizedLine = normalized(line);
@@ -172,6 +237,11 @@ export default function Home() {
         unknown.push(line);
         return;
       }
+      if (seen.has(hero.name)) {
+        duplicates.push(line);
+        return;
+      }
+      seen.add(hero.name);
 
       const afterName = line.slice(line.toLowerCase().indexOf(hero.name.toLowerCase()) + hero.name.length);
       const starSymbols = afterName.match(/★/g)?.length ?? 0;
@@ -189,8 +259,9 @@ export default function Home() {
       setHeroStarLevels(stars);
       setGenerated(false);
     }
+    setImportReport({ matched: imported, unmatched: unknown, duplicates });
     setNotice(imported.length
-      ? `Imported ${imported.length} hero${imported.length === 1 ? "" : "es"} with star levels${unknown.length ? `. Could not match: ${unknown.join(", ")}` : "."}`
+      ? `Imported ${imported.length} unique hero${imported.length === 1 ? "" : "es"} with star levels. Review the import report for unmatched or duplicate rows.`
       : "No matching heroes were found in that text file.");
   };
   const setSkillLevel = (name: string, level: number) => {
@@ -207,6 +278,7 @@ export default function Home() {
         ? current.filter((x) => x !== name)
         : [...current, name],
     );
+    setRobotOverrides(current => Object.fromEntries(Object.entries(current).filter(([, robot]) => robot !== name)));
     setGenerated(false);
   };
   const toggleFelon = (name: string) => {
@@ -277,7 +349,7 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.73 BETA</div>
+        <div className="badge">DEV v1.83 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
@@ -433,7 +505,7 @@ export default function Home() {
           ))}
         </div>
         <p className="helper">
-          Robots are optional guidance, not a formation-legality requirement. Selected robots are assigned in priority order without reuse. Cyber/Warlord-specific robot rules belong to Gorilla planning and are not applied to normal Trial Cage formations.
+          Robots are optional guidance, not a formation-legality requirement. Selected robots are assigned automatically without reuse; after generation you can pin a different owned robot to any individual march and the remaining marches will rebalance automatically. Cyber/Warlord-specific robot rules belong to Gorilla planning and are not applied to normal Trial Cage formations.
         </p>
       </section>
 
@@ -462,66 +534,79 @@ export default function Home() {
           />
         </div>
         <p className="helper">Import one hero per line. Examples: <b>Tyronn ★4</b>, <b>Phoenix ★★★★★</b>, or <b>Ryuichi SSR ★5 Rank 1</b>. Matching heroes are selected and their star levels are filled automatically.</p>
-        <div className="heroes">
-          {seasonHeroes.map((hero) => {
-            const selected = owned.includes(hero.name);
-            const disabled = !hero.cageAllowed;
-            return (
-              <div key={hero.name}>
-                <button
-                  onClick={() => !disabled && toggle(hero.name)}
-                  disabled={disabled}
-                  className={`${selected ? "hero selected" : "hero"} ${disabled ? "disabled" : ""}`}
-                  title={hero.notes || ""}
-                >
-                  {heroIconNames.has(hero.name) ? (
-                    <Image
-                      className="hero-icon"
-                      src={heroIconPath(hero.name)}
-                      alt=""
-                      width={48}
-                      height={60}
-                    />
-                  ) : (
-                    <i>{hero.cls[0]}</i>
-                  )}
-                  <strong>{hero.name}</strong>
-                  <small>
-                    {hero.cls} •{" "}
-                    {hero.season === 0 ? "Legacy" : `S${hero.season}`} •{" "}
-                    {hero.rarity}
-                  </small>
-                  {hero.leftSkill && (
-                    <em className={`evidence-badge ${hero.leftSkillVerified ? "verified" : "unverified"}`}>
-                      LEFT {hero.leftSkillVerified ? "VERIFIED" : "UNVERIFIED"}{hero.leftTier ? ` • ${hero.leftTier.toUpperCase()}` : ""}
-                    </em>
-                  )}
-                  {hero.cageAllowed && !hero.leftSkill && <em className="evidence-badge no-left">NO LEFT DATA</em>}
-                  {!hero.cageAllowed && <em className="evidence-badge excluded">EXCLUDED</em>}
-                </button>
-                {selected && !disabled && (
-                  <label
-                    style={{ display: "block", marginTop: 6, fontSize: 12 }}
-                  >
-                    Star level{" "}
-                    <select
-                      aria-label={`${hero.name} star level`}
-                      value={heroStarLevels[hero.name] ?? 1}
-                      onChange={(e) => setStarLevel(hero.name, +e.target.value)}
-                      style={{ marginLeft: 6 }}
-                    >
-                      {[1, 2, 3, 4, 5].map((l) => (
-                        <option key={l} value={l}>
-                          {"★".repeat(l)} ({l})
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                )}
-
+        {importReport && (
+          <div className="import-report">
+            <b>IMPORT REPORT</b>
+            <span>{importReport.matched.length} matched • {importReport.unmatched.length} unmatched • {importReport.duplicates.length} duplicate row{importReport.duplicates.length === 1 ? "" : "s"}</span>
+            {importReport.matched.length > 0 && <details><summary>Matched heroes</summary><p>{importReport.matched.join(", ")}</p></details>}
+            {importReport.unmatched.length > 0 && <details><summary>Unmatched rows</summary><p>{importReport.unmatched.join(" • ")}</p></details>}
+            {importReport.duplicates.length > 0 && <details><summary>Duplicate rows ignored</summary><p>{importReport.duplicates.join(" • ")}</p></details>}
+          </div>
+        )}
+        <div className="hero-season-groups">
+          {[
+            { label: `SEASON ${season} ADDITIONS`, items: currentSeasonHeroes, current: true },
+            { label: "EARLIER / LEGACY HEROES", items: earlierSeasonHeroes, current: false },
+          ].map(group => group.items.length > 0 && (
+            <section className={group.current ? "hero-season-group current" : "hero-season-group"} key={group.label}>
+              <div className="hero-season-heading"><b>{group.label}</b><span>{group.items.length} shown</span></div>
+              <div className="heroes">
+                {group.items.map((hero) => {
+                  const selected = owned.includes(hero.name);
+                  const disabled = !hero.cageAllowed;
+                  return (
+                    <div key={hero.name}>
+                      <button
+                        onClick={() => !disabled && toggle(hero.name)}
+                        disabled={disabled}
+                        className={`${selected ? "hero selected" : "hero"} ${disabled ? "disabled" : ""}`}
+                        title={hero.notes || ""}
+                      >
+                        {heroIconNames.has(hero.name) ? (
+                          <Image className="hero-icon" src={heroIconPath(hero.name)} alt="" width={48} height={60} />
+                        ) : (
+                          <i>{hero.cls[0]}</i>
+                        )}
+                        <strong>{hero.name}</strong>
+                        <small>{hero.cls} • {hero.season === 0 ? "Legacy" : `S${hero.season}`} • {hero.rarity}</small>
+                        {hero.leftSkill && (
+                          <em className={`evidence-badge ${hero.leftSkillVerified ? "verified" : "unverified"}`}>
+                            LEFT {hero.leftSkillVerified ? "VERIFIED" : "UNVERIFIED"}{hero.leftTier ? ` • ${hero.leftTier.toUpperCase()}` : ""}
+                          </em>
+                        )}
+                        {hero.cageAllowed && !hero.leftSkill && <em className="evidence-badge no-left">NO LEFT DATA</em>}
+                        {!hero.cageAllowed && <em className="evidence-badge excluded">EXCLUDED</em>}
+                      </button>
+                      {selected && !disabled && (
+                        <>
+                          <label className="hero-star-control">
+                            Star level{" "}
+                            <select
+                              aria-label={`${hero.name} star level`}
+                              value={heroStarLevels[hero.name] ?? 1}
+                              onChange={(e) => setStarLevel(hero.name, +e.target.value)}
+                            >
+                              {[1, 2, 3, 4, 5].map((l) => (
+                                <option key={l} value={l}>{"★".repeat(l)} ({l})</option>
+                              ))}
+                            </select>
+                          </label>
+                          <details className="hero-evidence-details">
+                            <summary>Skill & evidence details</summary>
+                            <p><b>LEFT skill:</b> {hero.leftSkill ?? "No Cage LEFT priority skill entered."}</p>
+                            {hero.leftSkillValues && <p><b>Lv1-Lv5:</b> {hero.leftSkillValues.map((value, index) => `Lv${index + 1} ${value}%`).join(" • ")}</p>}
+                            {hero.evidenceNote && <p><b>Evidence:</b> {hero.evidenceNote}</p>}
+                            {hero.priorityNote && <p><b>Priority model:</b> {hero.priorityNote}</p>}
+                            {hero.notes && <p><b>Notes:</b> {hero.notes}</p>}
+                          </details>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            </section>
+          ))}
         </div>
       </section>
 
@@ -553,6 +638,12 @@ export default function Home() {
         )}
         {lockError && <div className="warning-box"><b>Configuration conflict:</b> {lockError}</div>}
         {joinerRosterDiagnostics.blockers.length > 0 && <div className="warning-box">{joinerRosterDiagnostics.blockers.join(" ")}</div>}
+        {shortageActions.length > 0 && (
+          <div className="shortage-actions">
+            <b>WHAT TO ADD</b>
+            <ul>{shortageActions.map(action => <li key={action}>{action}</li>)}</ul>
+          </div>
+        )}
         {!lockError && joinerRosterDiagnostics.blockers.length === 0 && <p className="helper">Preflight found enough class coverage and LEFT-skill candidates for the requested Joiners. Robot shortages remain guidance only and never make a formation illegal.</p>}
       </section>
 
@@ -618,11 +709,17 @@ export default function Home() {
             </p>
             {Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).length > 0 && <div className="kof-active-links"><b>KOF MAIN RALLY LINKS</b>{Object.entries(kofLeaderLinks).filter(([name,target]) => target && (heroStarLevels[name]??1) >= 4 && owned.includes(name)).map(([name,target])=><span key={name}>{name} → replaces {target}</span>)}</div>}
             <div className="mini-grid">
-              <div>
+              <div className="robot-control">
                 <b>Robot assignment</b>
-                <span>
-                  {leaderFormation.robot ?? "No owned robot selected"}
-                </span>
+                <span>{leaderFormation.robot ?? "No owned robot selected"}</span>
+                <select
+                  aria-label="Main Rally robot override"
+                  value={robotOverrides.MAIN ?? ""}
+                  onChange={event => setRobotOverride("MAIN", event.target.value)}
+                >
+                  <option value="">Auto ({leaderFormation.robot ?? "none"})</option>
+                  {availableRobots.map(robot => <option key={robot} value={robot}>{robot}</option>)}
+                </select>
               </div>
               <div>
                 <b>Yard Time core</b>
@@ -747,14 +844,34 @@ export default function Home() {
                     <b>{f.right.name}</b><small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
                   </div>
                 </div>
-                <div
-                  className={
-                    f.robot ? "robot-assignment" : "robot-assignment missing"
-                  }
-                >
+                <div className={f.robot ? "robot-assignment" : "robot-assignment missing"}>
                   <span>ROBOT</span>
                   <b>{f.robot ?? "No owned robot available"}</b>
+                  <select
+                    aria-label={`${f.id} robot override`}
+                    value={robotOverrides[f.id] ?? ""}
+                    onChange={event => setRobotOverride(f.id, event.target.value)}
+                  >
+                    <option value="">Auto ({f.robot ?? "none"})</option>
+                    {availableRobots.map(robot => <option key={robot} value={robot}>{robot}</option>)}
+                  </select>
                 </div>
+                <details className="left-comparison">
+                  <summary>Compare next-best LEFT heroes</summary>
+                  <p className="comparison-note">Comparison score is an internal generator heuristic, not an in-game damage percentage. It combines skill tier, verified progression at the auto War-skill level, and hero stars.</p>
+                  <div className="left-comparison-grid">
+                    {joinerRosterDiagnostics.rankedLeftAlternatives
+                      .filter(candidate => candidate.name !== f.left.name)
+                      .slice(0, 3)
+                      .map(candidate => (
+                        <div key={`${f.id}-${candidate.name}`}>
+                          <b>{candidate.name}</b>
+                          <span>{candidate.cls} • Lv{candidate.level} • {candidate.verified ? "verified" : "unverified"}</span>
+                          <small>Generator score {Math.round(candidate.score)} • {leaderReservedNames.includes(candidate.name) || projectedJoinerHeroNames.includes(candidate.name) ? "currently used" : "available"}</small>
+                        </div>
+                      ))}
+                  </div>
+                </details>
                 {f.alerts
                   
                   .map((alert) => (

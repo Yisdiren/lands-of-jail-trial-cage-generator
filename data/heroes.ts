@@ -12,6 +12,8 @@ export type Hero = {
   leftSkillValues?: [number, number, number, number, number];
   leftSkillVerified?: boolean;
   cageAllowed: boolean;
+  evidenceNote?: string;
+  priorityNote?: string;
   notes?: string;
 };
 
@@ -103,6 +105,7 @@ export const heroes: Hero[] = [
     season: 6,
     rarity: "SSR",
     cageAllowed: true,
+    evidenceNote: "Exact Season 6 War-skill progression is deferred until Server 260 reaches Season 6.",
     notes: "S6. Defensive kit with +75% allied Tactical DMG at War Lv5.",
   },
   {
@@ -111,6 +114,7 @@ export const heroes: Hero[] = [
     season: 7,
     rarity: "SSR",
     cageAllowed: true,
+    evidenceNote: "Season 7 War-skill values recorded from direct in-game screenshots.",
     notes: "S7 screenshot verified. Colossal Behemoth: Shieldbearer HP +6/12/18/24/30%. Dreadful Regeneration: soldiers recovered 1/2/3/5/7%. Corrosive Blessing: troops DMG taken reduction 4/8/12/16/20%. Defensive kit; not a Cage damage LEFT priority.",
   },
 
@@ -239,6 +243,8 @@ export const heroes: Hero[] = [
     leftSkillValues: [5, 10, 15, 20, 25],
     leftSkillVerified: true,
     cageAllowed: true,
+    evidenceNote: "Lv1-Lv5 LEFT War-skill progression recorded from direct in-game evidence.",
+    priorityNote: "Generator LEFT priority weight is heuristic and is not an in-game damage percentage.",
     notes: "S6 priority target. Charged Launch progression verified.",
   },
   {
@@ -247,6 +253,7 @@ export const heroes: Hero[] = [
     season: 6,
     rarity: "SSR",
     cageAllowed: true,
+    evidenceNote: "Exact Season 6 War-skill progression is deferred until Server 260 reaches Season 6.",
     notes: "S6. +25% Bomber DMG and +25% all allied troop DMG at War Lv5.",
   },
   {
@@ -260,6 +267,8 @@ export const heroes: Hero[] = [
     leftSkillValues: [5, 10, 15, 20, 25],
     leftSkillVerified: true,
     cageAllowed: true,
+    evidenceNote: "Season 7 War-skill progression recorded from direct in-game screenshots.",
+    priorityNote: "Generator LEFT priority weight is heuristic; it is not an in-game percentage or a tested Season 7 Cage ranking.",
     notes: "S7 screenshot verified. Shine Time: extra Basic Attack DMG multiplier 10/20/30/40/50% and Troops ATK +8/16/24/32/40%. Sonic Shockwave: extra Basic Attack DMG multiplier 40/80/120/160/200%.",
   },
 
@@ -378,6 +387,8 @@ export const heroes: Hero[] = [
     leftSkillValues: [5, 10, 15, 20, 25],
     leftSkillVerified: true,
     cageAllowed: true,
+    evidenceNote: "Lv1-Lv5 LEFT War-skill progression recorded from direct in-game evidence.",
+    priorityNote: "Generator LEFT priority weight is heuristic and is not an in-game damage percentage.",
     notes:
       "S6. Sprint Signal progression verified; also has a periodic all-troop DMG boost.",
   },
@@ -392,6 +403,8 @@ export const heroes: Hero[] = [
     leftSkillValues: [5, 10, 15, 20, 25],
     leftSkillVerified: true,
     cageAllowed: true,
+    evidenceNote: "Season 7 War-skill progression recorded from direct in-game screenshots.",
+    priorityNote: "Generator LEFT priority weight is heuristic; it is not an in-game percentage or a tested Season 7 Cage ranking.",
     notes: "S7 screenshot verified. Smoke Cover: Troops DEF +10/20/30/40/50%. Lethal Flywheel: extra Tactical Attack DMG multiplier 6/12/18/24/30%.",
   },
   {
@@ -405,6 +418,8 @@ export const heroes: Hero[] = [
     leftSkillValues: [5, 10, 15, 20, 25],
     leftSkillVerified: true,
     cageAllowed: true,
+    evidenceNote: "Season 7 War-skill progression recorded from direct in-game screenshots.",
+    priorityNote: "Generator LEFT priority weight is heuristic; it is not an in-game percentage or a tested Season 7 Cage ranking.",
     notes: "S7 screenshot verified. Future Computation also increases Wild Monster DMG 2/4/6/8/10%. Skilled Shot: extra Basic Attack DMG multiplier 18/36/54/72/90%. Spacetime Fold: extra Tactical Attack DMG multiplier 24/48/72/96/120%.",
   },
 ];
