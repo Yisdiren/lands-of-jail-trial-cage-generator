@@ -106,16 +106,21 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 
 ## What is next — next 10 changes
 
-1. **Season 6 evidence completion** — add exact Otto and Wukong War-skill progressions only when direct screenshots are available.
-2. **Season 7 Cage testing notes** — record real Trial Cage results for Rin, Rex and Boogie without turning untested assumptions into hard rankings.
-3. **LEFT comparison drawer** — show the next-best LEFT candidates beside each generated Joiner and explain the ranking inputs.
-4. **Roster shortage actions** — turn each class/LEFT shortage into a compact “what to add” recovery checklist.
-5. **Robot assignment controls** — allow optional per-march robot overrides while preserving no-reuse checks.
-6. **Formation share card polish** — bring exported image layout in line with the current on-page cards and Season 7 portraits.
-7. **Hero evidence details** — expose the verified Lv1–Lv5 progression and evidence note without cluttering the main hero grid.
-8. **Import report upgrade** — show matched, unmatched and duplicate hero rows after roster text import.
-9. **Data provenance pass** — add concise evidence/source notes to screenshot-verified season data and keep heuristic priority weights clearly separated from game percentages.
-10. **Production smoke check** — verify the deployed build after the batch and fix only genuine compile/runtime blockers.
+1. **LEFT comparison drawer** — show the next-best LEFT candidates beside each generated Joiner and explain the ranking inputs.
+2. **Roster shortage actions** — turn each class/LEFT shortage into a compact “what to add” recovery checklist.
+3. **Robot assignment controls** — allow optional per-march robot overrides while preserving no-reuse checks.
+4. **Formation share card polish** — bring exported image layout in line with the current on-page cards and Season 7 portraits.
+5. **Hero evidence details** — expose the verified Lv1–Lv5 progression and evidence note without cluttering the main hero grid.
+6. **Import report upgrade** — show matched, unmatched and duplicate hero rows after roster text import.
+7. **Data provenance pass** — add concise evidence/source notes to screenshot-verified season data and keep heuristic priority weights clearly separated from game percentages.
+8. **Production smoke check** — verify the deployed build after the batch and fix only genuine compile/runtime blockers.
+9. **Season-aware roster polish** — make season labels, newly unlocked heroes and current-season additions easier to scan in the hero grid.
+10. **Mobile results polish** — tighten the Preflight and generated-formation layouts for smaller screens without hiding evidence or warning details.
+
+### Deferred until direct account evidence is available
+
+- **Season 6 evidence completion** — wait until Season 6 reaches Server 260, then capture exact Otto and Wukong War-skill progressions from direct screenshots.
+- **Season 7 Cage testing notes** — wait until the Server 10004 account is developed enough for useful Trial Cage testing, then record real Rin, Rex and Boogie results without turning untested assumptions into hard rankings.
 
 ## Evidence rules
 
