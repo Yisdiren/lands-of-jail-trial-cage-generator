@@ -5,42 +5,69 @@ export type CageBuff = {
   durationHours: number;
   stat: "atk" | "lethality" | "hp" | "enemy-def-reduction" | "expedition-capacity-percent" | "expedition-capacity-flat" | "rally-capacity-flat";
   value: number;
-  level?: number;
+  referenceLevel?: number;
 };
+
+export type PrisonerArmorSetting = {
+  level: number;
+  value: number;
+};
+
+export type PrisonerArmorSettings = Record<string, PrisonerArmorSetting>;
+
+export function prisonerArmorSetting(
+  buff: CageBuff,
+  settings: PrisonerArmorSettings = {},
+): PrisonerArmorSetting {
+  const saved = settings[buff.id];
+  return {
+    level: Math.max(1, Math.min(10, Math.round(saved?.level ?? 1))),
+    value: Math.max(0, Number.isFinite(saved?.value) ? Number(saved.value) : 0),
+  };
+}
+
+export function effectiveBuffValue(buff: CageBuff, settings: PrisonerArmorSettings = {}) {
+  return buff.source === "prisoner-armor" ? prisonerArmorSetting(buff, settings).value : buff.value;
+}
 
 export const cageBuffs: CageBuff[] = [
   { id: "troops-atk-2h", name: "Troops ATK (2h)", source: "prison-buff", durationHours: 2, stat: "atk", value: 11 },
   { id: "troops-lethality-2h", name: "Troops Lethality (2h)", source: "prison-buff", durationHours: 2, stat: "lethality", value: 11 },
   { id: "expedition-capacity-2h", name: "Expedition Capacity (2h)", source: "prison-buff", durationHours: 2, stat: "expedition-capacity-percent", value: 11 },
-  { id: "comprehensive-command", name: "Comprehensive Command", source: "prisoner-armor", durationHours: 2, stat: "expedition-capacity-flat", value: 11250, level: 9 },
-  { id: "overload-charge", name: "Overload Charge", source: "prisoner-armor", durationHours: 2, stat: "rally-capacity-flat", value: 96000, level: 6 },
-  { id: "valiant-breach", name: "Valiant Breach", source: "prisoner-armor", durationHours: 2, stat: "lethality", value: 4, level: 4 },
-  { id: "orbital-strike", name: "Orbital Strike", source: "prisoner-armor", durationHours: 2, stat: "atk", value: 4, level: 5 },
+  { id: "comprehensive-command", name: "Comprehensive Command", source: "prisoner-armor", durationHours: 2, stat: "expedition-capacity-flat", value: 11250, referenceLevel: 9 },
+  { id: "overload-charge", name: "Overload Charge", source: "prisoner-armor", durationHours: 2, stat: "rally-capacity-flat", value: 96000, referenceLevel: 6 },
+  { id: "valiant-breach", name: "Valiant Breach", source: "prisoner-armor", durationHours: 2, stat: "lethality", value: 4, referenceLevel: 4 },
+  { id: "orbital-strike", name: "Orbital Strike", source: "prisoner-armor", durationHours: 2, stat: "atk", value: 4, referenceLevel: 5 },
 ];
 
-export function summarizeSelectedBuffs(selectedIds: string[]) {
+export function summarizeSelectedBuffs(selectedIds: string[], armorSettings: PrisonerArmorSettings = {}) {
   const selected = cageBuffs.filter(buff => selectedIds.includes(buff.id));
+  const total = (stat: CageBuff["stat"]) =>
+    selected.filter(buff => buff.stat === stat).reduce((sum, buff) => sum + effectiveBuffValue(buff, armorSettings), 0);
   return {
     selected,
-    atkPercent: selected.filter(b => b.stat === "atk").reduce((sum,b)=>sum+b.value,0),
-    lethalityPercent: selected.filter(b => b.stat === "lethality").reduce((sum,b)=>sum+b.value,0),
-    hpPercent: selected.filter(b => b.stat === "hp").reduce((sum,b)=>sum+b.value,0),
-    enemyDefReductionPercent: selected.filter(b => b.stat === "enemy-def-reduction").reduce((sum,b)=>sum+b.value,0),
-    expeditionCapacityPercent: selected.filter(b => b.stat === "expedition-capacity-percent").reduce((sum,b)=>sum+b.value,0),
-    expeditionCapacityFlat: selected.filter(b => b.stat === "expedition-capacity-flat").reduce((sum,b)=>sum+b.value,0),
-    rallyCapacityFlat: selected.filter(b => b.stat === "rally-capacity-flat").reduce((sum,b)=>sum+b.value,0),
+    atkPercent: total("atk"),
+    lethalityPercent: total("lethality"),
+    hpPercent: total("hp"),
+    enemyDefReductionPercent: total("enemy-def-reduction"),
+    expeditionCapacityPercent: total("expedition-capacity-percent"),
+    expeditionCapacityFlat: total("expedition-capacity-flat"),
+    rallyCapacityFlat: total("rally-capacity-flat"),
   };
 }
 
-export function buildPreCageChecklist(selectedIds: string[]) {
+export function buildPreCageChecklist(selectedIds: string[], armorSettings: PrisonerArmorSettings = {}) {
   return cageBuffs
     .filter(buff => selectedIds.includes(buff.id))
-    .map(buff => ({
-      id: buff.id,
-      label: `${buff.name}${buff.level ? ` Lv.${buff.level}` : ""}`,
-      duration: `${buff.durationHours}h`,
-      source: buff.source === "prison-buff" ? "Prison Buff" : "Prisoner Armor",
-    }));
+    .map(buff => {
+      const armor = buff.source === "prisoner-armor" ? prisonerArmorSetting(buff, armorSettings) : null;
+      return {
+        id: buff.id,
+        label: `${buff.name}${armor ? ` Lv.${armor.level}` : ""} — ${buffEffectLabel(buff, armorSettings)}`,
+        duration: `${buff.durationHours}h`,
+        source: buff.source === "prison-buff" ? "Prison Buff" : "Power Armor",
+      };
+    });
 }
 
 export type CapacityPreview = {
@@ -52,8 +79,8 @@ export type CapacityPreview = {
   note: string;
 };
 
-export function previewCageCapacity(baseCapacity: number, selectedIds: string[]): CapacityPreview {
-  const totals = summarizeSelectedBuffs(selectedIds);
+export function previewCageCapacity(baseCapacity: number, selectedIds: string[], armorSettings: PrisonerArmorSettings = {}): CapacityPreview {
+  const totals = summarizeSelectedBuffs(selectedIds, armorSettings);
   return {
     baseCapacity,
     expeditionPercent: totals.expeditionCapacityPercent,
@@ -64,9 +91,12 @@ export function previewCageCapacity(baseCapacity: number, selectedIds: string[])
   };
 }
 
-export function buffEffectLabel(buff: CageBuff) {
+export function buffEffectLabel(buff: CageBuff, armorSettings: PrisonerArmorSettings = {}) {
   const pctStats = new Set(["atk","lethality","hp","enemy-def-reduction","expedition-capacity-percent"]);
-  const value = pctStats.has(buff.stat) ? `+${buff.value}%` : `+${buff.value.toLocaleString("en-US")}`;
+  const effective = effectiveBuffValue(buff, armorSettings);
+  const value = buff.source === "prisoner-armor" && effective <= 0
+    ? "— enter your in-game value"
+    : pctStats.has(buff.stat) ? `+${effective}%` : `+${effective.toLocaleString("en-US")}`;
   const labels: Record<CageBuff["stat"], string> = {
     atk: "Troops ATK",
     lethality: "Troops Lethality",
@@ -121,8 +151,8 @@ export function validateCageBuffSelection(selectedIds: string[]) {
   };
 }
 
-export function cageBuffSummaryText(selectedIds: string[]) {
-  const totals = summarizeSelectedBuffs(selectedIds);
+export function cageBuffSummaryText(selectedIds: string[], armorSettings: PrisonerArmorSettings = {}) {
+  const totals = summarizeSelectedBuffs(selectedIds, armorSettings);
   const parts: string[] = [];
   if (totals.atkPercent) parts.push(`ATK +${totals.atkPercent}%`);
   if (totals.lethalityPercent) parts.push(`Lethality +${totals.lethalityPercent}%`);
@@ -141,31 +171,31 @@ export function cageBuffTimingMessage(profile: CageBuffProfile) {
   return `Activate selected buffs about ${profile.activationLeadMinutes} minute${profile.activationLeadMinutes === 1 ? "" : "s"} before Cage. Shortest selected duration: ${shortest}h.`;
 }
 
-export function cageBuffPriorityHint(selectedIds: string[]) {
+export function cageBuffPriorityHint(selectedIds: string[], armorSettings: PrisonerArmorSettings = {}) {
   const selected = cageBuffs.filter(buff => selectedIds.includes(buff.id));
   const offense = selected.filter(buff => ["atk","lethality","enemy-def-reduction"].includes(buff.stat));
   const capacity = selected.filter(buff => buff.stat.includes("capacity"));
   const support = selected.filter(buff => buff.stat === "hp");
   return {
-    offense: offense.map(buffEffectLabel),
-    capacity: capacity.map(buffEffectLabel),
-    support: support.map(buffEffectLabel),
+    offense: offense.map(buff => buffEffectLabel(buff, armorSettings)),
+    capacity: capacity.map(buff => buffEffectLabel(buff, armorSettings)),
+    support: support.map(buff => buffEffectLabel(buff, armorSettings)),
     note: "Categories describe the buff effect only; they are not a claim about the best Trial Cage combination.",
   };
 }
 
-export function preCageShareLines(profile: CageBuffProfile) {
-  const checklist = buildPreCageChecklist(profile.selectedBuffIds);
+export function preCageShareLines(profile: CageBuffProfile, armorSettings: PrisonerArmorSettings = {}) {
+  const checklist = buildPreCageChecklist(profile.selectedBuffIds, armorSettings);
   return [
     "PRE-CAGE BUFFS",
     ...checklist.map(item => `• ${item.label} — ${item.source} — ${item.duration}`),
-    cageBuffSummaryText(profile.selectedBuffIds),
+    cageBuffSummaryText(profile.selectedBuffIds, armorSettings),
     cageBuffTimingMessage(profile),
   ];
 }
 
-export function preCageWarnings(baseCapacity: number, selectedIds: string[]) {
-  const totals = summarizeSelectedBuffs(selectedIds);
+export function preCageWarnings(baseCapacity: number, selectedIds: string[], armorSettings: PrisonerArmorSettings = {}) {
+  const totals = summarizeSelectedBuffs(selectedIds, armorSettings);
   const warnings: string[] = [];
   if (baseCapacity <= 0) warnings.push("Enter your unbuffed Main Rally capacity before using the capacity preview.");
   if (totals.expeditionCapacityPercent && (totals.expeditionCapacityFlat || totals.rallyCapacityFlat)) warnings.push("Multiple capacity effects are selected. Final capacity is intentionally not auto-calculated until stacking order is verified.");

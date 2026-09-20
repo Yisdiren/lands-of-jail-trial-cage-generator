@@ -12,7 +12,7 @@ import {
   validateFormation,
   type Formation,
 } from "../lib/generator";
-import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, buffEffectLabel, preCageShareLines } from "../lib/cage-buffs";
+import { cageBuffs, splitBuffsBySource, cageBuffSummaryText, cageBuffTimingMessage, buffEffectLabel, preCageShareLines, prisonerArmorSetting, type PrisonerArmorSettings } from "../lib/cage-buffs";
 import Image from "next/image";
 
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
@@ -81,6 +81,7 @@ export default function Home() {
   const [importReport, setImportReport] = useState<ImportReport | null>(null);
   const heroImportRef = useRef<HTMLInputElement>(null);
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
+  const [armorSettings, setArmorSettings] = useState<PrisonerArmorSettings>({});
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
   const [kofLeaderLinks, setKofLeaderLinks] = useState<Record<string,string>>({});
   const seasonHeroes = useMemo(
@@ -314,7 +315,7 @@ export default function Home() {
     const lines = [
       "TRIAL CAGE FORMATIONS",
       `Season ${season} • ${verifiedOnly ? "Verified LEFT skills only" : "Standard LEFT skill priority"}`,
-      ...preCageShareLines({ selectedBuffIds, activationLeadMinutes }),
+      ...preCageShareLines({ selectedBuffIds, activationLeadMinutes }, armorSettings),
       "",
       ...(leaderFormation ? [
         `MAIN: ${leaderFormation.left.name} / ${leaderFormation.middle.name} / ${leaderFormation.right.name}`,
@@ -336,6 +337,20 @@ export default function Home() {
   };
   const buffGroups = splitBuffsBySource();
   const toggleCageBuff = (id: string) => setSelectedBuffIds(current => current.includes(id) ? current.filter(x => x !== id) : [...current, id]);
+  const updateArmorSetting = (id: string, patch: Partial<{ level: number; value: number }>) => {
+    const buff = cageBuffs.find(item => item.id === id);
+    if (!buff || buff.source !== "prisoner-armor") return;
+    setArmorSettings(current => {
+      const base = prisonerArmorSetting(buff, current);
+      return {
+        ...current,
+        [id]: {
+          level: Math.max(1, Math.min(10, Math.round(patch.level ?? base.level))),
+          value: Math.max(0, patch.value ?? base.value),
+        },
+      };
+    });
+  };
   return (
     <main>
       <header>
@@ -349,17 +364,66 @@ export default function Home() {
             or robot reuse
           </p>
         </div>
-        <div className="badge">DEV v1.83 BETA</div>
+        <div className="badge">DEV v1.84 BETA</div>
       </header>
 
       <section className="panel cage-buffs-panel">
-        <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Prisoner Armor</h2></div></div>
-        <p className="helper">Select the buffs you actually activate before Trial Cage. Capacity bonuses stay separated until their in-game stacking order is verified.</p>
+        <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Power Armor</h2></div></div>
+        <p className="helper">Prison Buffs use the entered verified fixed values. Power Armor is player-specific: choose your own armor level and enter the exact effect value shown in your game. The old Server 260 levels are reference data only and are no longer used as defaults.</p>
         <div className="buff-groups">
-          {[["Prison Buffs", buffGroups.prisonBuffs], ["Prisoner Armor", buffGroups.prisonerArmor]].map(([title, items]) => <div className="buff-group" key={String(title)}><h3>{String(title)}</h3><div className="buff-grid">{(items as typeof cageBuffs).map(buff => <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}><b>{buff.name}{buff.level ? ` Lv.${buff.level}` : ""}</b><span>{buffEffectLabel(buff)}</span><small>{buff.durationHours}h after activation</small></button>)}</div></div>)}
+          <div className="buff-group">
+            <h3>Prison Buffs</h3>
+            <div className="buff-grid">
+              {buffGroups.prisonBuffs.map(buff => (
+                <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}>
+                  <b>{buff.name}</b>
+                  <span>{buffEffectLabel(buff, armorSettings)}</span>
+                  <small>{buff.durationHours}h after activation</small>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="buff-group">
+            <h3>Power Armor</h3>
+            <p className="helper armor-helper">Set the level and effect to match your own armor. For percentage effects enter the number shown in game (for example, enter 4 for +4%). Flat capacity effects use the full number.</p>
+            <div className="buff-grid armor-grid">
+              {buffGroups.prisonerArmor.map(buff => {
+                const setting = prisonerArmorSetting(buff, armorSettings);
+                const selected = selectedBuffIds.includes(buff.id);
+                return (
+                  <div className={selected ? "buff armor-buff selected" : "buff armor-buff"} key={buff.id}>
+                    <button type="button" className="armor-select" onClick={()=>toggleCageBuff(buff.id)} aria-pressed={selected}>
+                      <b>{buff.name}</b>
+                      <span>{selected ? "SELECTED" : "SELECT FOR CAGE"}</span>
+                    </button>
+                    <span className="armor-effect">{buffEffectLabel(buff, armorSettings)}</span>
+                    <div className="armor-controls">
+                      <label>
+                        Your level
+                        <select value={setting.level} onChange={event => updateArmorSetting(buff.id, { level: Number(event.target.value) })}>
+                          {Array.from({ length: 10 }, (_, index) => index + 1).map(level => <option key={level} value={level}>Lv.{level}</option>)}
+                        </select>
+                      </label>
+                      <label>
+                        Your effect value
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          placeholder="Enter game value"
+                          value={setting.value || ""}
+                          onChange={event => updateArmorSetting(buff.id, { value: Number(event.target.value) || 0 })}
+                        />
+                      </label>
+                    </div>
+                    <small>{buff.durationHours}h after activation • Reference only: Lv.{buff.referenceLevel ?? "?"} = {buff.value.toLocaleString("en-US")}{["atk","lethality","hp","enemy-def-reduction","expedition-capacity-percent"].includes(buff.stat) ? "%" : ""}</small>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
-        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main: maximum troops • Joiners: 10k Bombers + 90k Shooters or 100k Shooters</span><strong>{cageBuffSummaryText(selectedBuffIds)}</strong><label>Activate <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min before Cage</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
-        
+        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main: maximum troops • Joiners: 10k Bombers + 90k Shooters or 100k Shooters</span><strong>{cageBuffSummaryText(selectedBuffIds, armorSettings)}</strong><label>Activate <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min before Cage</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
       </section>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}

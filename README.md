@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.83
+## Development Beta v1.84
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -54,6 +54,7 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 ### Other current features
 - Season filtering through Season 7 with screenshot-backed S7 hero data
 - Felon ownership and leader Yard Time support
+- Player-specific Power Armor levels/effect values instead of Server 260 armor levels being used as defaults
 - Scorpion/Cobra core locks and rally-aware core selection
 - Formation sharing/copy tools
 - Browser-local saved data
@@ -119,6 +120,10 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - **v1.81** — Kept production build/type checking as the release gate for the combined batch; only genuine compile/runtime blockers are to be fixed after deployment.
 - **v1.82** — Grouped the hero browser into current-season additions and earlier/legacy heroes so new unlocks are easier to scan.
 - **v1.83** — Tightened mobile Preflight, status, robot, comparison, evidence and formation layouts without hiding warning/evidence details.
+
+## Beta v1.84 Power Armor configuration update
+
+- **v1.84** — Power Armor is no longer tied to the original Server 260 armor levels. Each visitor can select their own Lv1–Lv10 armor level and enter the exact effect value shown in-game. Existing screenshot values remain visible only as reference examples, so the generator does not invent unknown level scaling.
 
 ## What is next — next 10 changes
 
