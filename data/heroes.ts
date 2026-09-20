@@ -386,8 +386,12 @@ export const heroes: Hero[] = [
     cls: "Shooter",
     season: 0,
     rarity: "SSR",
+    leftSkill: "Iron Body: reduces Shieldbearer and Shooter DMG taken",
+    leftSkillValues: [4, 8, 12, 16, 20],
+    leftSkillVerified: true,
     cageAllowed: true,
-    notes: "Judgment of Justice Lv5 on Server 260.",
+    evidenceNote: "All three War skills verified from direct in-game screenshots supplied 2026-09-20.",
+    notes: "Iron Body: Shieldbearer DMG Taken Reduction 4/8/12/16/20% and Shooter DMG Taken Reduction 6/12/18/24/30%. Command Shooting: when enemies take Tactical DMG, Shooters have a 30% chance to launch 1 basic attack at that target; Extra Basic Attack DMG Multiplier 5/10/15/20/25%. Judgment of Justice: every third round, Shooters deal Tactical DMG at 25/50/75/100/125% ATK; Tactical Attack DMG Increase 3/6/9/12/15% per multiple the enemy troop size exceeds ours, with stacking limit 15/30/45/60/75%.",
   },
   {
     name: "Sawyer",

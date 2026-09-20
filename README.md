@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.14**
+**Beta v2.15**
 
 The public workflow is intentionally simple:
 
@@ -74,6 +74,10 @@ Verified Cage-relevant Power Armor data currently includes:
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
 Unknown values are left unverified instead of being extrapolated.
+
+## v2.15 Edwin War-skill evidence
+
+Direct screenshots supplied on 2026-09-20 now verify Edwin's complete three-skill War kit and Lv1-Lv5 progressions.
 
 ## v2.14 War-skill evidence expansion II
 
