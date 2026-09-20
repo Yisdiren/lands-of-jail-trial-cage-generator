@@ -113,7 +113,8 @@ export default function Home() {
   let joinerFormations = automaticJoiners;
   try {
     if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, warSkillLevels, availableRobots, false, null, "leader", heroStarLevels)[0] ?? null;
-    const joinerRobotPool = leaderFormation?.robot ? availableRobots.filter(robot => robot !== leaderFormation.robot) : availableRobots;
+    const leaderRobot = leaderFormation?.robot;
+    const joinerRobotPool = leaderRobot ? availableRobots.filter(robot => robot !== leaderRobot) : availableRobots;
     if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(available, joinCount, locks, warSkillLevels, joinerRobotPool, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
