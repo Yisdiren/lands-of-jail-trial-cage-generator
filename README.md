@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.15**
+**Beta v2.17**
 
 The public workflow is intentionally simple:
 
@@ -74,6 +74,15 @@ Verified Cage-relevant Power Armor data currently includes:
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
 Unknown values are left unverified instead of being extrapolated.
+
+## Beta v2.17 — remaining pre-S6 War-skill evidence
+
+Direct screenshots supplied on 2026-09-20 now record the displayed War-skill sets for **Marcus, Caesar, Zoltan, Gerd, Vesaryon, Whisper, and Platos**.
+
+- Exact displayed Lv1-Lv5 progressions are recorded for each first/LEFT War skill.
+- Additional War-skill progressions shown in the screenshots are preserved in hero notes.
+- Defensive, utility, conditional, and untested effects do not receive unsupported Trial Cage priority promotions.
+- This closes the specific pre-S6 evidence gaps identified by the v2.16 audit.
 
 ## Beta v2.16 — pre-S6 audit and simple-results pass
 
