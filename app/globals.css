@@ -1138,3 +1138,7 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
   header{background:#fff!important;border:0!important;box-shadow:none!important;color:#000!important}
   header p,.creator-line{color:#333!important}
 }
+
+.simple-shortage > div { min-width: 0; overflow-wrap: anywhere; }
+.slots > * { min-width: 0; }
+.slots select { max-width: 100%; min-width: 0; }

@@ -253,7 +253,7 @@ export default function Home() {
       automaticLeader,
     ],
   );
-  const joinerRosterDiagnostics = useMemo(() => diagnoseJoinerRoster(generatorAvailable, joinCount, automaticLeader, verifiedOnly, automaticWarSkillLevels, heroStarLevels), [generatorAvailable, joinCount, automaticLeader, verifiedOnly, automaticWarSkillLevels, heroStarLevels]);
+
   let lockError = "";
   let leaderFormation = automaticLeader;
   let joinerFormations = automaticJoiners;
@@ -276,6 +276,9 @@ export default function Home() {
     (mode === "leader" ? setLeaderLocks : setLocks)(value => ({...value, [key]: name}));
     setGenerated(false);
   };
+  const joinerRosterDiagnostics = diagnoseJoinerRoster(generatorAvailable, joinCount, leaderFormation, verifiedOnly, automaticWarSkillLevels, heroStarLevels);
+  const missingShieldCount = Math.max(0, joinCount - joinerRosterDiagnostics.counts.Shield);
+  const shieldSuggestions = seasonHeroes.filter(hero => hero.cageAllowed && showHeroInGenerator(hero) && hero.cls === "Shield" && !owned.includes(hero.name));
   const leaderReservedNames = leaderFormation ? [leaderFormation.left.name, leaderFormation.middle.name, leaderFormation.right.name] : [];
   const projectedJoinerHeroNames = Array.from(new Set(joinerFormations.flatMap(formation => [formation.left.name, formation.middle.name, formation.right.name])));
   const assignedRobotNames = [leaderFormation?.robot, ...joinerFormations.map(formation => formation.robot)].filter((name): name is string => Boolean(name));
@@ -604,7 +607,7 @@ export default function Home() {
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v2.11 BETA</div>
+        <div className="badge">DEV v2.12 BETA</div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
@@ -1152,6 +1155,13 @@ export default function Home() {
         <div className="simple-shortage">
           <b>TO FINISH THIS SETUP</b>
           <span>{simpleShortageItems.length ? simpleShortageItems.join(" ") : `Need more compatible heroes to build all ${joinCount} Joiners.`}</span>
+          {missingShieldCount > 0 && (
+            <div>
+              <p>You need {missingShieldCount} more Shield hero{missingShieldCount === 1 ? "" : "es"} for {joinCount} Joiners after reserving your Main Rally.</p>
+              {shieldSuggestions.length > 0 ? <p>Available in your selected season: {shieldSuggestions.map(hero => hero.name).join(", ")}. Select only heroes you own.</p> : <p>No unselected eligible Shields remain in this season. Reduce the Joiner count or unlock another Shield.</p>}
+              <p>Gerd, Iwado and Vesaryon can fill MIDDLE/RIGHT support slots. Their use does not mean you should send Shieldbearer troops.</p>
+            </div>
+          )}
           <a href="#hero-picker-heading">Review selected heroes</a>
         </div>
       )}
@@ -1342,7 +1352,7 @@ export default function Home() {
                         src={heroIconPath(f.middle.name)}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{f.middle.name}</b><small>{heroStarLevels[f.middle.name] ? "★".repeat(heroStarLevels[f.middle.name]) : "Stars not set"}</small>
+                    <b>{f.middle.name}</b>{supportShieldNames.has(f.middle.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.middle.name] ? "★".repeat(heroStarLevels[f.middle.name]) : "Stars not set"}</small>
                   </div>
                   <div className="slot">
                     <span>RIGHT • {f.right.cls}</span>
@@ -1351,7 +1361,7 @@ export default function Home() {
                         src={heroIconPath(f.right.name)}
                         alt="" width={42} height={52} />
                     )}
-                    <b>{f.right.name}</b><small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
+                    <b>{f.right.name}</b>{supportShieldNames.has(f.right.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
                   </div>
                 </div>
                 {availableRobots.length > 0 && (

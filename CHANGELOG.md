@@ -4,7 +4,13 @@ This file contains the detailed development history that was previously stored i
 
 For the current project overview, quick-use instructions, evidence policy, and development commands, see [README.md](README.md).
 
-> Current public release: **Beta v2.11**
+> Current public release: **Beta v2.12**
+
+## Beta v2.12 — Clearer Shield recovery
+
+- Explain Shield shortages after the actual Main reserve, including pinned Main heroes.
+- List unselected Shield options available in the chosen season, with ownership guidance.
+- Explain SR Shield support and distinguish hero class from troop instructions.
 
 ## Beta v2.11 — Season 5 Shield fallback support
 
