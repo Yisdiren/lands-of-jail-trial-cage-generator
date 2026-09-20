@@ -74,8 +74,8 @@ export const cageBuffs: CageBuff[] = [
     value: 96000,
     referenceLevel: 6,
     armorRobot: "Halo",
-    levelValues: [16000, 32000, 48000, 64000, 80000, 96000, 112000, 128000, 144000],
-    breakthroughLevels: { 7: 70, 8: 80, 9: 90 },
+    levelValues: [16000, 32000, 48000, 64000, 80000, 96000, 112000, 128000, 144000, 160000],
+    breakthroughLevels: { 7: 70, 8: 80, 9: 90, 10: 100 },
   },
   {
     id: "valiant-breach",

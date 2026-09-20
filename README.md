@@ -2,7 +2,7 @@
 
 A community Trial Cage formation generator for **Lands of Jail**, built around actual player rosters, Trial Cage testing, hero War skills, stars, robots, march capacity and troop ratios.
 
-## Development Beta v1.86
+## Development Beta v1.97
 
 ### Visual theme
 - Tyronn-focused Trial Cage background based on the in-game Cage target
@@ -28,6 +28,10 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - Hero portraits/icons in generated formations
 - Season 7 hero support for Rin, Rex, Boogie and Fran & Pike with cropped in-game-style portraits
 - Per-march robot overrides with automatic no-reuse rebalancing
+- Formation hero pinning for MAIN and J1–J6
+- LEFT eligibility filters and configurable automatic robot priority
+- Bulk star editor plus JSON setup export/restore
+- Evidence completeness dashboard and two-setup formation comparison
 - LEFT comparison drawers and roster recovery actions
 - Season-grouped hero browsing, evidence details and import reports
 - Copy-ready individual and group formation output
@@ -121,24 +125,38 @@ A community Trial Cage formation generator for **Lands of Jail**, built around a
 - **v1.82** — Grouped the hero browser into current-season additions and earlier/legacy heroes so new unlocks are easier to scan.
 - **v1.83** — Tightened mobile Preflight, status, robot, comparison, evidence and formation layouts without hiding warning/evidence details.
 
-## Beta v1.84–v1.86 Power Armor configuration update
+## Beta v1.84–v1.87 Power Armor configuration update
 
 - **v1.84** — Power Armor was separated from the original Server 260 armor levels so each player could enter their own level/effect instead of inheriting one account's values.
 - **v1.85** — Replaced manual effect entry for verified levels with direct screenshot-backed level tables: Comprehensive Command Lv1–9 (+1,250 to +11,250 expedition capacity), Overload Charge Lv1–9 (+16,000 to +144,000 rally capacity), Orbital Strike Lv1–9 (+2.0% to +6.0% expedition-troop ATK), and Valiant Breach Lv1–10 (+2.0% to +10.0% troops lethality). All four screenshots confirm 2h duration and 20h cooldown.
 - **v1.86** — Corrected robot-specific skill caps: Infercore Comprehensive Command and Atlax Orbital Strike stop at Lv9 because those Power Armor tracks max at Lv90, so Lv10 is no longer offered for either skill.
+- **v1.87** — Added screenshot-verified Halo Overload Charge Lv10: +160,000 Rally Troop Capacity for 2h, unlocking after Power Armor breakthrough Lv100.
+
+## Beta v1.88–v1.97 development batch
+
+- **v1.88** — Exposed the formation slot-lock engine as a pinning UI for MAIN and J1–J6, with the existing class, reuse and LEFT-skill legality checks still enforced.
+- **v1.89** — Added LEFT eligibility filters for hiding filler skills and limiting Joiner LEFT candidates to Shield, Bomber or Shooter while keeping those heroes available as support.
+- **v1.90** — Added player-controlled robot priority ordering for automatic assignment, alongside the existing per-march robot overrides and no-reuse protection.
+- **v1.91** — Added a bulk star editor for all currently selected heroes.
+- **v1.92** — Added portable JSON setup export including roster, stars, robots, robot priority, season, Joiner count, felons, filters and Power Armor settings.
+- **v1.93** — Added one-step JSON setup restore while keeping the plain-text hero importer available.
+- **v1.94** — Added an evidence-completeness dashboard showing verified LEFT data, partial LEFT data, intentionally deferred evidence and heroes without LEFT priority data by season.
+- **v1.95** — Added a two-slot formation comparison workspace for saving and comparing formation choices without presenting either setup as a guaranteed damage winner.
+- **v1.96** — Added keyboard/accessibility improvements including a skip link, visible focus states, ARIA pressed states and clearer control labels.
+- **v1.97** — Completed the production regression pass for this batch; deployment/build status is the release gate and only confirmed errors are patched afterward.
 
 ## What is next — next 10 changes
 
-1. **Formation pinning UI** — expose the existing slot-lock engine so a player can pin one or more heroes to MAIN/J1–J6 and regenerate the remaining legal slots.
-2. **LEFT priority filters** — let players hide filler LEFT skills, show only verified skills, or focus on a single hero class while comparing options.
-3. **Robot priority ordering** — allow drag/order-style preference for automatic robot assignment without requiring per-march overrides.
-4. **Bulk star editor** — add a compact table for updating many selected heroes’ star levels faster than opening each hero card.
-5. **Roster export** — export the selected hero roster, stars, robots and season settings to a portable text or JSON backup.
-6. **Roster backup import** — restore a generator backup in one step while keeping the current plain-text hero importer.
-7. **Evidence completeness dashboard** — show which entered seasons/heroes have verified LEFT progressions, partial evidence or intentionally deferred data.
-8. **Formation comparison workspace** — compare two generated Cage setups side by side without treating either as a guaranteed damage result.
-9. **Keyboard/accessibility pass** — improve focus states, labels, keyboard navigation and screen-reader descriptions across setup/results.
-10. **Production regression pass** — run another deployment/build smoke check after the next batch and remove only confirmed stale code or release blockers.
+1. **Hero search box** — quickly filter the visible hero roster by name without changing ownership selections.
+2. **Hero sort controls** — sort the roster by class, season, rarity, star level or LEFT evidence state.
+3. **Pin presets** — save and reapply a few favorite MAIN/J1–J6 pin layouts without hardcoding account-specific heroes.
+4. **Single-march copy** — copy one MAIN or Joiner formation without copying the entire Cage instruction block.
+5. **Comparison export** — export saved A/B formation comparisons as text or an image for alliance discussion.
+6. **Setup reset controls** — add targeted reset buttons for roster, pins, robots, buffs or the whole setup with confirmation.
+7. **Power Armor quick summary** — show selected Power Armor skill levels and verified effects in one compact line near generated results.
+8. **Backup validation report** — show exactly which backup fields were restored, skipped or corrected during JSON import.
+9. **Roster statistics panel** — show selected hero counts by class, rarity and season without treating counts as strength ratings.
+10. **Production regression pass** — run build/deployment checks after the next batch and fix only confirmed compile or runtime problems.
 
 ### Deferred until direct account evidence is available
 
