@@ -18,6 +18,7 @@ import Image from "next/image";
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
 
 import { downloadFormationImage } from "../lib/formation-image";
+import { normalizeSimpleSetup, normalizeStars, simpleSetupKey } from "../lib/simple-setup";
 
 type Mode = "leader" | "joiner";
 type ImportReport = { matched: string[]; unmatched: string[]; duplicates: string[] };
@@ -122,17 +123,13 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem("loj-trial-cage-simple-setup-v1");
+      const raw = window.localStorage.getItem(simpleSetupKey);
       if (raw) {
-        const saved = JSON.parse(raw) as Partial<SimpleSavedSetup>;
-        const validNames = new Set(heroes.filter(hero => hero.cageAllowed && showHeroInGenerator(hero)).map(hero => hero.name));
-        const nextSeason = Math.max(1, Math.min(7, Number(saved.season) || 1));
-        const nextOwned = Array.isArray(saved.owned) ? saved.owned.filter((name): name is string => typeof name === "string" && validNames.has(name)) : [];
-        const nextStars = saved.heroStarLevels && typeof saved.heroStarLevels === "object" ? saved.heroStarLevels : {};
-        setSeason(nextSeason);
-        setJoinCount(Math.max(1, Math.min(6, Number(saved.joinCount) || 6)));
-        setOwned(nextOwned);
-        setHeroStarLevels(nextStars);
+        const saved = normalizeSimpleSetup(JSON.parse(raw));
+        setSeason(saved.season);
+        setJoinCount(saved.joinCount);
+        setOwned(saved.owned);
+        setHeroStarLevels(saved.heroStarLevels);
       }
     } catch {
       // A bad local value should never block the generator.
@@ -144,7 +141,11 @@ export default function Home() {
   useEffect(() => {
     if (!restoredSimpleSetup) return;
     const saved: SimpleSavedSetup = { season, joinCount, owned, heroStarLevels };
-    window.localStorage.setItem("loj-trial-cage-simple-setup-v1", JSON.stringify(saved));
+    try {
+      window.localStorage.setItem(simpleSetupKey, JSON.stringify(saved));
+    } catch {
+      // Private browsing and full storage must not prevent generation.
+    }
   }, [restoredSimpleSetup, season, joinCount, owned, heroStarLevels]);
 
   const seasonHeroes = useMemo(
@@ -163,6 +164,10 @@ export default function Home() {
     () => seasonHeroes.filter((h) => owned.includes(h.name) && h.cageAllowed),
     [seasonHeroes, owned],
   );
+  const unavailableSelected = owned.filter(name => {
+    const hero = heroes.find(item => item.name === name);
+    return hero && hero.season > season;
+  });
   const selectedClassCounts = useMemo(() => ({
     Shield: available.filter(hero => hero.cls === "Shield").length,
     Bomber: available.filter(hero => hero.cls === "Bomber").length,
@@ -215,11 +220,16 @@ export default function Home() {
     available.forEach((hero) => {
       if (hero.leftSkill) {
         const stars = Math.min(5, Math.max(1, heroStarLevels[hero.name] ?? 1));
-        levels[hero.name] = maxWarSkillLevelForStars(stars);
+        levels[hero.name] = Math.min(maxWarSkillLevelForStars(stars), Math.max(1, warSkillLevels[hero.name] ?? 5));
       }
     });
     return levels;
-  }, [available, heroStarLevels]);
+  }, [available, heroStarLevels, warSkillLevels]);
+
+  const automaticLeader = useMemo(
+    () => generateLeaderFormation(available, availableRobots, heroStarLevels, kofLeaderLinks),
+    [available, availableRobots, heroStarLevels, kofLeaderLinks],
+  );
 
   const automaticJoiners = useMemo(
     () =>
@@ -230,6 +240,7 @@ export default function Home() {
         availableRobots,
         verifiedOnly,
         heroStarLevels,
+        automaticLeader,
       ),
     [
       generatorAvailable,
@@ -238,11 +249,8 @@ export default function Home() {
       availableRobots,
       verifiedOnly,
       heroStarLevels,
+      automaticLeader,
     ],
-  );
-  const automaticLeader = useMemo(
-    () => generateLeaderFormation(available, availableRobots, heroStarLevels, kofLeaderLinks),
-    [available, availableRobots, heroStarLevels, kofLeaderLinks],
   );
   const joinerRosterDiagnostics = useMemo(() => diagnoseJoinerRoster(generatorAvailable, joinCount, automaticLeader, verifiedOnly, automaticWarSkillLevels, heroStarLevels), [generatorAvailable, joinCount, automaticLeader, verifiedOnly, automaticWarSkillLevels, heroStarLevels]);
   let lockError = "";
@@ -252,7 +260,8 @@ export default function Home() {
     if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, automaticWarSkillLevels, availableRobots, false, null, "leader", heroStarLevels)[0] ?? null;
     const leaderRobot = leaderFormation?.robot;
     const joinerRobotPool = leaderRobot ? availableRobots.filter(robot => robot !== leaderRobot) : availableRobots;
-    if (Object.values(locks).some(Boolean) || Object.values(leaderLocks).some(Boolean)) joinerFormations = buildLockedFormations(generatorAvailable, joinCount, locks, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
+    if (Object.values(locks).some(Boolean)) joinerFormations = buildLockedFormations(generatorAvailable, joinCount, locks, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
+    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation);
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
     joinerFormations = [];
@@ -395,8 +404,12 @@ export default function Home() {
       ? `Imported ${imported.length} unique hero${imported.length === 1 ? "" : "es"} with star levels. Review the import report for unmatched or duplicate rows.`
       : "No matching heroes were found in that text file.");
   };
-  const setSkillLevel = (name: string, level: number) => {
-    setWarSkillLevels((current) => ({ ...current, [name]: level }));
+  const setSkillLevel = (name: string, level: number | null) => {
+    setWarSkillLevels((current) => {
+      const next = { ...current };
+      if (level === null) delete next[name]; else next[name] = level;
+      return next;
+    });
     setGenerated(false);
   };
   const setStarLevel = (name: string, level: number) => {
@@ -467,7 +480,7 @@ export default function Home() {
       setSeason(Math.max(1, Math.min(7, Number(parsed.season) || 1)));
       setJoinCount(Math.max(1, Math.min(6, Number(parsed.joinCount) || 6)));
       setOwned(nextOwned);
-      setHeroStarLevels(parsed.heroStarLevels && typeof parsed.heroStarLevels === "object" ? parsed.heroStarLevels : {});
+      setHeroStarLevels(normalizeStars(parsed.heroStarLevels));
       setOwnedRobots(nextRobots);
       setRobotPriority(nextRobotPriority);
       setOwnedFelons(Array.isArray(parsed.ownedFelons) ? parsed.ownedFelons.filter((name): name is string => typeof name === "string" && validFelonNames.has(name)) : []);
@@ -590,7 +603,7 @@ export default function Home() {
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="badge">DEV v2.08 BETA</div>
+        <div className="badge">DEV v2.09 BETA</div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
@@ -603,13 +616,14 @@ export default function Home() {
         </div>
         <div><label>SERVER SEASON</label><select value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6,7].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
         <div><label>JOINER MARCHES</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
+        {unavailableSelected.length > 0 && <p role="status" className="helper">Unavailable in Season {season}: {unavailableSelected.join(", ")}. Your selections return when you switch back.</p>}
       </section>
 
       <section className="panel setup-only hero-picker-panel">
         <div className="title">
           <div>
             <label>YOUR HEROES</label>
-            <h2>Select your heroes and set only their star levels</h2>
+            <h2 id="hero-picker-heading">Select your heroes and set only their star levels</h2>
           </div>
           <span className="selected-class-counts">{available.length} selected • {selectedClassCounts.Shield} Shield • {selectedClassCounts.Bomber} Bomber • {selectedClassCounts.Shooter} Shooter</span>
         </div>
@@ -693,6 +707,10 @@ export default function Home() {
                           </label>
                           <details className="hero-evidence-details">
                             <summary>Skill & evidence details</summary>
+                            {hero.leftSkill && <label>Actual LEFT War skill level (optional) <select aria-label={`${hero.name} actual LEFT skill level`} value={warSkillLevels[hero.name] ?? ""} onChange={e => setSkillLevel(hero.name, e.target.value ? Number(e.target.value) : null)}>
+                              <option value="">Assume unlocked maximum</option>
+                              {Array.from({length: maxWarSkillLevelForStars(heroStarLevels[hero.name] ?? 1)}, (_, index) => index + 1).map(level => <option key={level} value={level}>Lv{level}</option>)}
+                            </select></label>}
                             <p><b>LEFT skill:</b> {hero.leftSkill ?? "No Cage LEFT priority skill entered."}</p>
                             {hero.leftSkillValues && <p><b>Lv1-Lv5:</b> {hero.leftSkillValues.map((value, index) => `Lv${index + 1} ${value}%`).join(" • ")}</p>}
                             {hero.evidenceNote && <p><b>Evidence:</b> {hero.evidenceNote}</p>}
@@ -1114,6 +1132,7 @@ export default function Home() {
       </details>
 
       <button className="generate setup-only" onClick={generateNow}>GENERATE MY CAGE SETUP</button>
+      <p className="helper setup-only">LEFT skill levels assume the maximum unlocked by stars unless you set an actual level in Advanced.</p>
       <p className="core-troop-rule setup-only"><b>Main:</b> use your maximum troops. <b>Joiners:</b> 10,000 Bombers + 90,000 Shooters or 100,000 Shooters.</p>
 
       {!generated && <button className="mobile-generate setup-only" onClick={generateNow}>GENERATE MAIN + {joinCount} JOINER{joinCount === 1 ? "" : "S"}</button>}
@@ -1130,6 +1149,7 @@ export default function Home() {
         <div className="simple-shortage">
           <b>TO FINISH THIS SETUP</b>
           <span>{simpleShortageItems.length ? simpleShortageItems.join(" ") : `Need more compatible heroes to build all ${joinCount} Joiners.`}</span>
+          <a href="#hero-picker-heading">Review selected heroes</a>
         </div>
       )}
 
