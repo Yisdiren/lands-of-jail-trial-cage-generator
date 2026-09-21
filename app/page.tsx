@@ -21,6 +21,20 @@ import { downloadFormationImage } from "../lib/formation-image";
 import { normalizeSimpleSetup, normalizeStars, simpleSetupKey } from "../lib/simple-setup";
 
 
+const robotIconPaths: Record<string, string> = {
+  "Musashimaru": "/icons/robots/musashimaru.jpg",
+  "Phantom Cat": "/icons/robots/phantom-cat.jpg",
+  "Ranger": "/icons/robots/ranger.jpg",
+  "Infercore": "/icons/robots/infercore.jpg",
+  "Hercules α": "/icons/robots/hercules-alpha.jpg",
+  "Halo": "/icons/robots/halo.jpg",
+  "Light Cone": "/icons/robots/light-cone.jpg",
+  "Atlax": "/icons/robots/atlax.jpg",
+  "Yokozuna": "/icons/robots/yokozuna.jpg",
+  "Bastion": "/icons/bastion.jpg",
+  "Pluto": "/icons/robots/pluto.jpg",
+};
+
 type UiLanguage = "en" | "es" | "pt" | "de" | "fr" | "it" | "pl" | "tr" | "ru" | "nl" | "id" | "vi" | "ja" | "ko" | "zh";
 const languageOptions: { code: UiLanguage; label: string }[] = [
   { code:"en", label:"English" }, { code:"es", label:"Español" }, { code:"pt", label:"Português" },
@@ -666,7 +680,7 @@ export default function Home() {
           </h1>
           <p>{t.subtitle}</p>
         </div>
-        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.23 BETA</div></div>
+        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.24 BETA</div></div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
@@ -870,7 +884,7 @@ export default function Home() {
                 aria-label={`${ownedRobots.includes(robot) ? "Remove" : "Add"} ${robot} robot`}
                 onClick={() => toggleRobot(robot)}
               >
-                {robot === "Bastion" ? <Image className="hero-icon" src="/icons/bastion.jpg" alt="" width={48} height={48} /> : <i>R{index + 1}</i>}
+                {robotIconPaths[robot] ? <Image className="hero-icon" src={robotIconPaths[robot]} alt="" width={48} height={48} /> : <i>R{index + 1}</i>}
                 <strong>{robot}</strong>
                 {index < 2 && <small>Auto priority {index + 1}</small>}
               </button>

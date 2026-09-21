@@ -200,15 +200,14 @@ test("untested future-season data stays evidence-first", () => {
 });
 
 
-test("Bastion Shockwave Crush evidence is exact and complete", () => {
+test("Bastion Shockwave Crush is not offered as a Cage buff", () => {
   assert.ok(robots.includes("Bastion"));
-  const b = cageBuffs.find(buff => buff.id === "shockwave-crush"); assert.ok(b);
-  assert.deepEqual(b.levelValues, [2,2.5,3,4,5,6,7,8,9,10]);
-  assert.equal(b.durationHours,2); assert.equal(b.cooldownHours,20); assert.equal(b.armorRobot,"Bastion");
-  assert.equal(prisonerArmorSetting(b,{"shockwave-crush":{level:2,value:0}}).value,2.5);
-  assert.equal(buffEffectLabel(b,{"shockwave-crush":{level:10,value:0}}),"Enemy ATK Reduction -10%");
-  assert.equal(powerArmorBreakthroughLabel(b,3),"Unlocks after Power Armor breakthrough Lv.30");
-  assert.equal(powerArmorBreakthroughLabel(b,10),"Unlocks after Power Armor breakthrough Lv.100");
+  assert.equal(cageBuffs.some(buff => buff.id === "shockwave-crush"), false);
+});
+
+test("Pluto is available without inventing a Cage buff", () => {
+  assert.ok(robots.includes("Pluto"));
+  assert.equal(cageBuffs.some(buff => buff.armorRobot === "Pluto"), false);
 });
 
 test("Season 6 full visible roster builds Main plus six legal Joiners", () => {

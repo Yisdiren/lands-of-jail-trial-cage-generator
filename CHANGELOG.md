@@ -14,6 +14,13 @@
 
 # Changelog
 
+## v2.24.0
+- Replaced robot R-number placeholders with mechanically cropped in-game robot icons supplied from Server 260 screenshots; no generated artwork is used.
+- Added Pluto to the owned-robot roster with its real icon, without inventing a Cage buff recommendation.
+- Removed Bastion Shockwave Crush from Trial Cage pre-buff choices because enemy ATK reduction does not improve Cage damage when the Cage target does not attack back.
+- Retained Bastion as an available robot; this change only removes the misleading Cage-buff presentation.
+
+
 ## v2.23.0
 - Added Dutch, Indonesian, and Vietnamese to the language selector, bringing the interface to 15 languages.
 - Fixed remaining hard-coded English text in the primary setup header, helper, Clear, and Start Over controls.

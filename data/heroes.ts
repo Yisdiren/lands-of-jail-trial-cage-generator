@@ -558,6 +558,7 @@ export const robots = [
   "Atlax",
   "Yokozuna",
   "Bastion",
+  "Pluto",
 ];
 export type Felon = { name: string; effect: string };
 export const felons: Felon[] = [
