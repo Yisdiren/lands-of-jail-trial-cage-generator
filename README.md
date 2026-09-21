@@ -8,11 +8,11 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.23**
+**Beta v2.26**
 
 ### Beta v2.20 — multilingual public interface
 
-The header now includes a compact language selector for English, Spanish, Portuguese, German, French, Italian, Polish, Turkish, Russian, Japanese, Korean, and Simplified Chinese. The browser language is used on first visit when supported, the visitor's choice is remembered locally, and English remains the fallback. Core public setup/results labels are translated; hero, skill, robot, and other in-game proper names remain unchanged unless official localized names are verified.
+The header now includes a compact language selector for English, Spanish, Portuguese, German, French, Italian, Polish, Turkish, Russian, Dutch, Indonesian, Vietnamese, Japanese, Korean, and Simplified Chinese. The browser language is used on first visit when supported, the visitor's choice is remembered locally, and English remains the fallback. Core public setup/results labels are translated; hero, skill, robot, and other in-game proper names remain unchanged unless official localized names are verified.
 
 The public workflow is intentionally simple:
 
@@ -62,7 +62,7 @@ None of those are required to generate normal Main + Joiner formations.
 - All four S6 heroes now have direct screenshot-backed first/LEFT War-skill evidence recorded
 - **Otto — Natural Hymn:** Tactical DMG Taken Reduction 12/24/36/48/60% and Basic Attack DMG Taken Reduction 8/16/24/32/40%
 - **Wukong — Calamity Inferno:** Lv1–Lv5 progression 30/60/90/120/150%
-- The new Season 6 robot is intentionally not added until direct screenshots verify its identity and effects
+- **Bastion** is the verified Season 6 robot. Its Shockwave Crush data is retained as evidence but intentionally excluded from Cage pre-buff choices because enemy ATK reduction does not improve Cage damage when the target does not attack back
 
 See [Season 6 evidence intake](docs/season-6-evidence.md).
 
@@ -77,7 +77,7 @@ Verified Cage-relevant Power Armor data currently includes:
 
 Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
 
-Unknown values are left unverified instead of being extrapolated.
+Utility/non-Cage Pilot skills are kept out of Cage buff recommendations. The robot selector now includes real screenshot-derived icons for the verified roster, including Bastion and Pluto. Unknown values are left unverified instead of being extrapolated.
 
 ## Beta v2.19 — simple results and reliability pass
 

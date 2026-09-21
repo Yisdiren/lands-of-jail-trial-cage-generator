@@ -218,3 +218,16 @@ test("Season 6 full visible roster builds Main plus six legal Joiners", () => {
   const all=[leader,...joiners], names=all.flatMap(x=>[x.left.name,x.middle.name,x.right.name]);
   assert.equal(new Set(names).size,names.length); for(const x of all) assert.equal(new Set([x.left.cls,x.middle.cls,x.right.cls]).size,3);
 });
+
+test("robot roster is unique and includes the screenshot-verified roster", () => {
+  const expected = ["Musashimaru","Phantom Cat","Ranger","Infercore","Hercules α","Halo","Light Cone","Atlax","Yokozuna","Bastion","Pluto"];
+  assert.equal(new Set(robots).size, robots.length, "robot names must be unique");
+  for (const name of expected) assert.ok(robots.includes(name), `${name} must remain in the robot roster`);
+});
+
+test("Cage Power Armor list excludes verified non-Cage utility skills", () => {
+  const ids = new Set(cageBuffs.map(buff => buff.id));
+  for (const id of ["shockwave-crush","multidimensional","emergency-shelter"]) {
+    assert.equal(ids.has(id), false, `${id} must not appear as a Cage pre-buff`);
+  }
+});

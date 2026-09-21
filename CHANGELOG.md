@@ -14,6 +14,13 @@
 
 # Changelog
 
+## v2.26.0
+- Refreshed public documentation to match the live 15-language interface, Bastion, Pluto, and the real robot icon roster.
+- Added regression coverage for the complete screenshot-verified robot roster and duplicate robot names.
+- Added a guard keeping verified non-Cage utility skills out of Trial Cage pre-buff choices.
+- No new controls were added to the simple public workflow.
+
+
 ## v2.25.0
 - Rebuilt the robot selector cards around the new real robot icons.
 - Moved priority arrows into a full-width row inside each robot card so controls no longer collide with neighboring cards.
