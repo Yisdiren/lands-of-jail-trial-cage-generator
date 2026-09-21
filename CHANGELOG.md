@@ -14,6 +14,14 @@
 
 # Changelog
 
+## v2.28.0
+- Hardened saved setup and JSON backup restoration against unknown, duplicate, malformed, and out-of-range data.
+- Extracted reusable robot-priority normalization from the page component and added regression coverage.
+- Added meaningful hero/robot image alt text and stronger keyboard focus visibility.
+- Added extra narrow-phone wrapping and 44px action-target safeguards without adding any new public controls.
+- Updated the visible development badge to match the package release.
+
+
 ## v2.27.0
 - Localized the Start Over confirmation and cleared-state notice for English, Spanish, German, Dutch, Indonesian, and Vietnamese, with safe English fallback for the other supported languages.
 - Added a regression guard preserving the established robot priority order while keeping newly added Pluto unranked at the end.

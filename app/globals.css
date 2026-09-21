@@ -1217,3 +1217,16 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
   .robots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .robot-priority-card .robot .hero-icon { width: 58px; height: 58px; }
 }
+
+/* v2.28 accessibility + small-screen hardening */
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 3px;
+}
+@media (max-width: 420px) {
+  .header-actions, .quick-actions, .results-actions { flex-wrap: wrap; }
+  .quick-actions > button, .results-actions > button { min-height: 44px; }
+  .language-picker select { max-width: 11rem; }
+  .robot-priority-card { min-width: 0; }
+  .robot-priority-card strong, .robot-priority-card small { overflow-wrap: anywhere; }
+}

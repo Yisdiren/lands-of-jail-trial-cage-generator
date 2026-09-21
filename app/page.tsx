@@ -18,7 +18,7 @@ import Image from "next/image";
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
 
 import { downloadFormationImage } from "../lib/formation-image";
-import { normalizeSimpleSetup, normalizeStars, simpleSetupKey } from "../lib/simple-setup";
+import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, simpleSetupKey } from "../lib/simple-setup";
 
 
 const robotIconPaths: Record<string, string> = {
@@ -569,7 +569,7 @@ export default function Home() {
       setHideFillerLeft(Boolean(parsed.hideFillerLeft));
       setLeftClassFilter(parsed.leftClassFilter === "Shield" || parsed.leftClassFilter === "Bomber" || parsed.leftClassFilter === "Shooter" ? parsed.leftClassFilter : "all");
       setSelectedBuffIds(Array.isArray(parsed.selectedBuffIds) ? parsed.selectedBuffIds.filter((id): id is string => typeof id === "string" && cageBuffs.some(buff => buff.id === id)) : []);
-      setArmorSettings(parsed.armorSettings && typeof parsed.armorSettings === "object" ? parsed.armorSettings : {});
+      setArmorSettings(parsed.armorSettings && typeof parsed.armorSettings === "object" && !Array.isArray(parsed.armorSettings) ? parsed.armorSettings : {});
       setActivationLeadMinutes(Math.max(0, Math.min(120, Number(parsed.activationLeadMinutes) || 5)));
       setLocks({});
       setLeaderLocks({});
@@ -680,7 +680,7 @@ export default function Home() {
           </h1>
           <p>{t.subtitle}</p>
         </div>
-        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.25 BETA</div></div>
+        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.28 BETA</div></div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
@@ -754,7 +754,7 @@ export default function Home() {
                         title={hero.notes || ""}
                       >
                         {heroIconNames.has(hero.name) ? (
-                          <Image className="hero-icon" src={heroIconPath(hero.name)} alt="" width={48} height={60} />
+                          <Image className="hero-icon" src={heroIconPath(hero.name)} alt={`${hero.name} portrait`} width={48} height={60} />
                         ) : (
                           <i>{hero.cls[0]}</i>
                         )}
@@ -884,7 +884,7 @@ export default function Home() {
                 aria-label={`${ownedRobots.includes(robot) ? "Remove" : "Add"} ${robot} robot`}
                 onClick={() => toggleRobot(robot)}
               >
-                {robotIconPaths[robot] ? <Image className="hero-icon" src={robotIconPaths[robot]} alt="" width={48} height={48} /> : <i>R{index + 1}</i>}
+                {robotIconPaths[robot] ? <Image className="hero-icon" src={robotIconPaths[robot]} alt={`${robot} robot`} width={48} height={48} /> : <i>R{index + 1}</i>}
                 <strong>{robot}</strong>
                 {index < 2 && <small>Auto priority {index + 1}</small>}
               </button>
@@ -1276,8 +1276,7 @@ export default function Home() {
                 <span>LEFT • {leaderFormation.left.cls}</span>
                 {heroIconNames.has(leaderFormation.left.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(leaderFormation.left.name)}
-                        alt="" width={42} height={52} />
+                        src={heroIconPath(leaderFormation.left.name)}\n                        alt={`${leaderFormation.left.name} portrait`} width={42} height={52} />
                     )}
                     <b>{leaderFormation.left.name}</b><small>{heroStarLevels[leaderFormation.left.name] ? "★".repeat(heroStarLevels[leaderFormation.left.name]) : "Stars not set"}</small>
               </div>
@@ -1285,8 +1284,7 @@ export default function Home() {
                 <span>MIDDLE • {leaderFormation.middle.cls}</span>
                 {heroIconNames.has(leaderFormation.middle.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(leaderFormation.middle.name)}
-                        alt="" width={42} height={52} />
+                        src={heroIconPath(leaderFormation.middle.name)}\n                        alt={`${leaderFormation.middle.name} portrait`} width={42} height={52} />
                     )}
                     <b>{leaderFormation.middle.name}</b><small>{heroStarLevels[leaderFormation.middle.name] ? "★".repeat(heroStarLevels[leaderFormation.middle.name]) : "Stars not set"}</small>
               </div>
@@ -1294,8 +1292,7 @@ export default function Home() {
                 <span>RIGHT • {leaderFormation.right.cls}</span>
                 {heroIconNames.has(leaderFormation.right.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(leaderFormation.right.name)}
-                        alt="" width={42} height={52} />
+                        src={heroIconPath(leaderFormation.right.name)}\n                        alt={`${leaderFormation.right.name} portrait`} width={42} height={52} />
                     )}
                     <b>{leaderFormation.right.name}</b><small>{heroStarLevels[leaderFormation.right.name] ? "★".repeat(heroStarLevels[leaderFormation.right.name]) : "Stars not set"}</small>
               </div>
@@ -1410,8 +1407,7 @@ export default function Home() {
                     <span>LEFT • Lv{f.leftSkillLevel}</span>
                     {heroIconNames.has(f.left.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(f.left.name)}
-                        alt="" width={42} height={52} />
+                        src={heroIconPath(f.left.name)}\n                        alt={`${f.left.name} portrait`} width={42} height={52} />
                     )}
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
@@ -1421,8 +1417,7 @@ export default function Home() {
                     <span>MIDDLE • {f.middle.cls}</span>
                     {heroIconNames.has(f.middle.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(f.middle.name)}
-                        alt="" width={42} height={52} />
+                        src={heroIconPath(f.middle.name)}\n                        alt={`${f.middle.name} portrait`} width={42} height={52} />
                     )}
                     <b>{f.middle.name}</b>{supportShieldNames.has(f.middle.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.middle.name] ? "★".repeat(heroStarLevels[f.middle.name]) : "Stars not set"}</small>
                   </div>
@@ -1430,8 +1425,7 @@ export default function Home() {
                     <span>RIGHT • {f.right.cls}</span>
                     {heroIconNames.has(f.right.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(f.right.name)}
-                        alt="" width={42} height={52} />
+                        src={heroIconPath(f.right.name)}\n                        alt={`${f.right.name} portrait`} width={42} height={52} />
                     )}
                     <b>{f.right.name}</b>{supportShieldNames.has(f.right.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
                   </div>

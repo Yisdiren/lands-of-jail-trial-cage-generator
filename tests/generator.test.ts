@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { heroes, robots } from "../data/heroes";
 import { generateJoinerFormations, generateLeaderFormation } from "../lib/generator";
 import { buildLockedFormations } from "../lib/formation-locks";
-import { normalizeSimpleSetup, normalizeStars } from "../lib/simple-setup";
+import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars } from "../lib/simple-setup";
 import { cageBuffs, buffEffectLabel, prisonerArmorSetting, powerArmorBreakthroughLabel } from "../lib/cage-buffs";
 
 test("one displayed Main reserves its heroes and robot from six Joiners", () => {
@@ -236,4 +236,20 @@ test("robot order keeps the established Cage priority ahead of unranked Pluto", 
   const established = ["Musashimaru","Phantom Cat","Ranger","Infercore","Hercules α","Halo","Light Cone","Atlax","Yokozuna","Bastion"];
   assert.deepEqual(robots.slice(0, established.length), established);
   assert.equal(robots.at(-1), "Pluto");
+});
+
+test("saved setup normalization rejects impossible values and unknown heroes", () => {
+  const saved = normalizeSimpleSetup({ season: 99, joinCount: -4, owned: ["Tyronn","Tyronn","Definitely Not A Hero"], heroStarLevels: { Tyronn: 3, Ada: 9, Unknown: 5 } });
+  assert.equal(saved.season, 7);
+  assert.equal(saved.joinCount, 1);
+  assert.deepEqual(saved.owned, ["Tyronn"]);
+  assert.deepEqual(saved.heroStarLevels, { Tyronn: 3 });
+});
+
+test("robot backup priority is de-duplicated, sanitized and completed", () => {
+  const normalized = normalizeRobotPriority(["Pluto","Pluto","Not A Robot","Musashimaru"], robots);
+  assert.equal(normalized[0], "Pluto");
+  assert.equal(normalized[1], "Musashimaru");
+  assert.equal(new Set(normalized).size, robots.length);
+  assert.deepEqual(new Set(normalized), new Set(robots));
 });
