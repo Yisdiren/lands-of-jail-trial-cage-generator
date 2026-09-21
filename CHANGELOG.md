@@ -14,6 +14,12 @@
 
 # Changelog
 
+## v2.27.0
+- Localized the Start Over confirmation and cleared-state notice for English, Spanish, German, Dutch, Indonesian, and Vietnamese, with safe English fallback for the other supported languages.
+- Added a regression guard preserving the established robot priority order while keeping newly added Pluto unranked at the end.
+- Continued cleanup without adding controls or changing formation-generation behavior.
+
+
 ## v2.26.0
 - Refreshed public documentation to match the live 15-language interface, Bastion, Pluto, and the real robot icon roster.
 - Added regression coverage for the complete screenshot-verified robot roster and duplicate robot names.

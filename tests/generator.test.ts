@@ -231,3 +231,9 @@ test("Cage Power Armor list excludes verified non-Cage utility skills", () => {
     assert.equal(ids.has(id), false, `${id} must not appear as a Cage pre-buff`);
   }
 });
+
+test("robot order keeps the established Cage priority ahead of unranked Pluto", () => {
+  const established = ["Musashimaru","Phantom Cat","Ranger","Infercore","Hercules α","Halo","Light Cone","Atlax","Yokozuna","Bastion"];
+  assert.deepEqual(robots.slice(0, established.length), established);
+  assert.equal(robots.at(-1), "Pluto");
+});
