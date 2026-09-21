@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.22**
+**Beta v2.23**
 
 ### Beta v2.20 — multilingual public interface
 

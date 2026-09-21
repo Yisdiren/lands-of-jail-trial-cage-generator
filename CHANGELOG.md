@@ -12,7 +12,14 @@
 - Recorded Server 260 entering Season 6 and kept remaining S6 data evidence-first.
 - Updated Worrell, Kate and Wukong to the new unlocked screenshots and retained the simplified default workflow.
 
-# Changelog — Lands of Jail Trial Cage Formation Generator
+# Changelog
+
+## v2.23.0
+- Added Dutch, Indonesian, and Vietnamese to the language selector, bringing the interface to 15 languages.
+- Fixed remaining hard-coded English text in the primary setup header, helper, Clear, and Start Over controls.
+- Fixed the English Advanced summary placeholder.
+- Kept game proper names unchanged unless an official localized name is verified.
+ — Lands of Jail Trial Cage Formation Generator
 
 This file contains the detailed development history that was previously stored in the main README.
 
