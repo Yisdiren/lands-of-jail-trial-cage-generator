@@ -8,7 +8,14 @@ export const normalizeStars = (value: unknown): Record<string, number> => {
     known.has(name) && typeof stars === "number" && Number.isInteger(stars) && stars >= 1 && stars <= 5));
 };
 
-export const normalizeRobotPriority = (value: unknown, robotNames: readonly string[]): string[] => {\n  const known = new Set(robotNames);\n  const requested = Array.isArray(value) ? value.filter((name): name is string => typeof name === "string" && known.has(name)) : [];\n  const unique = [...new Set(requested)];\n  return [...unique, ...robotNames.filter(name => !unique.includes(name))];\n};\n\nexport const normalizeSimpleSetup = (value: unknown) => {
+export const normalizeRobotPriority = (value: unknown, robotNames: readonly string[]): string[] => {
+  const known = new Set(robotNames);
+  const requested = Array.isArray(value) ? value.filter((name): name is string => typeof name === "string" && known.has(name)) : [];
+  const unique = [...new Set(requested)];
+  return [...unique, ...robotNames.filter(name => !unique.includes(name))];
+};
+
+export const normalizeSimpleSetup = (value: unknown) => {
   const saved = value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
   const valid = new Set(heroes.filter(hero => hero.cageAllowed && hero.rarity !== "R" &&
     (hero.rarity !== "SR" || ["Lofili", "Lunarl", "Flameborne", "Samir", "Gerd", "Iwado", "Vesaryon"].includes(hero.name))).map(hero => hero.name));
