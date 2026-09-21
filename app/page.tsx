@@ -29,7 +29,7 @@ const languageOptions: { code: UiLanguage; label: string }[] = [
   { code:"ja", label:"日本語" }, { code:"ko", label:"한국어" }, { code:"zh", label:"简体中文" },
 ];
 const uiText: Record<UiLanguage, Record<string,string>> = {
- en:{tools:"TRIAL CAGE TOOLS",created:"Created by Stiletto of Server 260",title:"Trial Cage Formation Generator",subtitle:"{t.subtitle}",quick:"QUICK SETUP",quickTitle:"Main Rally + up to 6 Joiners",helper:"{t.helper}",season:"SERVER SEASON",joiners:"JOINER MARCHES",heroes:"YOUR HEROES",heroTitle:"Select your heroes and set only their star levels",selectAll:"Select all usable",clear:"Clear",advanced:"Advanced / Optional Setup",generate:"GENERATE MY CAGE SETUP",main:"YOUR MAIN RALLY",troops:"Main: use your maximum troops. Joiners: 10,000 Bombers + 90,000 Shooters or 100,000 Shooters."},
+ en:{tools:"TRIAL CAGE TOOLS",created:"Created by Stiletto of Server 260",title:"Trial Cage Formation Generator",subtitle:"{t.subtitle}",quick:"QUICK SETUP",quickTitle:"Main Rally + up to 6 Joiners",helper:"Choose your season, Joiner count, heroes and stars, then generate. Everything else is optional.",season:"SERVER SEASON",joiners:"JOINER MARCHES",heroes:"YOUR HEROES",heroTitle:"Select your heroes and set only their star levels",selectAll:"Select all usable",clear:"Clear",advanced:"Advanced / Optional Setup",generate:"GENERATE MY CAGE SETUP",main:"YOUR MAIN RALLY",troops:"Main: use your maximum troops. Joiners: 10,000 Bombers + 90,000 Shooters or 100,000 Shooters."},
  es:{tools:"HERRAMIENTAS DE TRIAL CAGE",created:"Creado por Stiletto del Servidor 260",title:"Generador de formaciones Trial Cage",subtitle:"Crea una Rally principal y hasta 6 rallies de apoyo con tus héroes",quick:"CONFIGURACIÓN RÁPIDA",quickTitle:"Rally principal + hasta 6 apoyos",helper:"Elige tu temporada, número de rallies de apoyo, héroes y estrellas; luego genera. Todo lo demás es opcional.",season:"TEMPORADA",joiners:"RALLIES DE APOYO",heroes:"TUS HÉROES",heroTitle:"Selecciona tus héroes y sus estrellas",selectAll:"Seleccionar utilizables",clear:"Limpiar",advanced:"Avanzado / Opcional",generate:"GENERAR MI CONFIGURACIÓN",main:"TU RALLY PRINCIPAL",troops:"Principal: usa el máximo de tropas. Apoyos: 10.000 Bombarderos + 90.000 Tiradores o 100.000 Tiradores."},
  pt:{tools:"FERRAMENTAS TRIAL CAGE",created:"Criado por Stiletto do Servidor 260",title:"Gerador de formações Trial Cage",subtitle:"Monte um Rally principal e até 6 rallies de apoio com seus heróis",quick:"CONFIGURAÇÃO RÁPIDA",quickTitle:"Rally principal + até 6 apoios",helper:"Escolha a temporada, quantidade de rallies, heróis e estrelas; depois gere. O restante é opcional.",season:"TEMPORADA",joiners:"RALLIES DE APOIO",heroes:"SEUS HERÓIS",heroTitle:"Selecione seus heróis e defina as estrelas",selectAll:"Selecionar utilizáveis",clear:"Limpar",advanced:"Avançado / Opcional",generate:"GERAR MINHA CONFIGURAÇÃO",main:"SEU RALLY PRINCIPAL",troops:"Principal: use o máximo de tropas. Apoios: 10.000 Bombardeiros + 90.000 Atiradores ou 100.000 Atiradores."},
  de:{tools:"TRIAL-CAGE-WERKZEUGE",created:"Erstellt von Stiletto, Server 260",title:"Trial-Cage-Formationsgenerator",subtitle:"Erstelle eine Hauptrallye und bis zu 6 Beitrittsrallyes mit deinen Helden",quick:"SCHNELLEINRICHTUNG",quickTitle:"Hauptrallye + bis zu 6 Beitritte",helper:"Wähle Saison, Anzahl der Beitrittsrallyes, Helden und Sterne und erstelle dann dein Setup.",season:"SERVER-SAISON",joiners:"BEITRITTSRALLYES",heroes:"DEINE HELDEN",heroTitle:"Wähle deine Helden und ihre Sterne",selectAll:"Alle nutzbaren wählen",clear:"Leeren",advanced:"Erweitert / Optional",generate:"CAGE-SETUP ERSTELLEN",main:"DEINE HAUPTRALLYE",troops:"Hauptrallye: maximale Truppen. Beitritte: 10.000 Bomber + 90.000 Schützen oder 100.000 Schützen."},
@@ -41,6 +41,21 @@ const uiText: Record<UiLanguage, Record<string,string>> = {
  ja:{tools:"TRIAL CAGE ツール",created:"Server 260 の Stiletto が作成",title:"Trial Cage 編成ジェネレーター",subtitle:"所持ヒーローからメインラリーと最大6つの参加ラリーを作成",quick:"クイック設定",quickTitle:"メインラリー + 最大6参加",helper:"シーズン、参加数、ヒーロー、星を選んで生成してください。その他は任意です。",season:"サーバーシーズン",joiners:"参加ラリー",heroes:"所持ヒーロー",heroTitle:"ヒーローを選び星を設定",selectAll:"使用可能を全選択",clear:"クリア",advanced:"詳細 / オプション設定",generate:"CAGE編成を生成",main:"メインラリー",troops:"メイン：最大兵力を使用。参加：Bombers 10,000 + Shooters 90,000、または Shooters 100,000。"},
  ko:{tools:"TRIAL CAGE 도구",created:"Server 260 Stiletto 제작",title:"Trial Cage 편성 생성기",subtitle:"보유 영웅으로 메인 랠리와 최대 6개의 참가 랠리를 구성하세요",quick:"빠른 설정",quickTitle:"메인 랠리 + 최대 6 참가",helper:"시즌, 참가 랠리 수, 영웅과 별을 선택한 뒤 생성하세요. 나머지는 선택 사항입니다.",season:"서버 시즌",joiners:"참가 랠리",heroes:"보유 영웅",heroTitle:"영웅을 선택하고 별을 설정하세요",selectAll:"사용 가능 모두 선택",clear:"지우기",advanced:"고급 / 선택 설정",generate:"CAGE 편성 생성",main:"메인 랠리",troops:"메인: 최대 병력을 사용. 참가: Bombers 10,000 + Shooters 90,000 또는 Shooters 100,000."},
  zh:{tools:"TRIAL CAGE 工具",created:"由 Server 260 的 Stiletto 创建",title:"Trial Cage 阵容生成器",subtitle:"使用你的英雄创建主集结和最多6个加入集结",quick:"快速设置",quickTitle:"主集结 + 最多6个加入集结",helper:"选择赛季、加入集结数量、英雄和星级，然后生成。其他设置均为可选。",season:"服务器赛季",joiners:"加入集结",heroes:"你的英雄",heroTitle:"选择英雄并设置星级",selectAll:"选择所有可用英雄",clear:"清除",advanced:"高级 / 可选设置",generate:"生成 CAGE 阵容",main:"你的主集结",troops:"主集结：使用最大兵力。加入集结：10,000 Bombers + 90,000 Shooters，或 100,000 Shooters。"}
+};
+
+const extraUiText: Record<UiLanguage, Record<string,string>> = {
+ en:{advSummary:"{tx.advSummary}",preCage:"PRE-CAGE SETUP",buffTitle:"2-hour buffs & Power Armor",prison:"Prison Buffs",power:"Power Armor",robots:"Robots",felons:"Felons",bulk:"Bulk edit selected hero stars",export:"Export setup (.json)",restore:"Restore setup (.json)",comparison:"Formation comparison",preflight:"Preflight",skill:"Skill details",results:"Results Only",print:"Print",copy:"Copy",start:"Start Over"},
+ es:{advSummary:"Robots, Felons, Power Armor, mejoras, filtros, fijaciones, evidencia y copias",preCage:"PREPARACIÓN PRE-CAGE",buffTitle:"Mejoras de 2 horas y Power Armor",prison:"Mejoras de prisión",power:"Power Armor",robots:"Robots",felons:"Felons",bulk:"Editar estrellas de héroes seleccionados",export:"Exportar configuración (.json)",restore:"Restaurar configuración (.json)",comparison:"Comparar formaciones",preflight:"Comprobación previa",skill:"Detalles de habilidad",results:"Solo resultados",print:"Imprimir",copy:"Copiar",start:"Empezar de nuevo"},
+ pt:{advSummary:"Robôs, Felons, Power Armor, buffs, filtros, fixações, evidências e backup",preCage:"PREPARAÇÃO PRÉ-CAGE",buffTitle:"Buffs de 2 horas e Power Armor",prison:"Buffs da prisão",power:"Power Armor",robots:"Robôs",felons:"Felons",bulk:"Editar estrelas dos heróis selecionados",export:"Exportar configuração (.json)",restore:"Restaurar configuração (.json)",comparison:"Comparar formações",preflight:"Verificação prévia",skill:"Detalhes da habilidade",results:"Somente resultados",print:"Imprimir",copy:"Copiar",start:"Recomeçar"},
+ de:{advSummary:"Roboter, Felons, Power Armor, Buffs, Filter, Pins, Nachweise und Backups",preCage:"VORBEREITUNG VOR DEM CAGE",buffTitle:"2-Stunden-Buffs & Power Armor",prison:"Gefängnis-Buffs",power:"Power Armor",robots:"Roboter",felons:"Felons",bulk:"Sterne ausgewählter Helden bearbeiten",export:"Setup exportieren (.json)",restore:"Setup wiederherstellen (.json)",comparison:"Formationen vergleichen",preflight:"Vorprüfung",skill:"Skill-Details",results:"Nur Ergebnisse",print:"Drucken",copy:"Kopieren",start:"Neu starten"},
+ fr:{advSummary:"Robots, Felons, Power Armor, bonus, filtres, épingles, preuves et sauvegardes",preCage:"PRÉPARATION AVANT CAGE",buffTitle:"Bonus de 2 h et Power Armor",prison:"Bonus de prison",power:"Power Armor",robots:"Robots",felons:"Felons",bulk:"Modifier les étoiles des héros sélectionnés",export:"Exporter (.json)",restore:"Restaurer (.json)",comparison:"Comparer les formations",preflight:"Vérification",skill:"Détails de compétence",results:"Résultats uniquement",print:"Imprimer",copy:"Copier",start:"Recommencer"},
+ it:{advSummary:"Robot, Felons, Power Armor, buff, filtri, blocchi, prove e backup",preCage:"PREPARAZIONE PRE-CAGE",buffTitle:"Buff di 2 ore e Power Armor",prison:"Buff prigione",power:"Power Armor",robots:"Robot",felons:"Felons",bulk:"Modifica stelle degli eroi selezionati",export:"Esporta configurazione (.json)",restore:"Ripristina configurazione (.json)",comparison:"Confronta formazioni",preflight:"Controllo preliminare",skill:"Dettagli abilità",results:"Solo risultati",print:"Stampa",copy:"Copia",start:"Ricomincia"},
+ pl:{advSummary:"Roboty, Felons, Power Armor, wzmocnienia, filtry, przypięcia, dowody i kopie",preCage:"PRZYGOTOWANIE PRZED CAGE",buffTitle:"2-godzinne wzmocnienia i Power Armor",prison:"Wzmocnienia więzienia",power:"Power Armor",robots:"Roboty",felons:"Felons",bulk:"Edytuj gwiazdki wybranych bohaterów",export:"Eksportuj ustawienia (.json)",restore:"Przywróć ustawienia (.json)",comparison:"Porównanie formacji",preflight:"Kontrola wstępna",skill:"Szczegóły umiejętności",results:"Tylko wyniki",print:"Drukuj",copy:"Kopiuj",start:"Zacznij od nowa"},
+ tr:{advSummary:"Robotlar, Felons, Power Armor, güçlendirmeler, filtreler, sabitlemeler, kanıt ve yedekler",preCage:"CAGE ÖNCESİ KURULUM",buffTitle:"2 saatlik güçlendirmeler ve Power Armor",prison:"Hapishane güçlendirmeleri",power:"Power Armor",robots:"Robotlar",felons:"Felons",bulk:"Seçili kahraman yıldızlarını düzenle",export:"Kurulumu dışa aktar (.json)",restore:"Kurulumu geri yükle (.json)",comparison:"Dizilim karşılaştırması",preflight:"Ön kontrol",skill:"Yetenek ayrıntıları",results:"Yalnızca sonuçlar",print:"Yazdır",copy:"Kopyala",start:"Baştan başla"},
+ ru:{advSummary:"Роботы, Felons, Power Armor, усиления, фильтры, фиксация, данные и резервные копии",preCage:"ПОДГОТОВКА ПЕРЕД CAGE",buffTitle:"2-часовые усиления и Power Armor",prison:"Усиления тюрьмы",power:"Power Armor",robots:"Роботы",felons:"Felons",bulk:"Изменить звёзды выбранных героев",export:"Экспорт настроек (.json)",restore:"Восстановить настройки (.json)",comparison:"Сравнение построений",preflight:"Предварительная проверка",skill:"Детали навыка",results:"Только результаты",print:"Печать",copy:"Копировать",start:"Начать заново"},
+ ja:{advSummary:"ロボット、Felons、Power Armor、バフ、フィルター、固定、証拠、バックアップ",preCage:"CAGE前の準備",buffTitle:"2時間バフ & Power Armor",prison:"Prisonバフ",power:"Power Armor",robots:"ロボット",felons:"Felons",bulk:"選択ヒーローの星を一括編集",export:"設定をエクスポート (.json)",restore:"設定を復元 (.json)",comparison:"編成比較",preflight:"事前チェック",skill:"スキル詳細",results:"結果のみ",print:"印刷",copy:"コピー",start:"最初から"},
+ ko:{advSummary:"로봇, Felons, Power Armor, 버프, 필터, 고정, 근거 및 백업",preCage:"CAGE 전 준비",buffTitle:"2시간 버프 & Power Armor",prison:"Prison 버프",power:"Power Armor",robots:"로봇",felons:"Felons",bulk:"선택 영웅 별 일괄 편집",export:"설정 내보내기 (.json)",restore:"설정 복원 (.json)",comparison:"편성 비교",preflight:"사전 점검",skill:"스킬 세부정보",results:"결과만",print:"인쇄",copy:"복사",start:"처음부터"},
+ zh:{advSummary:"机器人、Felons、Power Armor、增益、筛选、固定、证据和备份工具",preCage:"CAGE 前准备",buffTitle:"2小时增益与 Power Armor",prison:"监狱增益",power:"Power Armor",robots:"机器人",felons:"Felons",bulk:"批量编辑所选英雄星级",export:"导出设置 (.json)",restore:"恢复设置 (.json)",comparison:"阵容比较",preflight:"预检查",skill:"技能详情",results:"仅显示结果",print:"打印",copy:"复制",start:"重新开始"}
 };
 
 type Mode = "leader" | "joiner";
@@ -117,6 +132,7 @@ export default function Home() {
   const [mode, setMode] = useState<Mode>("joiner"); // Streamlined UI generates both
   const [language, setLanguage] = useState<UiLanguage>("en");
   const t = uiText[language];
+  const tx = extraUiText[language];
   const [season, setSeason] = useState(1);
   const [owned, setOwned] = useState<string[]>([]);
   const [joinCount, setJoinCount] = useState(6);
@@ -938,11 +954,11 @@ export default function Home() {
 
 
       <section className="panel cage-buffs-panel">
-        <div className="title"><div><label>PRE-CAGE SETUP</label><h2>2-hour buffs & Power Armor</h2></div></div>
+        <div className="title"><div><label>{tx.preCage}</label><h2>{tx.buffTitle}</h2></div></div>
         <p className="helper">Prison Buffs use verified fixed values. For Power Armor, choose your skill level and the generator fills the screenshot-verified effect automatically. Infercore Comprehensive Command and Atlax Orbital Strike max at Lv9; Halo Overload Charge and Yokozuna Valiant Breach support Lv10. No unavailable or unverified level is guessed.</p>
         <div className="buff-groups">
           <div className="buff-group">
-            <h3>Prison Buffs</h3>
+            <h3>{tx.prison}</h3>
             <div className="buff-grid">
               {buffGroups.prisonBuffs.map(buff => (
                 <button type="button" className={selectedBuffIds.includes(buff.id) ? "buff selected" : "buff"} key={buff.id} onClick={()=>toggleCageBuff(buff.id)}>
@@ -954,7 +970,7 @@ export default function Home() {
             </div>
           </div>
           <div className="buff-group">
-            <h3>Power Armor</h3>
+            <h3>{tx.power}</h3>
             <p className="helper armor-helper">Pick the level shown on your account. Verified levels fill their exact effect automatically. If a skill reaches an unverified level later, the generator will ask for the value instead of guessing it.</p>
             <div className="buff-grid armor-grid">
               {buffGroups.prisonerArmor.map(buff => {
@@ -1011,8 +1027,8 @@ export default function Home() {
           <section className="panel">
             <div className="title"><div><label>ROSTER UTILITIES</label><h2>Optional setup tools</h2></div></div>
             <div className="quick-actions">
-              <button type="button" onClick={exportRosterBackup}>Export setup (.json)</button>
-              <button type="button" onClick={() => backupImportRef.current?.click()}>Restore setup (.json)</button>
+              <button type="button" onClick={exportRosterBackup}>{tx.export}</button>
+              <button type="button" onClick={() => backupImportRef.current?.click()}>{tx.restore}</button>
               <input
                 ref={backupImportRef}
                 type="file"
@@ -1027,7 +1043,7 @@ export default function Home() {
             </div>
             {available.length > 0 && (
               <details className="bulk-stars">
-                <summary>Bulk edit selected hero stars</summary>
+                <summary>{tx.bulk}</summary>
                 <div className="bulk-star-grid">
                   {available.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(hero=>(
                     <label key={hero.name}>
@@ -1146,8 +1162,8 @@ export default function Home() {
         <div className="title"><div><label>FORMATION COMPARISON</label><h2 id="comparison-heading">Compare two saved setups</h2></div></div>
         <p className="helper">This compares formation choices only. It does not predict Cage damage or claim one setup will outperform the other.</p>
         <div className="comparison-actions">
-          <button type="button" onClick={()=>saveComparison("A")} disabled={!leaderFormation && joinerFormations.length===0}>Save current as A</button>
-          <button type="button" onClick={()=>saveComparison("B")} disabled={!leaderFormation && joinerFormations.length===0}>Save current as B</button>
+          <button type="button" onClick={()=>saveComparison("A")} disabled={!leaderFormation && joinerFormations.length===0}>A</button>
+          <button type="button" onClick={()=>saveComparison("B")} disabled={!leaderFormation && joinerFormations.length===0}>B</button>
           <button type="button" onClick={()=>{setComparisonA(null);setComparisonB(null)}} disabled={!comparisonA&&!comparisonB}>Clear comparison</button>
         </div>
         <div className="snapshot-grid">
@@ -1380,7 +1396,7 @@ export default function Home() {
                     )}
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
-                    <details><summary>Skill details</summary><p>{f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p></details>
+                    <details><summary>{tx.skill}</summary><p>{f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p></details>
                   </div>
                   <div className="slot">
                     <span>MIDDLE • {f.middle.cls}</span>

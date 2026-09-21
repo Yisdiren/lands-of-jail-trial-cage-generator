@@ -1,3 +1,10 @@
+## v2.21.0
+- Expanded Advanced/Optional interface translations across all supported UI languages.
+- Fixed English localization placeholders in the v2.20 text table.
+- Kept game names untranslated unless official localized names are verified.
+- Recorded Server 260 entering Season 6 and kept remaining S6 data evidence-first.
+- Updated Worrell, Kate and Wukong to the new unlocked screenshots and retained the simplified default workflow.
+
 # Changelog — Lands of Jail Trial Cage Formation Generator
 
 This file contains the detailed development history that was previously stored in the main README.

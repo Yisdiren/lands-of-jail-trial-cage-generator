@@ -30,3 +30,7 @@ The progression is recorded as verified. Generator priority remains neutral unti
 ## Robot acceptance check
 
 After direct evidence is captured, add the Season 6 robot's verified name to the optional robot pool, provide an icon only if the image is available, and check Main plus six Joiners for assignment without reuse. Leave its priority neutral until Cage testing supports a ranking. No placeholder robot is shown to players.
+
+
+## Server 260 status — 2026-09-21
+Server 260 is now in Season 6. Worrell, Kate and Wukong have unlocked roster screenshots available for icon/evidence work. Continue to record exact in-game values only; do not infer the new S6 robot or missing skill values.

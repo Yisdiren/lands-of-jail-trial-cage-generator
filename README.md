@@ -216,3 +216,12 @@ See **[CHANGELOG.md](CHANGELOG.md)** for the full development history.
 ---
 
 This community project is not affiliated with Lands of Jail or its publisher.
+
+
+## Beta v2.21 — translation and reliability pass
+
+- Expanded localization into the Advanced / Optional Setup area, including pre-Cage, Power Armor, backup, bulk-star and skill-detail controls while leaving game proper names unchanged.
+- Corrected the English subtitle/helper localization fallback introduced in v2.20.
+- Refreshed the S6 hero icons for Worrell, Kate and Wukong from unlocked Server 260 screenshots.
+- Server 260 is now in Season 6. S6 evidence collection is active; unknown hero/robot values remain evidence-first and are not guessed.
+- Rechecked the simple public workflow contract: season → Joiner count → heroes/stars → Generate; Advanced remains collapsed and optional.
