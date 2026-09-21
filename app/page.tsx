@@ -29,7 +29,7 @@ const languageOptions: { code: UiLanguage; label: string }[] = [
   { code:"ja", label:"日本語" }, { code:"ko", label:"한국어" }, { code:"zh", label:"简体中文" },
 ];
 const uiText: Record<UiLanguage, Record<string,string>> = {
- en:{tools:"TRIAL CAGE TOOLS",created:"Created by Stiletto of Server 260",title:"Trial Cage Formation Generator",subtitle:"{t.subtitle}",quick:"QUICK SETUP",quickTitle:"Main Rally + up to 6 Joiners",helper:"Choose your season, Joiner count, heroes and stars, then generate. Everything else is optional.",season:"SERVER SEASON",joiners:"JOINER MARCHES",heroes:"YOUR HEROES",heroTitle:"Select your heroes and set only their star levels",selectAll:"Select all usable",clear:"Clear",advanced:"Advanced / Optional Setup",generate:"GENERATE MY CAGE SETUP",main:"YOUR MAIN RALLY",troops:"Main: use your maximum troops. Joiners: 10,000 Bombers + 90,000 Shooters or 100,000 Shooters."},
+ en:{tools:"TRIAL CAGE TOOLS",created:"Created by Stiletto of Server 260",title:"Trial Cage Formation Generator",subtitle:"Build a Main Rally and up to 6 Joiner rallies from your own hero roster",quick:"QUICK SETUP",quickTitle:"Main Rally + up to 6 Joiners",helper:"Choose your season, Joiner count, heroes and stars, then generate. Everything else is optional.",season:"SERVER SEASON",joiners:"JOINER MARCHES",heroes:"YOUR HEROES",heroTitle:"Select your heroes and set only their star levels",selectAll:"Select all usable",clear:"Clear",advanced:"Advanced / Optional Setup",generate:"GENERATE MY CAGE SETUP",main:"YOUR MAIN RALLY",troops:"Main: use your maximum troops. Joiners: 10,000 Bombers + 90,000 Shooters or 100,000 Shooters."},
  es:{tools:"HERRAMIENTAS DE TRIAL CAGE",created:"Creado por Stiletto del Servidor 260",title:"Generador de formaciones Trial Cage",subtitle:"Crea una Rally principal y hasta 6 rallies de apoyo con tus héroes",quick:"CONFIGURACIÓN RÁPIDA",quickTitle:"Rally principal + hasta 6 apoyos",helper:"Elige tu temporada, número de rallies de apoyo, héroes y estrellas; luego genera. Todo lo demás es opcional.",season:"TEMPORADA",joiners:"RALLIES DE APOYO",heroes:"TUS HÉROES",heroTitle:"Selecciona tus héroes y sus estrellas",selectAll:"Seleccionar utilizables",clear:"Limpiar",advanced:"Avanzado / Opcional",generate:"GENERAR MI CONFIGURACIÓN",main:"TU RALLY PRINCIPAL",troops:"Principal: usa el máximo de tropas. Apoyos: 10.000 Bombarderos + 90.000 Tiradores o 100.000 Tiradores."},
  pt:{tools:"FERRAMENTAS TRIAL CAGE",created:"Criado por Stiletto do Servidor 260",title:"Gerador de formações Trial Cage",subtitle:"Monte um Rally principal e até 6 rallies de apoio com seus heróis",quick:"CONFIGURAÇÃO RÁPIDA",quickTitle:"Rally principal + até 6 apoios",helper:"Escolha a temporada, quantidade de rallies, heróis e estrelas; depois gere. O restante é opcional.",season:"TEMPORADA",joiners:"RALLIES DE APOIO",heroes:"SEUS HERÓIS",heroTitle:"Selecione seus heróis e defina as estrelas",selectAll:"Selecionar utilizáveis",clear:"Limpar",advanced:"Avançado / Opcional",generate:"GERAR MINHA CONFIGURAÇÃO",main:"SEU RALLY PRINCIPAL",troops:"Principal: use o máximo de tropas. Apoios: 10.000 Bombardeiros + 90.000 Atiradores ou 100.000 Atiradores."},
  de:{tools:"TRIAL-CAGE-WERKZEUGE",created:"Erstellt von Stiletto, Server 260",title:"Trial-Cage-Formationsgenerator",subtitle:"Erstelle eine Hauptrallye und bis zu 6 Beitrittsrallyes mit deinen Helden",quick:"SCHNELLEINRICHTUNG",quickTitle:"Hauptrallye + bis zu 6 Beitritte",helper:"Wähle Saison, Anzahl der Beitrittsrallyes, Helden und Sterne und erstelle dann dein Setup.",season:"SERVER-SAISON",joiners:"BEITRITTSRALLYES",heroes:"DEINE HELDEN",heroTitle:"Wähle deine Helden und ihre Sterne",selectAll:"Alle nutzbaren wählen",clear:"Leeren",advanced:"Erweitert / Optional",generate:"CAGE-SETUP ERSTELLEN",main:"DEINE HAUPTRALLYE",troops:"Hauptrallye: maximale Truppen. Beitritte: 10.000 Bomber + 90.000 Schützen oder 100.000 Schützen."},
@@ -790,7 +790,7 @@ export default function Home() {
 
       <details className="advanced-tools setup-only">
         <summary>
-          <span><b>{t.advanced}</b><small>Robots, Felons, Power Armor, buffs, filters, pins, evidence and backup tools</small></span>
+          <span><b>{t.advanced}</b><small>{tx.advSummary}</small></span>
         </summary>
         <div className="advanced-tools-body">
           <section className="panel">
@@ -865,7 +865,7 @@ export default function Home() {
                 aria-label={`${ownedRobots.includes(robot) ? "Remove" : "Add"} ${robot} robot`}
                 onClick={() => toggleRobot(robot)}
               >
-                <i>R{index + 1}</i>
+                {robot === "Bastion" ? <Image className="hero-icon" src="/icons/bastion.jpg" alt="" width={48} height={48} /> : <i>R{index + 1}</i>}
                 <strong>{robot}</strong>
                 {index < 2 && <small>Auto priority {index + 1}</small>}
               </button>
@@ -955,7 +955,7 @@ export default function Home() {
 
       <section className="panel cage-buffs-panel">
         <div className="title"><div><label>{tx.preCage}</label><h2>{tx.buffTitle}</h2></div></div>
-        <p className="helper">Prison Buffs use verified fixed values. For Power Armor, choose your skill level and the generator fills the screenshot-verified effect automatically. Infercore Comprehensive Command and Atlax Orbital Strike max at Lv9; Halo Overload Charge and Yokozuna Valiant Breach support Lv10. No unavailable or unverified level is guessed.</p>
+        <p className="helper">Prison Buffs use verified fixed values. For Power Armor, choose your skill level and the generator fills the screenshot-verified effect automatically. Infercore Comprehensive Command and Atlax Orbital Strike max at Lv9; Halo Overload Charge, Yokozuna Valiant Breach, and Bastion Shockwave Crush support Lv10. No unavailable or unverified level is guessed.</p>
         <div className="buff-groups">
           <div className="buff-group">
             <h3>{tx.prison}</h3>

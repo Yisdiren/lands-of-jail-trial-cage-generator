@@ -4,6 +4,7 @@ import { heroes, robots } from "../data/heroes";
 import { generateJoinerFormations, generateLeaderFormation } from "../lib/generator";
 import { buildLockedFormations } from "../lib/formation-locks";
 import { normalizeSimpleSetup, normalizeStars } from "../lib/simple-setup";
+import { cageBuffs, buffEffectLabel, prisonerArmorSetting, powerArmorBreakthroughLabel } from "../lib/cage-buffs";
 
 test("one displayed Main reserves its heroes and robot from six Joiners", () => {
   const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
@@ -196,4 +197,25 @@ test("untested future-season data stays evidence-first", () => {
   assert.ok(s7.every(hero=>!hero.leftSkill || hero.leftSkillVerified), "S7 LEFT data must not be added as unverified guesses");
   const promotedS7=s7.filter(hero=>hero.leftTier);
   assert.ok(promotedS7.every(hero=>hero.evidenceNote && hero.priorityNote), "promoted S7 heroes need evidence and an explicit heuristic/testing caveat");
+});
+
+
+test("Bastion Shockwave Crush evidence is exact and complete", () => {
+  assert.ok(robots.includes("Bastion"));
+  const b = cageBuffs.find(buff => buff.id === "shockwave-crush"); assert.ok(b);
+  assert.deepEqual(b.levelValues, [2,2.5,3,4,5,6,7,8,9,10]);
+  assert.equal(b.durationHours,2); assert.equal(b.cooldownHours,20); assert.equal(b.armorRobot,"Bastion");
+  assert.equal(prisonerArmorSetting(b,{"shockwave-crush":{level:2,value:0}}).value,2.5);
+  assert.equal(buffEffectLabel(b,{"shockwave-crush":{level:10,value:0}}),"Enemy ATK Reduction -10%");
+  assert.equal(powerArmorBreakthroughLabel(b,3),"Unlocks after Power Armor breakthrough Lv.30");
+  assert.equal(powerArmorBreakthroughLabel(b,10),"Unlocks after Power Armor breakthrough Lv.100");
+});
+
+test("Season 6 full visible roster builds Main plus six legal Joiners", () => {
+  const visibleSr=new Set(["Lofili","Lunarl","Flameborne","Samir","Gerd","Iwado","Vesaryon"]);
+  const pool=heroes.filter(h=>(h.season===0||h.season<=6)&&h.cageAllowed&&h.rarity!=="R"&&h.rarity!=="KOF"&&(h.rarity!=="SR"||visibleSr.has(h.name)));
+  const stars=Object.fromEntries(pool.map(h=>[h.name,5])); const leader=generateLeaderFormation(pool,robots,stars); assert.ok(leader);
+  const joiners=generateJoinerFormations(pool,6,{},robots,false,stars,leader); assert.equal(joiners.length,6);
+  const all=[leader,...joiners], names=all.flatMap(x=>[x.left.name,x.middle.name,x.right.name]);
+  assert.equal(new Set(names).size,names.length); for(const x of all) assert.equal(new Set([x.left.cls,x.middle.cls,x.right.cls]).size,3);
 });

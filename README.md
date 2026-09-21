@@ -8,7 +8,7 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.20**
+**Beta v2.22**
 
 ### Beta v2.20 — multilingual public interface
 
@@ -225,3 +225,7 @@ This community project is not affiliated with Lands of Jail or its publisher.
 - Refreshed the S6 hero icons for Worrell, Kate and Wukong from unlocked Server 260 screenshots.
 - Server 260 is now in Season 6. S6 evidence collection is active; unknown hero/robot values remain evidence-first and are not guessed.
 - Rechecked the simple public workflow contract: season → Joiner count → heroes/stars → Generate; Advanced remains collapsed and optional.
+
+
+### Beta v2.22 — Season 6 live
+Server 260 is now in Season 6. Worrell, Kate and Wukong War-skill evidence is already recorded. Bastion is confirmed as the S6 robot. Shockwave Crush is verified Lv1–10: Enemy ATK Reduction 2/2.5/3/4/5/6/7/8/9/10%, lasting 2h with a 20h cooldown. Bastion's Core Skill remains unknown until direct evidence is available. The simple default workflow remains unchanged and Advanced stays optional.

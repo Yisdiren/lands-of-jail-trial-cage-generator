@@ -1,3 +1,10 @@
+## v2.22.0
+- Added S6 robot Bastion and screenshot-backed Shockwave Crush Lv1–10 Power Armor data.
+- Added PA30–100 unlock gates, 2h duration and 20h cooldown for Shockwave Crush.
+- Added Bastion and S6 Main + six-Joiner regression coverage.
+- Fixed the English subtitle placeholder and preserved the simplified default workflow.
+- KOF sync work remains deferred.
+
 ## v2.21.0
 - Expanded Advanced/Optional interface translations across all supported UI languages.
 - Fixed English localization placeholders in the v2.20 text table.

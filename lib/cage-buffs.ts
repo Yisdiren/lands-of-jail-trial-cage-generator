@@ -3,7 +3,7 @@ export type CageBuff = {
   name: string;
   source: "prison-buff" | "prisoner-armor";
   durationHours: number;
-  stat: "atk" | "lethality" | "hp" | "enemy-def-reduction" | "expedition-capacity-percent" | "expedition-capacity-flat" | "rally-capacity-flat";
+  stat: "atk" | "lethality" | "hp" | "enemy-atk-reduction" | "enemy-def-reduction" | "expedition-capacity-percent" | "expedition-capacity-flat" | "rally-capacity-flat";
   value: number;
   referenceLevel?: number;
   levelValues?: number[];
@@ -91,6 +91,19 @@ export const cageBuffs: CageBuff[] = [
     breakthroughLevels: { 5: 50, 6: 60, 7: 70, 8: 80, 9: 90, 10: 100 },
   },
   {
+    id: "shockwave-crush",
+    name: "Shockwave Crush",
+    source: "prisoner-armor",
+    durationHours: 2,
+    cooldownHours: 20,
+    stat: "enemy-atk-reduction",
+    value: 2.5,
+    referenceLevel: 2,
+    armorRobot: "Bastion",
+    levelValues: [2, 2.5, 3, 4, 5, 6, 7, 8, 9, 10],
+    breakthroughLevels: { 3: 30, 4: 40, 5: 50, 6: 60, 7: 70, 8: 80, 9: 90, 10: 100 },
+  },
+  {
     id: "orbital-strike",
     name: "Orbital Strike",
     source: "prisoner-armor",
@@ -115,6 +128,7 @@ export function summarizeSelectedBuffs(selectedIds: string[], armorSettings: Pri
     atkPercent: total("atk"),
     lethalityPercent: total("lethality"),
     hpPercent: total("hp"),
+    enemyAtkReductionPercent: total("enemy-atk-reduction"),
     enemyDefReductionPercent: total("enemy-def-reduction"),
     expeditionCapacityPercent: total("expedition-capacity-percent"),
     expeditionCapacityFlat: total("expedition-capacity-flat"),
@@ -158,7 +172,7 @@ export function previewCageCapacity(baseCapacity: number, selectedIds: string[],
 }
 
 export function buffEffectLabel(buff: CageBuff, armorSettings: PrisonerArmorSettings = {}) {
-  const pctStats = new Set(["atk","lethality","hp","enemy-def-reduction","expedition-capacity-percent"]);
+  const pctStats = new Set(["atk","lethality","hp","enemy-atk-reduction","enemy-def-reduction","expedition-capacity-percent"]);
   const effective = effectiveBuffValue(buff, armorSettings);
   const armor = buff.source === "prisoner-armor" ? prisonerArmorSetting(buff, armorSettings) : null;
   const verified = armor ? isPowerArmorLevelVerified(buff, armor.level) : true;
@@ -169,12 +183,13 @@ export function buffEffectLabel(buff: CageBuff, armorSettings: PrisonerArmorSett
     atk: "Troops ATK",
     lethality: "Troops Lethality",
     hp: "Expedition Troops HP",
+    "enemy-atk-reduction": "Enemy ATK Reduction",
     "enemy-def-reduction": "Enemy DEF Reduction",
     "expedition-capacity-percent": "Expedition Capacity",
     "expedition-capacity-flat": "Expedition Troop Capacity",
     "rally-capacity-flat": "Rally Troop Capacity",
   };
-  return `${labels[buff.stat]} ${value}`;
+  return `${labels[buff.stat]} ${buff.stat === "enemy-atk-reduction" ? `-${effective}%` : value}`;
 }
 
 export const commonTwoHourPrisonBuffIds = [

@@ -8,7 +8,7 @@ Direct in-game screenshots are the source of truth for Season 6 hero and robot d
 | Kate LEFT skill | Lv1–Lv5 recorded in hero data | Recheck only if the game changes |
 | Otto LEFT / first skill — Natural Hymn | Verified from direct screenshots | Recheck only if the game changes |
 | Wukong LEFT / first skill — Calamity Inferno | Verified Lv1–Lv5 from direct screenshots | Recheck only if the game changes |
-| New Season 6 robot | Identity and Cage effects unverified | Name, icon, ownership screen, skills at displayed levels, and Trial Cage applicability |
+| Bastion — S6 robot | Identity and Shockwave Crush Lv1–10 verified | Core Skill remains locked/pending; do not infer Trial Cage assignment priority |
 
 ## Verified Otto data
 
@@ -34,3 +34,7 @@ After direct evidence is captured, add the Season 6 robot's verified name to the
 
 ## Server 260 status — 2026-09-21
 Server 260 is now in Season 6. Worrell, Kate and Wukong have unlocked roster screenshots available for icon/evidence work. Continue to record exact in-game values only; do not infer the new S6 robot or missing skill values.
+
+
+## Verified Bastion data
+Shockwave Crush: Enemy ATK Reduction **2 / 2.5 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10%** at Lv1–10, **2h** duration, **20h** cooldown. Lv3–10 unlock at Power Armor **30 / 40 / 50 / 60 / 70 / 80 / 90 / 100**. Core Skill remains locked; no Cage assignment priority is inferred.
