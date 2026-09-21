@@ -1276,7 +1276,8 @@ export default function Home() {
                 <span>LEFT • {leaderFormation.left.cls}</span>
                 {heroIconNames.has(leaderFormation.left.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(leaderFormation.left.name)}\n                        alt={`${leaderFormation.left.name} portrait`} width={42} height={52} />
+                        src={heroIconPath(leaderFormation.left.name)}
+                        alt={`${leaderFormation.left.name} portrait`} width={42} height={52} />
                     )}
                     <b>{leaderFormation.left.name}</b><small>{heroStarLevels[leaderFormation.left.name] ? "★".repeat(heroStarLevels[leaderFormation.left.name]) : "Stars not set"}</small>
               </div>
@@ -1284,7 +1285,8 @@ export default function Home() {
                 <span>MIDDLE • {leaderFormation.middle.cls}</span>
                 {heroIconNames.has(leaderFormation.middle.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(leaderFormation.middle.name)}\n                        alt={`${leaderFormation.middle.name} portrait`} width={42} height={52} />
+                        src={heroIconPath(leaderFormation.middle.name)}
+                        alt={`${leaderFormation.middle.name} portrait`} width={42} height={52} />
                     )}
                     <b>{leaderFormation.middle.name}</b><small>{heroStarLevels[leaderFormation.middle.name] ? "★".repeat(heroStarLevels[leaderFormation.middle.name]) : "Stars not set"}</small>
               </div>
@@ -1292,7 +1294,8 @@ export default function Home() {
                 <span>RIGHT • {leaderFormation.right.cls}</span>
                 {heroIconNames.has(leaderFormation.right.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(leaderFormation.right.name)}\n                        alt={`${leaderFormation.right.name} portrait`} width={42} height={52} />
+                        src={heroIconPath(leaderFormation.right.name)}
+                        alt={`${leaderFormation.right.name} portrait`} width={42} height={52} />
                     )}
                     <b>{leaderFormation.right.name}</b><small>{heroStarLevels[leaderFormation.right.name] ? "★".repeat(heroStarLevels[leaderFormation.right.name]) : "Stars not set"}</small>
               </div>
@@ -1407,7 +1410,8 @@ export default function Home() {
                     <span>LEFT • Lv{f.leftSkillLevel}</span>
                     {heroIconNames.has(f.left.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(f.left.name)}\n                        alt={`${f.left.name} portrait`} width={42} height={52} />
+                        src={heroIconPath(f.left.name)}
+                        alt={`${f.left.name} portrait`} width={42} height={52} />
                     )}
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
@@ -1417,7 +1421,8 @@ export default function Home() {
                     <span>MIDDLE • {f.middle.cls}</span>
                     {heroIconNames.has(f.middle.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(f.middle.name)}\n                        alt={`${f.middle.name} portrait`} width={42} height={52} />
+                        src={heroIconPath(f.middle.name)}
+                        alt={`${f.middle.name} portrait`} width={42} height={52} />
                     )}
                     <b>{f.middle.name}</b>{supportShieldNames.has(f.middle.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.middle.name] ? "★".repeat(heroStarLevels[f.middle.name]) : "Stars not set"}</small>
                   </div>
@@ -1425,7 +1430,8 @@ export default function Home() {
                     <span>RIGHT • {f.right.cls}</span>
                     {heroIconNames.has(f.right.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(f.right.name)}\n                        alt={`${f.right.name} portrait`} width={42} height={52} />
+                        src={heroIconPath(f.right.name)}
+                        alt={`${f.right.name} portrait`} width={42} height={52} />
                     )}
                     <b>{f.right.name}</b>{supportShieldNames.has(f.right.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
                   </div>
