@@ -14,6 +14,12 @@
 
 # Changelog
 
+## v2.25.0
+- Rebuilt the robot selector cards around the new real robot icons.
+- Moved priority arrows into a full-width row inside each robot card so controls no longer collide with neighboring cards.
+- Standardized robot icon size, centered names, and added responsive 3-column/2-column layouts for smaller screens.
+
+
 ## v2.24.0
 - Replaced robot R-number placeholders with mechanically cropped in-game robot icons supplied from Server 260 screenshots; no generated artwork is used.
 - Added Pluto to the owned-robot roster with its real icon, without inventing a Cage buff recommendation.
