@@ -661,7 +661,7 @@ export default function Home() {
             Build a Main Rally and up to 6 Joiner rallies from your own hero roster
           </p>
         </div>
-        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.20 BETA</div></div>
+        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.22 BETA</div></div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
