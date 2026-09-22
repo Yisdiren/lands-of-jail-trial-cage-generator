@@ -14,6 +14,14 @@
 
 # Changelog
 
+## v2.30.0
+- Split the 19 KB translation catalog and robot presentation metadata out of the oversized page component without changing generator behavior.
+- Continued Advanced translation cleanup, including LEFT-priority controls in major active languages with safe English fallback for every other locale.
+- Added extra 360px mobile safeguards and retained keyboard-accessible controls.
+- Kept hardened backup restoration and robot-priority sanitization from v2.28.
+- Added Season 1–6 regression coverage for legal, non-repeating generated formations.
+
+
 ## v2.29.0
 - Default fresh visits to Season 6 for Server 260.
 - Start Over returns to Season 6; saved visitors keep their chosen season.

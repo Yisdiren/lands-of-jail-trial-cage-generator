@@ -1230,3 +1230,10 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .robot-priority-card { min-width: 0; }
   .robot-priority-card strong, .robot-priority-card small { overflow-wrap: anywhere; }
 }
+
+/* v2.30 mobile/accessibility regression hardening */
+@media (max-width: 360px) {
+  .hero-grid, .robot-priority-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .panel { overflow-wrap: anywhere; }
+  select, button { max-width: 100%; }
+}

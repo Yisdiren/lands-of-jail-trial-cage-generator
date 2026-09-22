@@ -258,3 +258,16 @@ test("fresh setup defaults to Season 6", () => {
   assert.equal(normalizeSimpleSetup(undefined).season, 6);
   assert.equal(normalizeSimpleSetup({ season: "bad" }).season, 6);
 });
+
+test("Season 1 through Season 6 always produce legal non-repeating formations", () => {
+  for (let season = 1; season <= 6; season++) {
+    const pool = heroes.filter(hero => hero.season <= season && hero.cageAllowed);
+    const leader = generateLeaderFormation(pool, robots);
+    assert.ok(leader, `Season ${season} should produce a Main Rally`);
+    const joiners = generateJoinerFormations(pool, 6, {}, robots, false, {}, leader);
+    const formations = [leader, ...joiners];
+    const names = formations.flatMap(f => [f.left.name, f.middle.name, f.right.name]);
+    assert.equal(new Set(names).size, names.length, `Season ${season} should not reuse heroes`);
+    for (const f of formations) assert.equal(f.status, "valid", `Season ${season} formation ${f.id} should be valid`);
+  }
+});
