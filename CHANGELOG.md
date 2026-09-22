@@ -14,6 +14,13 @@
 
 # Changelog
 
+## v2.31.0
+- Extracted hero-list parsing into a testable helper and hardened messy text imports.
+- Backup restore now reuses canonical robot-priority sanitization and defaults malformed season data to Season 6.
+- Added regression coverage for duplicate/unknown import rows, season boundaries, future-season exclusion, and KOF/R Joiner exclusion.
+- No new visible controls and no intentional recommendation changes.
+
+
 ## v2.30.0
 - Split the 19 KB translation catalog and robot presentation metadata out of the oversized page component without changing generator behavior.
 - Continued Advanced translation cleanup, including LEFT-priority controls in major active languages with safe English fallback for every other locale.

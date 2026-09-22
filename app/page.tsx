@@ -18,7 +18,7 @@ import Image from "next/image";
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
 
 import { downloadFormationImage } from "../lib/formation-image";
-import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, simpleSetupKey } from "../lib/simple-setup";
+import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, parseHeroListText, simpleSetupKey } from "../lib/simple-setup";
 import { languageOptions, uiText, extraUiText, type UiLanguage } from "../data/ui-text";
 import { robotIconPaths } from "../data/robot-presentation";
 
@@ -380,51 +380,17 @@ export default function Home() {
     }
   };
   const importHeroList = async (file: File) => {
-    const text = await file.text();
-    const normalized = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const candidates = heroes.filter(hero => hero.cageAllowed && showHeroInGenerator(hero));
-    const imported: string[] = [];
-    const stars: Record<string, number> = {};
-    const unknown: string[] = [];
-    const duplicates: string[] = [];
-    const seen = new Set<string>();
-
-    text.split(/\r?\n/).map(line => line.trim()).filter(Boolean).forEach(line => {
-      const normalizedLine = normalized(line);
-      const hero = candidates
-        .slice()
-        .sort((a, b) => b.name.length - a.name.length)
-        .find(candidate => normalizedLine.includes(normalized(candidate.name)));
-
-      if (!hero) {
-        unknown.push(line);
-        return;
-      }
-      if (seen.has(hero.name)) {
-        duplicates.push(line);
-        return;
-      }
-      seen.add(hero.name);
-
-      const afterName = line.slice(line.toLowerCase().indexOf(hero.name.toLowerCase()) + hero.name.length);
-      const starSymbols = afterName.match(/★/g)?.length ?? 0;
-      const numericStar = afterName.match(/★\s*([1-5])|\b([1-5])\s*(?:star|stars)\b/i);
-      const starLevel = Math.max(1, Math.min(5, starSymbols > 1 ? starSymbols : Number(numericStar?.[1] || numericStar?.[2] || starSymbols || 1)));
-
-      if (!imported.includes(hero.name)) imported.push(hero.name);
-      stars[hero.name] = starLevel;
-    });
-
-    if (imported.length) {
-      const highestSeason = Math.max(season, ...imported.map(name => heroes.find(hero => hero.name === name)?.season ?? 1));
+    const parsed = parseHeroListText(await file.text());
+    if (parsed.matched.length) {
+      const highestSeason = Math.max(season, ...parsed.matched.map(name => heroes.find(hero => hero.name === name)?.season ?? 1));
       setSeason(Math.min(7, highestSeason));
-      setOwned(imported);
-      setHeroStarLevels(stars);
+      setOwned(parsed.matched);
+      setHeroStarLevels(parsed.stars);
       setGenerated(false);
     }
-    setImportReport({ matched: imported, unmatched: unknown, duplicates });
-    setNotice(imported.length
-      ? `Imported ${imported.length} unique hero${imported.length === 1 ? "" : "es"} with star levels. Review the import report for unmatched or duplicate rows.`
+    setImportReport({ matched: parsed.matched, unmatched: parsed.unmatched, duplicates: parsed.duplicates });
+    setNotice(parsed.matched.length
+      ? `Imported ${parsed.matched.length} unique hero${parsed.matched.length === 1 ? "" : "es"} with star levels. Review the import report for unmatched or duplicate rows.`
       : "No matching heroes were found in that text file.");
   };
   const setSkillLevel = (name: string, level: number | null) => {
@@ -497,10 +463,8 @@ export default function Home() {
       const validFelonNames = new Set(felons.map(felon => felon.name));
       const nextOwned = Array.isArray(parsed.owned) ? parsed.owned.filter((name): name is string => typeof name === "string" && validHeroNames.has(name)) : [];
       const nextRobots = Array.isArray(parsed.ownedRobots) ? parsed.ownedRobots.filter((name): name is string => typeof name === "string" && validRobotNames.has(name)) : [];
-      const nextRobotPriority = Array.isArray(parsed.robotPriority)
-        ? [...parsed.robotPriority.filter((name): name is string => typeof name === "string" && validRobotNames.has(name)), ...robots.filter(name => !parsed.robotPriority?.includes(name))]
-        : robots;
-      setSeason(Math.max(1, Math.min(7, Number(parsed.season) || 1)));
+      const nextRobotPriority = normalizeRobotPriority(parsed.robotPriority, robots);
+      setSeason(Math.max(1, Math.min(7, Number(parsed.season) || 6)));
       setJoinCount(Math.max(1, Math.min(6, Number(parsed.joinCount) || 6)));
       setOwned(nextOwned);
       setHeroStarLevels(normalizeStars(parsed.heroStarLevels));
@@ -624,7 +588,7 @@ export default function Home() {
           </h1>
           <p>{t.subtitle}</p>
         </div>
-        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.30 BETA</div></div>
+        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.31 BETA</div></div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}

@@ -27,3 +27,25 @@ export const normalizeSimpleSetup = (value: unknown) => {
     heroStarLevels: normalizeStars(saved.heroStarLevels),
   };
 };
+
+export type HeroListImport = { matched: string[]; unmatched: string[]; duplicates: string[]; stars: Record<string, number> };
+export const parseHeroListText = (text: string): HeroListImport => {
+  const normalized = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const candidates = heroes.filter(hero => hero.cageAllowed && hero.rarity !== "R");
+  const matched: string[] = [], unmatched: string[] = [], duplicates: string[] = [];
+  const stars: Record<string, number> = {}, seen = new Set<string>();
+  text.split(/\r?\n/).map(line => line.trim()).filter(Boolean).forEach(line => {
+    const normalizedLine = normalized(line);
+    const hero = candidates.slice().sort((a,b)=>b.name.length-a.name.length).find(candidate => normalizedLine.includes(normalized(candidate.name)));
+    if (!hero) { unmatched.push(line); return; }
+    if (seen.has(hero.name)) { duplicates.push(line); return; }
+    seen.add(hero.name);
+    const nameIndex = normalizedLine.indexOf(normalized(hero.name));
+    const sourceAfterName = nameIndex >= 0 ? line : "";
+    const starSymbols = sourceAfterName.match(/★/g)?.length ?? 0;
+    const numericStar = sourceAfterName.match(/★\s*([1-5])|\b([1-5])\s*(?:star|stars)\b/i);
+    const level = Math.max(1, Math.min(5, starSymbols > 1 ? starSymbols : Number(numericStar?.[1] || numericStar?.[2] || starSymbols || 1)));
+    matched.push(hero.name); stars[hero.name] = level;
+  });
+  return { matched, unmatched, duplicates, stars };
+};

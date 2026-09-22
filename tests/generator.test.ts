@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { heroes, robots } from "../data/heroes";
 import { generateJoinerFormations, generateLeaderFormation } from "../lib/generator";
 import { buildLockedFormations } from "../lib/formation-locks";
-import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars } from "../lib/simple-setup";
+import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, parseHeroListText } from "../lib/simple-setup";
 import { cageBuffs, buffEffectLabel, prisonerArmorSetting, powerArmorBreakthroughLabel } from "../lib/cage-buffs";
 
 test("one displayed Main reserves its heroes and robot from six Joiners", () => {
@@ -270,4 +270,34 @@ test("Season 1 through Season 6 always produce legal non-repeating formations", 
     assert.equal(new Set(names).size, names.length, `Season ${season} should not reuse heroes`);
     for (const f of formations) assert.equal(f.status, "valid", `Season ${season} formation ${f.id} should be valid`);
   }
+});
+
+test("hero text import tolerates spacing, case, stars, duplicates and unknown rows", () => {
+  const parsed = parseHeroListText("  TYRONN ★★★  \nAda 4 stars\nTyronn 5 stars\nNot A Hero\nRyuichi ★");
+  assert.deepEqual(parsed.matched, ["Tyronn", "Ada", "Ryuichi"]);
+  assert.equal(parsed.stars.Tyronn, 3);
+  assert.equal(parsed.stars.Ada, 4);
+  assert.equal(parsed.stars.Ryuichi, 1);
+  assert.deepEqual(parsed.duplicates, ["Tyronn 5 stars"]);
+  assert.deepEqual(parsed.unmatched, ["Not A Hero"]);
+});
+
+test("saved setup clamps every season boundary and removes unknown heroes", () => {
+  for (let season = 1; season <= 6; season++) assert.equal(normalizeSimpleSetup({ season }).season, season);
+  assert.equal(normalizeSimpleSetup({ season: -99 }).season, 1);
+  assert.equal(normalizeSimpleSetup({ season: 99 }).season, 7);
+  assert.deepEqual(normalizeSimpleSetup({ owned: ["Tyronn", "Definitely Not A Hero"] }).owned, ["Tyronn"]);
+});
+
+test("Season 1 through Season 6 pools never include future-season heroes", () => {
+  for (let season = 1; season <= 6; season++) {
+    const pool = heroes.filter(hero => hero.season <= season && hero.cageAllowed);
+    assert.ok(pool.every(hero => hero.season <= season));
+  }
+});
+
+test("KOF and R rarity heroes stay out of ordinary Joiner candidates", () => {
+  const joinerCandidates = heroes.filter(hero => hero.cageAllowed && hero.rarity !== "R");
+  assert.ok(joinerCandidates.every(hero => hero.rarity !== "KOF"));
+  assert.ok(joinerCandidates.every(hero => hero.rarity !== "R"));
 });
