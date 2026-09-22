@@ -18,9 +18,10 @@ import Image from "next/image";
 import { buildLockedFormations, slots, type Locks } from "../lib/formation-locks";
 
 import { downloadFormationImage } from "../lib/formation-image";
-import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, parseHeroListText, simpleSetupKey } from "../lib/simple-setup";
+import { parseHeroListText, parseStoredSimpleSetup, simpleSetupKey } from "../lib/simple-setup";
 import { languageOptions, uiText, extraUiText, type UiLanguage } from "../data/ui-text";
 import { robotIconPaths } from "../data/robot-presentation";
+import { generatorBackupFormat, generatorBackupVersion, normalizeGeneratorBackup, type GeneratorBackup } from "../lib/generator-backup";
 
 
 type Mode = "leader" | "joiner";
@@ -33,26 +34,6 @@ type SimpleSavedSetup = {
   owned: string[];
   heroStarLevels: Record<string, number>;
 };
-type GeneratorBackup = {
-  format: "loj-trial-cage-backup";
-  version: 1;
-  season: number;
-  joinCount: number;
-  owned: string[];
-  heroStarLevels: Record<string, number>;
-  ownedRobots: string[];
-  robotPriority: string[];
-  ownedFelons: string[];
-  rallyFills: boolean;
-  seatHolder: boolean;
-  verifiedOnly: boolean;
-  hideFillerLeft: boolean;
-  leftClassFilter: HeroClass | "all";
-  selectedBuffIds: string[];
-  armorSettings: PrisonerArmorSettings;
-  activationLeadMinutes: number;
-};
-
 const withRobotAssignment = (formation: Formation, robot: string | undefined, mode: Mode): Formation => {
   const { alerts: _alerts, status: _status, ...base } = formation;
   const next = { ...base, robot };
@@ -144,13 +125,12 @@ export default function Home() {
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(simpleSetupKey);
-      if (raw) {
-        const saved = normalizeSimpleSetup(JSON.parse(raw));
-        setSeason(saved.season);
-        setJoinCount(saved.joinCount);
-        setOwned(saved.owned);
-        setHeroStarLevels(saved.heroStarLevels);
-      }
+      const { setup: saved, recovered } = parseStoredSimpleSetup(raw);
+      setSeason(saved.season);
+      setJoinCount(saved.joinCount);
+      setOwned(saved.owned);
+      setHeroStarLevels(saved.heroStarLevels);
+      if (recovered) window.localStorage.removeItem(simpleSetupKey);
     } catch {
       // A bad local value should never block the generator.
     } finally {
@@ -427,8 +407,8 @@ export default function Home() {
   };
   const exportRosterBackup = () => {
     const backup: GeneratorBackup = {
-      format: "loj-trial-cage-backup",
-      version: 1,
+      format: generatorBackupFormat,
+      version: generatorBackupVersion,
       season,
       joinCount,
       owned,
@@ -456,29 +436,24 @@ export default function Home() {
   };
   const importRosterBackup = async (file: File) => {
     try {
-      const parsed = JSON.parse(await file.text()) as Partial<GeneratorBackup>;
-      if (parsed.format !== "loj-trial-cage-backup") throw new Error("That file is not a Trial Cage generator backup.");
-      const validHeroNames = new Set(heroes.map(hero => hero.name));
-      const validRobotNames = new Set(robots);
-      const validFelonNames = new Set(felons.map(felon => felon.name));
-      const nextOwned = Array.isArray(parsed.owned) ? parsed.owned.filter((name): name is string => typeof name === "string" && validHeroNames.has(name)) : [];
-      const nextRobots = Array.isArray(parsed.ownedRobots) ? parsed.ownedRobots.filter((name): name is string => typeof name === "string" && validRobotNames.has(name)) : [];
-      const nextRobotPriority = normalizeRobotPriority(parsed.robotPriority, robots);
-      setSeason(Math.max(1, Math.min(7, Number(parsed.season) || 6)));
-      setJoinCount(Math.max(1, Math.min(6, Number(parsed.joinCount) || 6)));
+      const parsed = normalizeGeneratorBackup(JSON.parse(await file.text()));
+      const nextOwned = parsed.owned;
+      const nextRobots = parsed.ownedRobots;
+      setSeason(parsed.season);
+      setJoinCount(parsed.joinCount);
       setOwned(nextOwned);
-      setHeroStarLevels(normalizeStars(parsed.heroStarLevels));
+      setHeroStarLevels(parsed.heroStarLevels);
       setOwnedRobots(nextRobots);
-      setRobotPriority(nextRobotPriority);
-      setOwnedFelons(Array.isArray(parsed.ownedFelons) ? parsed.ownedFelons.filter((name): name is string => typeof name === "string" && validFelonNames.has(name)) : []);
+      setRobotPriority(parsed.robotPriority);
+      setOwnedFelons(parsed.ownedFelons);
       setRallyFills(parsed.rallyFills !== false);
       setSeatHolder(Boolean(parsed.seatHolder));
       setVerifiedOnly(Boolean(parsed.verifiedOnly));
       setHideFillerLeft(Boolean(parsed.hideFillerLeft));
       setLeftClassFilter(parsed.leftClassFilter === "Shield" || parsed.leftClassFilter === "Bomber" || parsed.leftClassFilter === "Shooter" ? parsed.leftClassFilter : "all");
-      setSelectedBuffIds(Array.isArray(parsed.selectedBuffIds) ? parsed.selectedBuffIds.filter((id): id is string => typeof id === "string" && cageBuffs.some(buff => buff.id === id)) : []);
-      setArmorSettings(parsed.armorSettings && typeof parsed.armorSettings === "object" && !Array.isArray(parsed.armorSettings) ? parsed.armorSettings : {});
-      setActivationLeadMinutes(Math.max(0, Math.min(120, Number(parsed.activationLeadMinutes) || 5)));
+      setSelectedBuffIds(parsed.selectedBuffIds);
+      setArmorSettings(parsed.armorSettings);
+      setActivationLeadMinutes(parsed.activationLeadMinutes);
       setLocks({});
       setLeaderLocks({});
       setRobotOverrides({});
@@ -588,7 +563,7 @@ export default function Home() {
           </h1>
           <p>{t.subtitle}</p>
         </div>
-        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.31 BETA</div></div>
+        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.32 BETA</div></div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}

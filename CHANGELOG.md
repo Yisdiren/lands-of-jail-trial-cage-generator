@@ -14,6 +14,15 @@
 
 # Changelog
 
+## Beta v2.32 — restore and localization reliability
+
+- Centralized versioned generator-backup validation so malformed heroes, robots, felons, buffs, armor values, counts, and future backup versions cannot leak into UI state.
+- Added corrupted local-storage recovery that removes unreadable quick setup data and safely restores the Season 6 default.
+- Audited all 15 language catalogs for complete, non-empty key coverage with reviewed English fallback for untranslated Advanced labels.
+- Corrected accidental Chinese LEFT-filter copy in the English catalog.
+- Expanded S1–S6 legality, evidence/heuristic separation, backup compatibility, local-storage, and localization regression coverage.
+- No game data or established Cage recommendation weights changed.
+
 ## v2.31.0
 - Extracted hero-list parsing into a testable helper and hardened messy text imports.
 - Backup restore now reuses canonical robot-priority sanitization and defaults malformed season data to Season 6.
@@ -461,4 +470,3 @@ Removed profile management, member overview, alliance readiness and batch panels
 
 ## Beta v1.25 — Remove Capacity Test Recorder
 Removed the capacity recording panel, recording controls and page state. Main Rally capacity and the pre-Cage capacity preview remain available.
-

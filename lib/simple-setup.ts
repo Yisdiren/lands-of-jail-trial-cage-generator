@@ -1,6 +1,7 @@
 import { heroes } from "../data/heroes";
 
 export const simpleSetupKey = "loj-trial-cage-simple-setup-v1";
+export type SimpleSetup = ReturnType<typeof normalizeSimpleSetup>;
 export const normalizeStars = (value: unknown): Record<string, number> => {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const known = new Set(heroes.map(hero => hero.name));
@@ -26,6 +27,15 @@ export const normalizeSimpleSetup = (value: unknown) => {
     owned: Array.isArray(saved.owned) ? [...new Set(saved.owned.filter((name): name is string => typeof name === "string" && valid.has(name)))] : [],
     heroStarLevels: normalizeStars(saved.heroStarLevels),
   };
+};
+
+export const parseStoredSimpleSetup = (raw: string | null): { setup: SimpleSetup; recovered: boolean } => {
+  if (!raw) return { setup: normalizeSimpleSetup(undefined), recovered: false };
+  try {
+    return { setup: normalizeSimpleSetup(JSON.parse(raw)), recovered: false };
+  } catch {
+    return { setup: normalizeSimpleSetup(undefined), recovered: true };
+  }
 };
 
 export type HeroListImport = { matched: string[]; unmatched: string[]; duplicates: string[]; stars: Record<string, number> };

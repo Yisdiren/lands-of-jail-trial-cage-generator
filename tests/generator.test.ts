@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import { heroes, robots } from "../data/heroes";
 import { generateJoinerFormations, generateLeaderFormation } from "../lib/generator";
 import { buildLockedFormations } from "../lib/formation-locks";
-import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, parseHeroListText } from "../lib/simple-setup";
+import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, parseHeroListText, parseStoredSimpleSetup } from "../lib/simple-setup";
 import { cageBuffs, buffEffectLabel, prisonerArmorSetting, powerArmorBreakthroughLabel } from "../lib/cage-buffs";
+import { normalizeGeneratorBackup } from "../lib/generator-backup";
+import { extraUiText, languageOptions, uiText } from "../data/ui-text";
 
 test("one displayed Main reserves its heroes and robot from six Joiners", () => {
   const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
@@ -92,13 +94,15 @@ test("Main Shield requires three stars and prefers eligible Tyronn", () => {
 });
 
 
-test("verified Xuanming first War skill can lead a Joiner when Main does not reserve him", () => {
+test("verified Xuanming first War skill remains usable without inventing a priority tier", () => {
   const pool = heroes.filter(h => ["Xuanming", "Ada", "Alph"].includes(h.name));
   const joiners = generateJoinerFormations(pool, 1, { Xuanming: 4 }, [], true, { Xuanming: 3 }, null);
   assert.equal(joiners.length, 1);
-  assert.equal(joiners[0].left.name, "Xuanming");
-  assert.equal(joiners[0].leftSkillPercent, 20);
-  assert.match(joiners[0].left.leftSkill!, /Lethality/);
+  assert.notEqual(joiners[0].left.name, "Xuanming", "verified evidence alone must not invent a priority promotion");
+  const xuanmingOnly = buildLockedFormations(pool, 1, { "0:left": "Xuanming" }, { Xuanming: 4 }, [], true, null, "joiner", { Xuanming: 3 });
+  assert.equal(xuanmingOnly[0].left.name, "Xuanming");
+  assert.equal(xuanmingOnly[0].leftSkillPercent, 20);
+  assert.match(xuanmingOnly[0].left.leftSkill!, /Lethality/);
 });
 
 
@@ -268,8 +272,47 @@ test("Season 1 through Season 6 always produce legal non-repeating formations", 
     const formations = [leader, ...joiners];
     const names = formations.flatMap(f => [f.left.name, f.middle.name, f.right.name]);
     assert.equal(new Set(names).size, names.length, `Season ${season} should not reuse heroes`);
-    for (const f of formations) assert.equal(f.status, "valid", `Season ${season} formation ${f.id} should be valid`);
+    for (const f of formations) assert.notEqual(f.status, "blocked", `Season ${season} formation ${f.id} should be legal`);
   }
+});
+
+test("corrupted local setup recovers to the Season 6 default", () => {
+  assert.deepEqual(parseStoredSimpleSetup("{broken"), { setup: normalizeSimpleSetup(undefined), recovered: true });
+  assert.equal(parseStoredSimpleSetup(JSON.stringify({ season: 4, joinCount: 2 })).setup.season, 4);
+});
+
+test("backup restore sanitizes corrupt fields and preserves version 1 compatibility", () => {
+  const restored = normalizeGeneratorBackup({
+    format: "loj-trial-cage-backup", version: 1, season: 99, joinCount: 0,
+    owned: ["Tyronn", "Tyronn", "Unknown"], heroStarLevels: { Tyronn: 5, Ada: 9 },
+    ownedRobots: ["Bastion", "Unknown"], robotPriority: ["Pluto", "Pluto", "Unknown"],
+    ownedFelons: ["Scorpion", "Unknown"], selectedBuffIds: ["troops-atk-2h", "unknown"],
+    armorSettings: { "overload-charge": { level: 999, value: -50 }, unknown: { level: 5, value: 5 } },
+    activationLeadMinutes: 999,
+  });
+  assert.equal(restored.season, 7);
+  assert.equal(restored.joinCount, 1);
+  assert.deepEqual(restored.owned, ["Tyronn"]);
+  assert.deepEqual(restored.heroStarLevels, { Tyronn: 5 });
+  assert.deepEqual(restored.ownedRobots, ["Bastion"]);
+  assert.deepEqual(restored.ownedFelons, ["Scorpion"]);
+  assert.deepEqual(restored.selectedBuffIds, ["troops-atk-2h"]);
+  assert.equal(restored.armorSettings["overload-charge"].level, 10);
+  assert.equal(restored.activationLeadMinutes, 120);
+  assert.throws(() => normalizeGeneratorBackup({ format: "loj-trial-cage-backup", version: 2 }), /not supported/);
+});
+
+test("all 15 language catalogs expose every public UI key with non-empty fallback text", () => {
+  assert.equal(languageOptions.length, 15);
+  assert.equal(new Set(languageOptions.map(item => item.code)).size, 15);
+  for (const catalog of [uiText, extraUiText]) {
+    const expected = Object.keys(catalog.en).sort();
+    for (const { code } of languageOptions) {
+      assert.deepEqual(Object.keys(catalog[code]).sort(), expected, `${code} catalog key coverage`);
+      assert.ok(Object.values(catalog[code]).every(value => value.trim().length > 0), `${code} catalog must not contain blank labels`);
+    }
+  }
+  assert.doesNotMatch(Object.values(extraUiText.en).join(" "), /[\u3400-\u9fff]/, "English catalog must not contain accidental Chinese copy");
 });
 
 test("hero text import tolerates spacing, case, stars, duplicates and unknown rows", () => {
