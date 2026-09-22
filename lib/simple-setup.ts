@@ -21,7 +21,7 @@ export const normalizeSimpleSetup = (value: unknown) => {
     (hero.rarity !== "SR" || ["Lofili", "Lunarl", "Flameborne", "Samir", "Gerd", "Iwado", "Vesaryon"].includes(hero.name))).map(hero => hero.name));
   const season = Number(saved.season), joinCount = Number(saved.joinCount);
   return {
-    season: Number.isInteger(season) ? Math.max(1, Math.min(7, season)) : 1,
+    season: Number.isInteger(season) ? Math.max(1, Math.min(7, season)) : 6,
     joinCount: Number.isInteger(joinCount) ? Math.max(1, Math.min(6, joinCount)) : 6,
     owned: Array.isArray(saved.owned) ? [...new Set(saved.owned.filter((name): name is string => typeof name === "string" && valid.has(name)))] : [],
     heroStarLevels: normalizeStars(saved.heroStarLevels),

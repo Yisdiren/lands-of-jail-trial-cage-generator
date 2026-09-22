@@ -14,6 +14,12 @@
 
 # Changelog
 
+## v2.29.0
+- Default fresh visits to Season 6 for Server 260.
+- Start Over returns to Season 6; saved visitors keep their chosen season.
+- Added regression coverage for the new default.
+
+
 ## v2.28.0
 - Hardened saved setup and JSON backup restoration against unknown, duplicate, malformed, and out-of-range data.
 - Extracted reusable robot-priority normalization from the page component and added regression coverage.

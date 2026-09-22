@@ -253,3 +253,8 @@ test("robot backup priority is de-duplicated, sanitized and completed", () => {
   assert.equal(new Set(normalized).size, robots.length);
   assert.deepEqual(new Set(normalized), new Set(robots));
 });
+
+test("fresh setup defaults to Season 6", () => {
+  assert.equal(normalizeSimpleSetup(undefined).season, 6);
+  assert.equal(normalizeSimpleSetup({ season: "bad" }).season, 6);
+});
