@@ -22,6 +22,7 @@ import { parseHeroListText, parseStoredSimpleSetup, simpleSetupKey } from "../li
 import { languageOptions, uiText, extraUiText, type UiLanguage } from "../data/ui-text";
 import { robotIconPaths } from "../data/robot-presentation";
 import { generatorBackupFormat, generatorBackupVersion, normalizeGeneratorBackup, type GeneratorBackup } from "../lib/generator-backup";
+import { cageRecommendationEvidence } from "../lib/evidence";
 
 
 type Mode = "leader" | "joiner";
@@ -574,8 +575,8 @@ export default function Home() {
           <h2>{t.quickTitle}</h2>
           <p className="helper">{t.helper}</p>
         </div>
-        <div><label>{t.season}</label><select value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6,7].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
-        <div><label>{t.joiners}</label><select value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
+        <div><label htmlFor="season-select">{t.season}</label><select id="season-select" value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6,7].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
+        <div><label htmlFor="join-count-select">{t.joiners}</label><select id="join-count-select" value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
         {unavailableSelected.length > 0 && <p role="status" className="helper">Unavailable in Season {season}: {unavailableSelected.join(", ")}. Your selections return when you switch back.</p>}
       </section>
 
@@ -677,6 +678,7 @@ export default function Home() {
                             {hero.leftSkillValues && <p><b>Lv1-Lv5:</b> {hero.leftSkillValues.map((value, index) => `Lv${index + 1} ${value}%`).join(" • ")}</p>}
                             {hero.evidenceNote && <p><b>Evidence:</b> {hero.evidenceNote}</p>}
                             {hero.priorityNote && <p><b>Priority model:</b> {hero.priorityNote}</p>}
+                            <p className="evidence-separation"><b>GAME EVIDENCE:</b> {cageRecommendationEvidence(hero).gameEvidence === "verified" ? "Verified skill data" : cageRecommendationEvidence(hero).gameEvidence === "unverified" ? "Unverified skill data" : "No LEFT skill data entered"} <span aria-hidden="true">•</span> <b>RECOMMENDATION:</b> {cageRecommendationEvidence(hero).recommendationBasis === "tested-priority" ? "Established Cage priority" : cageRecommendationEvidence(hero).recommendationBasis === "heuristic-only" ? "Heuristic priority only" : "No priority rank inferred"}</p>
                             {hero.notes && <p><b>Notes:</b> {hero.notes}</p>}
                           </details>
                         </>
@@ -1298,7 +1300,7 @@ export default function Home() {
                     )}
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
-                    <details><summary>{tx.skill}</summary><p>{f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p></details>
+                    <details><summary>{tx.skill}</summary><p><b>GAME EVIDENCE:</b> {f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p><p><b>RECOMMENDATION MODEL:</b> {cageRecommendationEvidence(f.left).recommendationBasis === "tested-priority" ? "Established Cage priority." : cageRecommendationEvidence(f.left).recommendationBasis === "heuristic-only" ? "Heuristic priority; not an in-game percentage or proven ranking." : "No priority rank inferred from the evidence."}</p></details>
                   </div>
                   <div className="slot">
                     <span>MIDDLE • {f.middle.cls}</span>

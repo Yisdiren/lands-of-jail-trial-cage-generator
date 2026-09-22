@@ -1070,6 +1070,7 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
 .hero .evidence-badge.excluded {
   color: #ffaaaa;
 }
+.evidence-separation{padding:7px 8px;border-left:3px solid #8c6b34;background:rgba(35,29,18,.65)}
 
 
 /* Beta v1.74-v1.83 — comparison, overrides, evidence, import, season and mobile polish */
@@ -1128,7 +1129,7 @@ input,select,textarea,.profile-grid input,.profile-grid select,.troop-grid input
   .result-title,.formation-head{align-items:flex-start}
   .result-card-actions,.formation-head-actions{flex-wrap:wrap;justify-content:flex-end}
   .result .formation-hero-icon{width:52px;height:64px}
-  .mobile-generate{display:block;position:fixed;left:10px;right:10px;bottom:10px;z-index:80;border:0;border-radius:10px;background:linear-gradient(90deg,#ff9d00,#ffd44a);color:#17110a;font-weight:950;padding:14px;box-shadow:0 8px 26px #000b}
+  .mobile-generate{display:block;position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));z-index:80;min-height:48px;border:0;border-radius:10px;background:linear-gradient(90deg,#ff9d00,#ffd44a);color:#17110a;font-weight:950;padding:14px;box-shadow:0 8px 26px #000b}
 }
 @media print{
   body{background:#fff!important;color:#000!important}
@@ -1236,4 +1237,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .hero-grid, .robot-priority-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .panel { overflow-wrap: anywhere; }
   select, button { max-width: 100%; }
+  .formation-head-actions, .result-card-actions { width: 100%; justify-content: flex-start; }
+  .formation-head > span { flex-basis: 100%; overflow-wrap: anywhere; }
+  .result .slot, .formation-card .slot { padding: 10px 8px; }
 }

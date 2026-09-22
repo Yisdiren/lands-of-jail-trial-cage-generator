@@ -7,6 +7,7 @@ import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, parseHero
 import { cageBuffs, buffEffectLabel, prisonerArmorSetting, powerArmorBreakthroughLabel } from "../lib/cage-buffs";
 import { normalizeGeneratorBackup } from "../lib/generator-backup";
 import { extraUiText, languageOptions, uiText } from "../data/ui-text";
+import { cageRecommendationEvidence } from "../lib/evidence";
 
 test("one displayed Main reserves its heroes and robot from six Joiners", () => {
   const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
@@ -313,6 +314,43 @@ test("all 15 language catalogs expose every public UI key with non-empty fallbac
     }
   }
   assert.doesNotMatch(Object.values(extraUiText.en).join(" "), /[\u3400-\u9fff]/, "English catalog must not contain accidental Chinese copy");
+});
+
+test("verified game evidence remains separate from recommendation heuristics", () => {
+  const xuanming = heroes.find(hero => hero.name === "Xuanming")!;
+  const tyronn = heroes.find(hero => hero.name === "Tyronn")!;
+  const rin = heroes.find(hero => hero.name === "Rin")!;
+  assert.deepEqual(cageRecommendationEvidence(xuanming), { gameEvidence: "verified", recommendationBasis: "not-ranked" });
+  assert.deepEqual(cageRecommendationEvidence(tyronn), { gameEvidence: "verified", recommendationBasis: "tested-priority" });
+  assert.equal(cageRecommendationEvidence(rin).gameEvidence, rin.leftSkill ? "verified" : "not-entered");
+});
+
+test("S1-S6 formation stress matrix preserves legality across counts, stars, verification, and robot pools", () => {
+  for (let season = 1; season <= 6; season++) {
+    const pool = heroes.filter(hero => hero.season <= season && hero.cageAllowed);
+    for (const starLevel of [1, 3, 5]) {
+      const stars = Object.fromEntries(pool.map(hero => [hero.name, starLevel]));
+      for (const robotPool of [[], robots.slice(0, 2), robots]) {
+        const leader = generateLeaderFormation(pool, robotPool, stars);
+        for (const verifiedOnly of [false, true]) {
+          for (let count = 1; count <= 6; count++) {
+            const joiners = generateJoinerFormations(pool, count, {}, robotPool, verifiedOnly, stars, leader);
+            assert.ok(joiners.length <= count);
+            const formations = [...(leader ? [leader] : []), ...joiners];
+            const names = formations.flatMap(formation => [formation.left.name, formation.middle.name, formation.right.name]);
+            assert.equal(new Set(names).size, names.length, `S${season}, ${starLevel}★, ${count} Joiners must not reuse heroes`);
+            for (const formation of formations) {
+              assert.equal(new Set([formation.left.cls, formation.middle.cls, formation.right.cls]).size, 3);
+              assert.notEqual(formation.status, "blocked");
+            }
+            if (verifiedOnly) assert.ok(joiners.every(formation => formation.left.leftSkillVerified));
+            const assignedRobots = formations.map(formation => formation.robot).filter(Boolean);
+            assert.equal(new Set(assignedRobots).size, assignedRobots.length);
+          }
+        }
+      }
+    }
+  }
 });
 
 test("hero text import tolerates spacing, case, stars, duplicates and unknown rows", () => {

@@ -21,6 +21,9 @@
 - Audited all 15 language catalogs for complete, non-empty key coverage with reviewed English fallback for untranslated Advanced labels.
 - Corrected accidental Chinese LEFT-filter copy in the English catalog.
 - Expanded S1–S6 legality, evidence/heuristic separation, backup compatibility, local-storage, and localization regression coverage.
+- Added a 648-scenario S1–S6 stress matrix across Joiner counts, star levels, verified-only mode, and robot-pool sizes.
+- Added explicit Game Evidence versus Recommendation Model labels inside existing evidence details; no new controls were added.
+- Associated the season and Joiner-count labels with their selects and tightened 360px result actions, card padding, tap height, and mobile safe-area spacing.
 - No game data or established Cage recommendation weights changed.
 
 ## v2.31.0
