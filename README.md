@@ -8,7 +8,15 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.26**
+**Beta v2.33**
+
+### Beta v2.33 — reliability and evidence safeguards
+
+- Production remains intentionally simple: Main Rally + up to six Joiners, with optional tools kept in Advanced.
+- S1–S6 generation is protected by broad legality/no-reuse stress tests.
+- Backup and browser-state recovery are hardened against malformed or obsolete values.
+- Game evidence and recommendation heuristics are explicitly separated; verified data alone does not imply Cage priority.
+- The 15-language interface is checked for complete, non-empty fallback coverage.
 
 ### Beta v2.20 — multilingual public interface
 

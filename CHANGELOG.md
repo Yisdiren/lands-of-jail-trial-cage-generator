@@ -14,6 +14,16 @@
 
 # Changelog
 
+## Beta v2.33 — documentation and regression safeguards
+
+- Updated the README current-release marker and added a concise current reliability summary.
+- Added explicit regression guards preventing defensive/evidence-only LEFT heroes from silently gaining recommendation ranks.
+- Protected Worrell and Kate heuristic recommendation labels from being confused with verified in-game percentages.
+- Expanded hero-import edge-case coverage for empty files, CRLF input, punctuation, duplicates, and five-star notation.
+- Expanded malformed/future generator-backup regression coverage.
+- No new visible controls and no game-data or recommendation-weight changes.
+
+
 ## Beta v2.32 — restore and localization reliability
 
 - Centralized versioned generator-backup validation so malformed heroes, robots, felons, buffs, armor values, counts, and future backup versions cannot leak into UI state.

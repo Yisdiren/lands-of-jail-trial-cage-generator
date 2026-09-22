@@ -382,3 +382,41 @@ test("KOF and R rarity heroes stay out of ordinary Joiner candidates", () => {
   assert.ok(joinerCandidates.every(hero => hero.rarity !== "KOF"));
   assert.ok(joinerCandidates.every(hero => hero.rarity !== "R"));
 });
+
+
+test("defensive and evidence-only LEFT heroes cannot silently gain recommendation ranks", () => {
+  for (const name of ["Whisper", "Marcus", "Caesar", "Zoltan", "Gerd", "Vesaryon", "Platos", "Otto", "Wukong"]) {
+    const hero = heroes.find(item => item.name === name)!;
+    assert.equal(hero.leftTier, undefined, `${name} must remain unranked without Cage-priority evidence`);
+    assert.equal(hero.leftValue, undefined, `${name} must not receive a heuristic score without explicit evidence`);
+  }
+});
+
+test("S6 ranked LEFT heroes keep heuristic labeling separate from verified skill data", () => {
+  for (const name of ["Worrell", "Kate"]) {
+    const hero = heroes.find(item => item.name === name)!;
+    assert.equal(hero.leftSkillVerified, true);
+    assert.ok(hero.leftTier && hero.leftValue !== undefined);
+    assert.match(hero.priorityNote ?? "", /heuristic/i);
+    assert.equal(cageRecommendationEvidence(hero).recommendationBasis, "heuristic-only");
+  }
+});
+
+test("hero import handles empty files, CRLF, punctuation and clamps star syntax", () => {
+  assert.deepEqual(parseHeroListText("   \r\n\r\n"), { matched: [], unmatched: [], duplicates: [], stars: {} });
+  const parsed = parseHeroListText("TYRONN - 5 stars\r\nAda: ★★★★★\r\nUnknown!!!\r\nADA 2 stars");
+  assert.deepEqual(parsed.matched, ["Tyronn", "Ada"]);
+  assert.equal(parsed.stars.Tyronn, 5);
+  assert.equal(parsed.stars.Ada, 5);
+  assert.deepEqual(parsed.unmatched, ["Unknown!!!"]);
+  assert.deepEqual(parsed.duplicates, ["ADA 2 stars"]);
+});
+
+test("generator backup defaults malformed missing counts safely without accepting future versions", () => {
+  const restored = normalizeGeneratorBackup({ format: "loj-trial-cage-backup", version: 1, season: "bad", joinCount: null });
+  assert.equal(restored.season, 6);
+  assert.equal(restored.joinCount, 6);
+  assert.deepEqual(restored.owned, []);
+  assert.deepEqual(restored.ownedRobots, []);
+  assert.throws(() => normalizeGeneratorBackup({ format: "loj-trial-cage-backup", version: 999 }), /not supported/);
+});
