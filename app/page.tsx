@@ -84,7 +84,7 @@ export default function Home() {
   const [season, setSeason] = useState(6);
   const [owned, setOwned] = useState<string[]>([]);
   const [joinCount, setJoinCount] = useState(6);
-  const [fillJoinerSlots, setFillJoinerSlots] = useState(false);
+  const [leftOnlyJoiners, setLeftOnlyJoiners] = useState(false);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
@@ -244,7 +244,7 @@ export default function Home() {
         verifiedOnly,
         heroStarLevels,
         automaticLeader,
-        fillJoinerSlots,
+        !leftOnlyJoiners,
       ),
     [
       generatorAvailable,
@@ -254,7 +254,7 @@ export default function Home() {
       verifiedOnly,
       heroStarLevels,
       automaticLeader,
-      fillJoinerSlots,
+      !leftOnlyJoiners,
     ],
   );
 
@@ -266,7 +266,7 @@ export default function Home() {
     const leaderRobot = leaderFormation?.robot;
     const joinerRobotPool = leaderRobot ? availableRobots.filter(robot => robot !== leaderRobot) : availableRobots;
     if (Object.values(locks).some(Boolean)) joinerFormations = buildLockedFormations(generatorAvailable, joinCount, locks, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
-    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation, fillJoinerSlots);
+    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation, !leftOnlyJoiners);
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
     joinerFormations = [];
@@ -582,8 +582,8 @@ export default function Home() {
         <div><label htmlFor="season-select">{t.season}</label><select id="season-select" value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6,7].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
         <div><label htmlFor="join-count-select">{t.joiners}</label><select id="join-count-select" value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
         <label className="verified-toggle">
-          <input type="checkbox" checked={fillJoinerSlots} onChange={(e)=>{setFillJoinerSlots(e.target.checked);setGenerated(false)}} />
-          <span><b>FILL ALL 3 HERO SLOTS FOR JOINERS</b><small>{fillJoinerSlots ? "Full Joiners: keep the recommended LEFT hero and fill MIDDLE/RIGHT with available support heroes." : "Off by default: Joiners use only the recommended LEFT hero."}</small></span>
+          <input type="checkbox" checked={leftOnlyJoiners} onChange={(e)=>{setLeftOnlyJoiners(e.target.checked);setGenerated(false)}} />
+          <span><b>LEFT HERO ONLY FOR JOINERS</b><small>{leftOnlyJoiners ? "LEFT-only Joiners: use only the recommended LEFT hero." : "Default: fill all 3 hero slots while keeping the recommended LEFT hero."}</small></span>
         </label>
         {unavailableSelected.length > 0 && <p role="status" className="helper">Unavailable in Season {season}: {unavailableSelected.join(", ")}. Your selections return when you switch back.</p>}
       </section>
