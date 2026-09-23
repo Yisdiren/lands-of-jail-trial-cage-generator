@@ -14,6 +14,14 @@
 
 # Changelog
 
+## Beta v2.39 — optional Joiner support heroes
+
+- Joiner generation can now produce a usable LEFT-only rally when support heroes are unavailable.
+- MIDDLE/RIGHT are optional and filled when possible for full three-hero rallies.
+- LEFT candidates are reserved for leading later Joiners instead of being consumed as filler.
+- Main Rally requirements are unchanged.
+
+
 ## Beta v2.38 — Joiner LEFT-priority clarity
 
 - Emphasized the LEFT hero on Joiner result cards.
