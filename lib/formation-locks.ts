@@ -8,7 +8,7 @@ export function buildLockedFormations(pool:Hero[],count:number,locks:Locks,level
     const hero=pool.find(h=>h.name===name);
     if(hero&&!meetsMainShieldStars(hero,stars)) throw new Error(`${name} needs at least 3 stars for the Main Rally. Use Tyronn, Phoenix, or Xuanming at 3+ stars.`);
   }
-  const reserved=mode==="joiner"&&leader?new Set(slots.map(s=>leader[s].name)):new Set<string>();
+  const reserved=mode==="joiner"&&leader?new Set(slots.map(s=>leader[s]?.name).filter((name): name is string => Boolean(name))):new Set<string>();
   const allowed=pool.filter(h=>h.cageAllowed&&h.rarity!=="KOF"&&!reserved.has(h.name)&&(mode!=="leader"||meetsMainShieldStars(h,stars)));
   const active=Object.entries(locks).filter(([key,name])=>name&&Number(key.split(":")[0])<count),names=active.map(([,name])=>name);
   if(new Set(names).size!==names.length){const duplicate=names.find((name,index)=>names.indexOf(name)!==index);throw new Error(`Lock conflict: ${duplicate??"a hero"} is locked into more than one slot.`);}
