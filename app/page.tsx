@@ -1271,7 +1271,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <p className="result-intro">LEFT hero first • 1 Shield + 1 Bomber + 1 Shooter • no hero reuse</p>
+          <p className="result-intro"><b>Joiner priority: LEFT hero.</b> MIDDLE and RIGHT are formation/filler slots used to complete the required classes; do not treat them as extra Cage-damage recommendations without direct evidence.</p>
           {lockError && <div className="warning-box">{lockError}</div>}
           {joinerFormations.length === 0 && (
             <div className="warning-box">
@@ -1304,7 +1304,7 @@ export default function Home() {
                     <details><summary>{tx.skill}</summary><p><b>GAME EVIDENCE:</b> {f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p><p><b>RECOMMENDATION MODEL:</b> {cageRecommendationEvidence(f.left).recommendationBasis === "tested-priority" ? "Established Cage priority." : cageRecommendationEvidence(f.left).recommendationBasis === "heuristic-only" ? "Heuristic priority; not an in-game percentage or proven ranking." : "No priority rank inferred from the evidence."}</p></details>
                   </div>
                   <div className="slot">
-                    <span>MIDDLE • {f.middle.cls}</span>
+                    <span>MIDDLE • {f.middle.cls} • FILLER</span>
                     {heroIconNames.has(f.middle.name) && (
                       <Image className="formation-hero-icon"
                         src={heroIconPath(f.middle.name)}
@@ -1313,7 +1313,7 @@ export default function Home() {
                     <b>{f.middle.name}</b>{supportShieldNames.has(f.middle.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.middle.name] ? "★".repeat(heroStarLevels[f.middle.name]) : "Stars not set"}</small>
                   </div>
                   <div className="slot">
-                    <span>RIGHT • {f.right.cls}</span>
+                    <span>RIGHT • {f.right.cls} • FILLER</span>
                     {heroIconNames.has(f.right.name) && (
                       <Image className="formation-hero-icon"
                         src={heroIconPath(f.right.name)}
