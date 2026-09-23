@@ -30,6 +30,16 @@ type Mode = "leader" | "joiner";
 type ImportReport = { matched: string[]; unmatched: string[]; duplicates: string[] };
 type FormationSnapshotLine = { id: string; left: string; middle: string; right: string; robot: string; status: string };
 type FormationSnapshot = { savedAt: string; lines: FormationSnapshotLine[] };
+type CageTestResult = {
+  id: string;
+  date: string;
+  damage: number;
+  main: string;
+  joinerLefts: string;
+  troopLimit: 90 | 100;
+  robot: string;
+  notes: string;
+};
 type SimpleSavedSetup = {
   season: number;
   joinCount: number;
@@ -112,6 +122,44 @@ export default function Home() {
   const [armorSettings, setArmorSettings] = useState<PrisonerArmorSettings>({});
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
   const [kofLeaderLinks, setKofLeaderLinks] = useState<Record<string,string>>({});
+  const [cageTests, setCageTests] = useState<CageTestResult[]>([]);
+  const [testDamage, setTestDamage] = useState("");
+  const [testNotes, setTestNotes] = useState("");
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("loj-cage-tests-v1");
+      if (raw) setCageTests(JSON.parse(raw));
+    } catch {}
+  }, []);
+  const saveCageTest = () => {
+    const damage = Number(testDamage.replace(/,/g, ""));
+    if (!Number.isFinite(damage) || damage <= 0 || !leaderFormation) {
+      setNotice("Generate a Main Rally and enter a valid Cage damage result first.");
+      return;
+    }
+    const entry: CageTestResult = {
+      id: `${Date.now()}`,
+      date: new Date().toISOString().slice(0, 10),
+      damage,
+      main: [leaderFormation.left.name, leaderFormation.middle?.name, leaderFormation.right?.name].filter(Boolean).join(" / "),
+      joinerLefts: joinerFormations.map(f => f.left.name).join(", "),
+      troopLimit: joinerTroopLimit,
+      robot: leaderFormation.robot ?? "None",
+      notes: testNotes.trim(),
+    };
+    const next = [entry, ...cageTests].slice(0, 50);
+    setCageTests(next);
+    try { window.localStorage.setItem("loj-cage-tests-v1", JSON.stringify(next)); } catch {}
+    setTestDamage("");
+    setTestNotes("");
+    setNotice("Cage test saved on this device.");
+  };
+  const deleteCageTest = (id: string) => {
+    const next = cageTests.filter(test => test.id !== id);
+    setCageTests(next);
+    try { window.localStorage.setItem("loj-cage-tests-v1", JSON.stringify(next)); } catch {}
+  };
 
   useEffect(() => {
     try {
@@ -1071,6 +1119,30 @@ export default function Home() {
           <div><b>Felons</b><span>Scorpion + Cobra core. Use Rage Fist for a full rally; Devil when expedition capacity is more useful.</span></div>
           <div><b>2-hour buffs</b><span>Troops ATK +11%, Troops Lethality +11%, Expedition Capacity +11%. Activate about 5 minutes before Cage.</span></div>
         </div>
+      </section>
+
+
+      <section className="panel cage-test-tracker" aria-labelledby="cage-test-heading">
+        <div className="title"><div><label>ACTUAL CAGE TESTS</label><h2 id="cage-test-heading">Damage results tracker</h2></div></div>
+        <p className="helper">Save actual Trial Cage hits from the setup you generated. Results are stored only in this browser and do not change recommendation rankings.</p>
+        <div className="test-entry-grid">
+          <label><span>Damage dealt</span><input inputMode="numeric" placeholder="Example: 542000000" value={testDamage} onChange={event=>setTestDamage(event.target.value)} /></label>
+          <label><span>Notes</span><input placeholder="Cage 1, robot test, hero swap…" value={testNotes} onChange={event=>setTestNotes(event.target.value)} /></label>
+          <button type="button" onClick={saveCageTest} disabled={!generated || !leaderFormation}>SAVE THIS HIT</button>
+        </div>
+        {cageTests.length > 0 ? (
+          <div className="cage-test-list">
+            {cageTests.map(test => (
+              <article className="cage-test-card" key={test.id}>
+                <div><b>{test.damage.toLocaleString()} damage</b><small>{test.date} • {test.troopLimit}K Joiners • Main robot: {test.robot}</small></div>
+                <p><strong>Main:</strong> {test.main}</p>
+                <p><strong>Joiner LEFT:</strong> {test.joinerLefts || "None recorded"}</p>
+                {test.notes && <p><strong>Notes:</strong> {test.notes}</p>}
+                <button type="button" className="mini-copy" onClick={()=>deleteCageTest(test.id)}>DELETE</button>
+              </article>
+            ))}
+          </div>
+        ) : <p className="helper">No Cage tests saved yet.</p>}
       </section>
 
 
