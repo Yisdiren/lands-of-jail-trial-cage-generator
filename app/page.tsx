@@ -84,7 +84,7 @@ export default function Home() {
   const [season, setSeason] = useState(6);
   const [owned, setOwned] = useState<string[]>([]);
   const [joinCount, setJoinCount] = useState(6);
-  const [leftOnlyJoiners, setLeftOnlyJoiners] = useState(false);
+  const [leftOnlyJoiners, setLeftOnlyJoiners] = useState(false);\n  const [joinerTroopLimit, setJoinerTroopLimit] = useState<90 | 100>(100);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
@@ -260,13 +260,13 @@ export default function Home() {
 
   let lockError = "";
   let leaderFormation = automaticLeader;
-  let joinerFormations = automaticJoiners;
+  const joinerTroopText = `${joinerTroopLimit.toLocaleString()},000 total troops`;\n  let joinerFormations = automaticJoiners.map(formation => ({...formation, troopText: joinerTroopText}));
   try {
     if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, automaticWarSkillLevels, availableRobots, false, null, "leader", heroStarLevels)[0] ?? null;
     const leaderRobot = leaderFormation?.robot;
     const joinerRobotPool = leaderRobot ? availableRobots.filter(robot => robot !== leaderRobot) : availableRobots;
     if (Object.values(locks).some(Boolean)) joinerFormations = buildLockedFormations(generatorAvailable, joinCount, locks, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
-    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation, !leftOnlyJoiners);
+    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation, !leftOnlyJoiners).map(formation => ({...formation, troopText: joinerTroopText}));
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
     joinerFormations = [];
@@ -290,12 +290,12 @@ export default function Home() {
   const requestedRobotSlots = (leaderFormation ? 1 : 0) + joinCount;
   const preflightStatus = lockError || !leaderFormation ? "blocked" : joinerFormations.length < joinCount ? "review" : "ready";
   const topRecoveryOptions = joinerRosterDiagnostics.rankedLeftAlternatives.slice(0, 6);
-  const shortageActions: string[] = [];
-  if (joinerRosterDiagnostics.counts.Shield < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shield} eligible Shield hero${joinCount - joinerRosterDiagnostics.counts.Shield === 1 ? "" : "es"}.`);
-  if (joinerRosterDiagnostics.counts.Bomber < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Bomber} eligible Bomber hero${joinCount - joinerRosterDiagnostics.counts.Bomber === 1 ? "" : "es"}.`);
-  if (joinerRosterDiagnostics.counts.Shooter < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shooter} eligible Shooter hero${joinCount - joinerRosterDiagnostics.counts.Shooter === 1 ? "" : "es"}.`);
+  const shortageActions: string[] = [];\n  const fullJoinerMode = !leftOnlyJoiners;
+  if (fullJoinerMode && joinerRosterDiagnostics.counts.Shield < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shield} eligible Shield hero${joinCount - joinerRosterDiagnostics.counts.Shield === 1 ? "" : "es"}.`);
+  if (fullJoinerMode && joinerRosterDiagnostics.counts.Bomber < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Bomber} eligible Bomber hero${joinCount - joinerRosterDiagnostics.counts.Bomber === 1 ? "" : "es"}.`);
+  if (fullJoinerMode && joinerRosterDiagnostics.counts.Shooter < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shooter} eligible Shooter hero${joinCount - joinerRosterDiagnostics.counts.Shooter === 1 ? "" : "es"}.`);
   if (joinerRosterDiagnostics.leftSkills < joinCount) shortageActions.push(`Add or verify ${joinCount - joinerRosterDiagnostics.leftSkills} more ${verifiedOnly ? "screenshot-verified " : ""}LEFT-skill hero${joinCount - joinerRosterDiagnostics.leftSkills === 1 ? "" : "es"}.`);
-  if (joinerRosterDiagnostics.heroShortage > 0) shortageActions.push(`Add ${joinerRosterDiagnostics.heroShortage} eligible hero${joinerRosterDiagnostics.heroShortage === 1 ? "" : "es"} overall for ${joinCount} full non-repeating Joiners.`);
+  if (fullJoinerMode && joinerRosterDiagnostics.heroShortage > 0) shortageActions.push(`Add ${joinerRosterDiagnostics.heroShortage} eligible hero${joinerRosterDiagnostics.heroShortage === 1 ? "" : "es"} overall for ${joinCount} full non-repeating Joiners.`);
   const missingMainClasses = (["Shield","Bomber","Shooter"] as const).filter(cls => !available.some(hero => hero.cls === cls));
   const simpleShortageItems = [
     ...(missingMainClasses.length ? [`Main Rally needs: ${missingMainClasses.join(" + ")}.`] : []),
@@ -585,6 +585,7 @@ export default function Home() {
           <input type="checkbox" checked={leftOnlyJoiners} onChange={(e)=>{setLeftOnlyJoiners(e.target.checked);setGenerated(false)}} />
           <span><b>LEFT HERO ONLY FOR JOINERS</b><small>{leftOnlyJoiners ? "LEFT-only Joiners: use only the recommended LEFT hero." : "Default: fill all 3 hero slots while keeping the recommended LEFT hero."}</small></span>
         </label>
+        <div><label htmlFor="joiner-troop-limit">Joiner troop limit</label><select id="joiner-troop-limit" value={joinerTroopLimit} onChange={(e)=>{setJoinerTroopLimit(Number(e.target.value) as 90 | 100);setGenerated(false)}}><option value={90}>90K total</option><option value={100}>100K total</option></select><small className="helper">Sets the total troop instruction shown on J1–J6. Use your alliance's preferred Bomber/Shooter mix.</small></div>
         {unavailableSelected.length > 0 && <p role="status" className="helper">Unavailable in Season {season}: {unavailableSelected.join(", ")}. Your selections return when you switch back.</p>}
       </section>
 
@@ -932,7 +933,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main: maximum troops • Joiners: 10k Bombers + 90k Shooters or 100k Shooters</span><strong>{cageBuffSummaryText(selectedBuffIds, armorSettings)}</strong><label>Activate <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min before Cage</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
+        <div className="buff-summary"><b className="pre-cage-label">PRE-CAGE CHECKLIST</b><span>✓ Main: maximum troops • Joiners: {joinerTroopLimit}K total</span><strong>{cageBuffSummaryText(selectedBuffIds, armorSettings)}</strong><label>Activate <input type="number" min="0" max="120" value={activationLeadMinutes} onChange={e=>setActivationLeadMinutes(Math.max(0,Math.min(120,Number(e.target.value)||0)))} /> min before Cage</label><small>{cageBuffTimingMessage({selectedBuffIds,activationLeadMinutes})}</small></div>
       </section>
 
 
@@ -1029,7 +1030,7 @@ export default function Home() {
         </div>
         <div className="mini-grid">
           <div><b>Main Rally reserve</b><span>{leaderReservedNames.length ? leaderReservedNames.join(" + ") : "Need one usable hero from each class"}</span></div>
-          <div><b>Joiner hero usage</b><span>{projectedJoinerHeroNames.length}/{joinCount * 3} projected heroes for {joinCount} Joiner{joinCount === 1 ? "" : "s"}</span></div>
+          <div><b>Joiner hero usage</b><span>{projectedJoinerHeroNames.length}/{leftOnlyJoiners ? joinCount : joinCount * 3} projected heroes for {joinCount} Joiner{joinCount === 1 ? "" : "s"}</span></div>
           <div><b>Class pool after Main</b><span>{joinerRosterDiagnostics.counts.Shield} Shield • {joinerRosterDiagnostics.counts.Bomber} Bomber • {joinerRosterDiagnostics.counts.Shooter} Shooter</span></div>
           <div><b>LEFT skill pool</b><span>{joinerRosterDiagnostics.leftSkills}/{joinCount} needed • {verifiedOnly ? "verified only" : "verified + known"}{hideFillerLeft ? " • no filler" : ""}{leftClassFilter !== "all" ? ` • ${leftClassFilter} only` : ""}</span></div>
           <div><b>Robot pool</b><span>{assignedRobotNames.length}/{requestedRobotSlots} projected assignments • {unassignedRobotNames.length} unassigned</span></div>
@@ -1039,7 +1040,7 @@ export default function Home() {
           <details className="preflight-details">
             <summary>Show projected roster usage</summary>
             <p><b>Main reserved:</b> {leaderReservedNames.join(", ") || "none"}</p>
-            <p><b>Joiners ({projectedJoinerHeroNames.length}/{joinCount * 3} heroes):</b> {projectedJoinerHeroNames.join(", ")}</p>
+            <p><b>Joiners ({projectedJoinerHeroNames.length}/{leftOnlyJoiners ? joinCount : joinCount * 3} heroes):</b> {projectedJoinerHeroNames.join(", ")}</p>
           </details>
         )}
         {topRecoveryOptions.length > 0 && (
@@ -1278,7 +1279,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <p className="result-intro"><b>Joiner priority: LEFT hero.</b> MIDDLE and RIGHT are optional support/filler. The generator fills them when possible for members who prefer a full 3-hero rally, without sacrificing another useful LEFT hero.</p>
+          <p className="result-intro"><b>Joiner priority: LEFT hero.</b> {leftOnlyJoiners ? "LEFT-only mode is on, so MIDDLE and RIGHT are intentionally empty." : "Full mode keeps the LEFT recommendation and uses MIDDLE/RIGHT as support/filler without sacrificing another useful LEFT hero."}</p>
           {lockError && <div className="warning-box">{lockError}</div>}
           {joinerFormations.length === 0 && (
             <div className="warning-box">
