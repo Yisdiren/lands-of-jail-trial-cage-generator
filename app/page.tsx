@@ -84,6 +84,7 @@ export default function Home() {
   const [season, setSeason] = useState(6);
   const [owned, setOwned] = useState<string[]>([]);
   const [joinCount, setJoinCount] = useState(6);
+  const [fillJoinerSlots, setFillJoinerSlots] = useState(false);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
@@ -263,7 +264,7 @@ export default function Home() {
     const leaderRobot = leaderFormation?.robot;
     const joinerRobotPool = leaderRobot ? availableRobots.filter(robot => robot !== leaderRobot) : availableRobots;
     if (Object.values(locks).some(Boolean)) joinerFormations = buildLockedFormations(generatorAvailable, joinCount, locks, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
-    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation);
+    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation, fillJoinerSlots);
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
     joinerFormations = [];
@@ -353,7 +354,8 @@ export default function Home() {
     const text = [
       `${formation.id}: ${formation.left.name} / ${formation.middle?.name ?? "—"} / ${formation.right?.name ?? "—"}${leftLevel}`,
       `${kind} troops: ${formation.troopText}${robot}`,
-    ].join("\n");
+    ].join("
+");
     try {
       await navigator.clipboard.writeText(text);
       setNotice(`${formation.id} copied.`);
@@ -528,7 +530,8 @@ export default function Home() {
       ...readinessLines,
     ];
     try {
-      await navigator.clipboard.writeText(lines.join("\n"));
+      await navigator.clipboard.writeText(lines.join("
+"));
       setNotice("Alliance instructions copied to the clipboard.");
     } catch {
       setNotice("Clipboard access was blocked. Select and copy the formation list manually.");
