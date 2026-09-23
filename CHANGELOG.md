@@ -14,6 +14,12 @@
 
 # Changelog
 
+## Beta v2.37 — version-sync safeguards
+
+- Removed the hard-coded header beta version and now derive it from `package.json`.
+- Prevents future package/header version drift without changing game data, recommendations, or public controls.
+
+
 ## Beta v2.36 — recommendation and release safeguards
 
 - Added season-6 recommendation-order guards so defensive/evidence-only LEFT heroes cannot silently overtake established offensive priorities.
