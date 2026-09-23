@@ -8,7 +8,12 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.36**
+**Beta v2.37**
+
+### Beta v2.37 — version-sync safeguards
+
+- The visible header beta badge now derives from `package.json`, preventing the UI version from drifting behind the release version again.
+- Release metadata remains centralized while the normal generator workflow and recommendation data stay unchanged.
 
 ### Beta v2.36 — release and recommendation safeguards
 
