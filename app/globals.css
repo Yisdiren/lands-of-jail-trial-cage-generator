@@ -1241,3 +1241,15 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .formation-head > span { flex-basis: 100%; overflow-wrap: anywhere; }
   .result .slot, .formation-card .slot { padding: 10px 8px; }
 }
+
+
+/* v2.35 narrow-screen results hardening */
+@media (max-width: 430px) {
+  .formation-card, .result-card, .results-panel { min-width: 0; overflow-wrap: anywhere; }
+  .results-actions, .formation-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .results-actions > *, .formation-actions > * { min-height: 44px; max-width: 100%; }
+}
+@media (max-width: 360px) {
+  .formation-card, .result-card { padding-left: .65rem; padding-right: .65rem; }
+  .results-actions > button, .formation-actions > button { width: 100%; }
+}

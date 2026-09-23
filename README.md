@@ -8,7 +8,15 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.33**
+**Beta v2.35**
+
+### Beta v2.35 — quality, accessibility and integrity safeguards
+
+- Completed another 15-language catalog integrity pass while preserving English fallback for untranslated Advanced copy.
+- Added polite live-region announcements for generator notices and tightened narrow-screen result actions.
+- Added database integrity checks for hero identity/class/season/rarity, verified five-level LEFT evidence, and complete robot icon mappings.
+- Locked verified Cage Power Armor level caps/value arrays and continued excluding non-Cage utility skills from Cage buff choices.
+- Results/image-export behavior remains unchanged; regression coverage protects the formation data it consumes.
 
 ### Beta v2.33 — reliability and evidence safeguards
 

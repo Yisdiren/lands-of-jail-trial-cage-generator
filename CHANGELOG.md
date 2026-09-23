@@ -12,7 +12,18 @@
 - Recorded Server 260 entering Season 6 and kept remaining S6 data evidence-first.
 - Updated Worrell, Kate and Wukong to the new unlocked screenshots and retained the simplified default workflow.
 
-# Changelog\n\n## Beta v2.34 — formation boundary and restore stress tests\n\n- Added pinned-formation conflict and Main-reservation regression coverage.\n- Added exact-roster boundary tests from one through six Joiners, including one-class-short cases.\n- Added robot-supply uniqueness tests for zero, partial, and full robot pools.\n- Added a permanent version-1 backup compatibility fixture with removed/unknown roster entries.\n- Expanded local-storage recovery tests across primitive JSON, arrays, nulls, and extreme values.\n- Recorded screenshot-verified Bastion Tactical Optimization Core Skill text without assigning an untested Cage priority.\n- No new visible controls or recommendation-weight changes.\n
+# Changelog
+
+## Beta v2.35 — quality, accessibility and integrity pass
+
+- Re-audited the complete 15-language catalogs and retained safe English fallback behavior.
+- Added screen-reader live status semantics to generator notices without changing visible UI.
+- Hardened 430px/360px result-action wrapping and touch targets.
+- Added hero database and robot presentation integrity tests, including verified five-level LEFT arrays and complete robot icon mappings.
+- Added exact Power Armor regression guards for Infercore/Atlax Lv9, Halo/Yokozuna Lv10 values, and continued exclusion of non-Cage utility skills.
+- Updated README to the current release and documented the new safeguards.
+- No game recommendation weights or visible setup controls changed.
+\n\n## Beta v2.34 — formation boundary and restore stress tests\n\n- Added pinned-formation conflict and Main-reservation regression coverage.\n- Added exact-roster boundary tests from one through six Joiners, including one-class-short cases.\n- Added robot-supply uniqueness tests for zero, partial, and full robot pools.\n- Added a permanent version-1 backup compatibility fixture with removed/unknown roster entries.\n- Expanded local-storage recovery tests across primitive JSON, arrays, nulls, and extreme values.\n- Recorded screenshot-verified Bastion Tactical Optimization Core Skill text without assigning an untested Cage priority.\n- No new visible controls or recommendation-weight changes.\n
 
 ## Beta v2.33 — documentation and regression safeguards
 

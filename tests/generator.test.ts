@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { heroes, robots } from "../data/heroes";
+import { robotIconPaths } from "../data/robot-presentation";
 import { generateJoinerFormations, generateLeaderFormation } from "../lib/generator";
 import { buildLockedFormations } from "../lib/formation-locks";
 import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, parseHeroListText, parseStoredSimpleSetup } from "../lib/simple-setup";
@@ -493,4 +494,33 @@ test("local storage recovery survives nulls, arrays, primitive JSON and extreme 
     assert.ok(parsed.setup.owned.every(name => heroes.some(hero => hero.name === name)));
     assert.ok(Object.values(parsed.setup.heroStarLevels).every(stars => stars >= 1 && stars <= 5));
   }
+});
+
+
+test("hero and robot presentation data stays internally consistent", () => {
+  assert.equal(new Set(heroes.map(hero => hero.name)).size, heroes.length, "hero names must be unique");
+  for (const hero of heroes) {
+    assert.ok(["Shield","Bomber","Shooter"].includes(hero.cls), `${hero.name} class`);
+    assert.ok(Number.isInteger(hero.season) && hero.season >= 0 && hero.season <= 7, `${hero.name} season`);
+    assert.ok(["R","SR","SSR","KOF"].includes(hero.rarity), `${hero.name} rarity`);
+    if (hero.leftSkillVerified) {
+      assert.equal(hero.leftSkillValues?.length, 5, `${hero.name} verified LEFT needs five levels`);
+      assert.ok(hero.leftSkillValues?.every(value => Number.isFinite(value) && value >= 0));
+    }
+  }
+  assert.deepEqual(Object.keys(robotIconPaths).sort(), [...robots].sort(), "every robot needs exactly one presentation mapping");
+  for (const [name, path] of Object.entries(robotIconPaths)) {
+    assert.match(path, /^\/icons\//, `${name} icon must use a public icon path`);
+  }
+});
+
+test("Cage Power Armor verified level caps and values remain exact", () => {
+  const byId = Object.fromEntries(cageBuffs.map(buff => [buff.id, buff]));
+  assert.equal(byId["comprehensive-command"].maxSkillLevel, 9);
+  assert.deepEqual(byId["comprehensive-command"].levelValues, [1250,2500,3750,5000,6250,7500,8750,10000,11250]);
+  assert.equal(byId["orbital-strike"].maxSkillLevel, 9);
+  assert.deepEqual(byId["orbital-strike"].levelValues, [2,2.5,3,3.5,4,4.5,5,5.5,6]);
+  assert.deepEqual(byId["overload-charge"].levelValues, [16000,32000,48000,64000,80000,96000,112000,128000,144000,160000]);
+  assert.deepEqual(byId["valiant-breach"].levelValues, [2,2.5,3,4,5,6,7,8,9,10]);
+  for (const id of ["shockwave-crush","multidimensional","emergency-shelter"]) assert.equal(byId[id], undefined);
 });
