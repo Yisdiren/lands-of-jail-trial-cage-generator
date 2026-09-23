@@ -39,9 +39,9 @@ export function generateLeaderFormationSmart(availableHeroes:Hero[],ownedRobots:
     ? preferredShieldPool.sort((a,b)=>starOf(b,heroStarLevels)-starOf(a,heroStarLevels)||a.name.localeCompare(b.name))[0]
     : pickBest(leaderPool,"Shield",used,heroStarLevels));
   if(shield)used.add(shield.name);
-  const preferredBomber=leaderPool.find(h=>h.cls==="Bomber"&&h.name==="Ryuichi");
+  const preferredBomber=leaderPool.find(h=>h.cls==="Bomber"&&h.name==="Boogie") ?? leaderPool.find(h=>h.cls==="Bomber"&&h.name==="Ryuichi");
   const bomber=preferredBomber??pickBest(leaderPool,"Bomber",used,heroStarLevels);if(bomber)used.add(bomber.name);
-  const preferredShooter=leaderPool.find(h=>h.cls==="Shooter"&&h.name==="Ada");
+  const preferredShooter=leaderPool.find(h=>h.cls==="Shooter"&&h.name==="Rin") ?? leaderPool.find(h=>h.cls==="Shooter"&&h.name==="Rex") ?? leaderPool.find(h=>h.cls==="Shooter"&&h.name==="Ada");
   const shooter=preferredShooter??pickBest(leaderPool,"Shooter",used,heroStarLevels);if(!shield||!bomber||!shooter)return null;
   const linkedKof=(target:Hero):Hero=>{
     const kof=availableHeroes.find(h=>h.rarity==="KOF"&&h.cls===target.cls&&validKofTargets[h.name]===target.name&&kofLeaderLinks[h.name]===target.name&&starOf(h,heroStarLevels)>=4);
@@ -60,7 +60,7 @@ export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:numbe
   const used=new Set<string>(),results:Formation[]=[];
   const pickSupport=(cls:HeroClass,local:Set<string>)=>eligible
     .filter(hero=>hero.cls===cls&&!local.has(hero.name)&&!protectedNames.has(hero.name))
-    .sort((a,b)=>(Number(Boolean(a.leftSkill))-Number(Boolean(b.leftSkill)))||starOf(a,heroStarLevels)-starOf(b,heroStarLevels)||a.name.localeCompare(b.name))[0];
+    .sort((a,b)=>(Number(Boolean(a.leftSkill))-Number(Boolean(b.leftSkill)))||a.name.localeCompare(b.name))[0];
   for(const left of candidates){
     if(results.length>=count||used.has(left.name))continue;
     const missing=classOrder.filter(cls=>cls!==left.cls),local=new Set(used); local.add(left.name);
