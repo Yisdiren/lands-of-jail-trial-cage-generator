@@ -56,13 +56,17 @@ export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:numbe
   const reserved=new Set(leaderFormation?[leaderFormation.left.name,leaderFormation.middle?.name,leaderFormation.right?.name].filter((name): name is string => Boolean(name)):[]);
   const eligible=availableHeroes.filter(h=>isBaseJoinerEligible(h)&&!reserved.has(h.name));
   const candidates=chooseLeft(eligible,eligible.length,warSkillLevels,heroStarLevels,verifiedOnly);
+  const protectedNames=new Set(candidates.slice(0,count).map(hero=>hero.name));
   const used=new Set<string>(),results:Formation[]=[];
+  const pickSupport=(cls:HeroClass,local:Set<string>)=>eligible
+    .filter(hero=>hero.cls===cls&&!local.has(hero.name)&&!protectedNames.has(hero.name))
+    .sort((a,b)=>(Number(Boolean(a.leftSkill))-Number(Boolean(b.leftSkill)))||starOf(a,heroStarLevels)-starOf(b,heroStarLevels)||a.name.localeCompare(b.name))[0];
   for(const left of candidates){
     if(results.length>=count||used.has(left.name))continue;
-    // Cage Joiners are LEFT-only recommendations by default. MIDDLE/RIGHT are intentionally left empty.
-    // This prevents neutral/support heroes from looking like additional Cage recommendations.
-    const middle = undefined, right = undefined;
-    used.add(left.name);
+    const missing=classOrder.filter(cls=>cls!==left.cls),local=new Set(used); local.add(left.name);
+    const middle=fillSupportSlots?pickSupport(missing[0],local):undefined; if(middle)local.add(middle.name);
+    const right=fillSupportSlots?pickSupport(missing[1],local):undefined;
+    used.add(left.name); if(middle)used.add(middle.name); if(right)used.add(right.name);
     const level=levelOf(left,warSkillLevels),base:Omit<Formation,"alerts"|"status">={id:`J${results.length+1}`,left,middle,right,robot:ownedRobots[results.length],leftSkillLevel:level,leftSkillPercent:left.leftSkillValues?.[level-1],troopText:"10,000 Bombers + 90,000 Shooters OR 100,000 Shooters"};
     results.push({...base,...validateFormation(base,"joiner")});
   }
