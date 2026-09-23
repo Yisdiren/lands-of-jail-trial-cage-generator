@@ -280,7 +280,7 @@ export default function Home() {
   const joinerRosterDiagnostics = diagnoseJoinerRoster(generatorAvailable, joinCount, leaderFormation, verifiedOnly, automaticWarSkillLevels, heroStarLevels);
   const missingShieldCount = Math.max(0, joinCount - joinerRosterDiagnostics.counts.Shield);
   const shieldSuggestions = seasonHeroes.filter(hero => hero.cageAllowed && showHeroInGenerator(hero) && hero.cls === "Shield" && !owned.includes(hero.name));
-  const leaderReservedNames = leaderFormation ? [leaderFormation.left.name, leaderFormation.middle!.name, leaderFormation.right!.name] : [];
+  const leaderReservedNames = leaderFormation ? [leaderFormation.left.name, leaderFormation.middle?.name, leaderFormation.right?.name].filter((name): name is string => Boolean(name)) : [];
   const projectedJoinerHeroNames = Array.from(new Set(joinerFormations.flatMap(formation => [formation.left.name, formation.middle?.name, formation.right?.name].filter((name): name is string => Boolean(name)))));
   const assignedRobotNames = [leaderFormation?.robot, ...joinerFormations.map(formation => formation.robot)].filter((name): name is string => Boolean(name));
   const unassignedRobotNames = availableRobots.filter(robot => !assignedRobotNames.includes(robot));
