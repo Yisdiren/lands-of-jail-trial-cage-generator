@@ -24,8 +24,7 @@ const valuable = (hero: Hero) => hero.leftTier === "top" || hero.leftTier === "s
 const leftSorter = (levels: WarSkillLevels, stars: HeroStarLevels) => (a:Hero,b:Hero) => scoreJoinerLeftHero(b,levels,stars)-scoreJoinerLeftHero(a,levels,stars) || starOf(b,stars)-starOf(a,stars) || a.name.localeCompare(b.name);
 const pickBest = (list:Hero[], cls:HeroClass, used:Set<string>, stars:HeroStarLevels) => list.filter(h=>h.cls===cls&&!used.has(h.name)).sort((a,b)=>starOf(b,stars)-starOf(a,stars)||a.name.localeCompare(b.name))[0];
 const chooseLeft = (eligible:Hero[],count:number,levels:WarSkillLevels,stars:HeroStarLevels,verifiedOnly:boolean) => eligible.filter(h=>!!h.leftSkill&&(!verifiedOnly||h.leftSkillVerified)).sort(leftSorter(levels,stars)).slice(0,count);
-const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedNames:Set<string>,levels:WarSkillLevels,stars:HeroStarLevels) => eligible.filter(h=>h.cls===cls&&!used.has(h.name)).sort((a,b)=>{
-  const ap=protectedNames.has(a.name)?1:0,bp=protectedNames.has(b.name)?1:0;if(ap!==bp)return ap-bp;
+const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedNames:Set<string>,levels:WarSkillLevels,stars:HeroStarLevels) => eligible.filter(h=>h.cls===cls&&!used.has(h.name)&&!protectedNames.has(h.name)).sort((a,b)=>{
   const av=valuable(a)?1:0,bv=valuable(b)?1:0;if(av!==bv)return av-bv;
   const al=a.leftSkill?1:0,bl=b.leftSkill?1:0;if(al!==bl)return al-bl;
   return starOf(a,stars)-starOf(b,stars)||scoreJoinerLeftHero(a,levels,stars)-scoreJoinerLeftHero(b,levels,stars)||a.name.localeCompare(b.name);
