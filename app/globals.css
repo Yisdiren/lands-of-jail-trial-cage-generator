@@ -1259,3 +1259,13 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 .formation-card .slot:not(.left){opacity:.76;background:linear-gradient(180deg,rgba(24,27,28,.86),rgba(12,15,16,.9))}
 .formation-card .slot:not(.left)>span{color:#8ea5bb}
 .formation-card .slot.left>span::after{content:" • CAGE PRIORITY";color:#f0ce75}
+
+
+/* v2.44 — compact mobile Cage results */
+@media (max-width: 520px) {
+  .result .slots, .formation-card .slots { grid-template-columns: 1fr; gap: 7px; }
+  .result .slot, .formation-card .slot { min-height: 0; display:grid; grid-template-columns:52px 1fr; align-items:center; column-gap:10px; text-align:left; }
+  .result .formation-hero-icon, .formation-card .formation-hero-icon { grid-row:1 / span 3; width:48px; height:58px; margin:0; }
+  .formation-head-actions, .result-card-actions { width:100%; justify-content:flex-start; }
+  .verified-toggle { min-width:0; }
+}
