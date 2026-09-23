@@ -83,7 +83,7 @@ export default function Home() {
   const tx = extraUiText[language];
   const [season, setSeason] = useState(6);
   const [owned, setOwned] = useState<string[]>([]);
-  const [joinCount, setJoinCount] = useState(6);
+  const [joinCount, setJoinCount] = useState(6);\n  const [fillJoinerSlots, setFillJoinerSlots] = useState(false);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
@@ -263,7 +263,7 @@ export default function Home() {
     const leaderRobot = leaderFormation?.robot;
     const joinerRobotPool = leaderRobot ? availableRobots.filter(robot => robot !== leaderRobot) : availableRobots;
     if (Object.values(locks).some(Boolean)) joinerFormations = buildLockedFormations(generatorAvailable, joinCount, locks, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, leaderFormation, "joiner", heroStarLevels);
-    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation);
+    else if (Object.values(leaderLocks).some(Boolean)) joinerFormations = generateJoinerFormations(generatorAvailable, joinCount, automaticWarSkillLevels, joinerRobotPool, verifiedOnly, heroStarLevels, leaderFormation, fillJoinerSlots);
   } catch (error) {
     lockError = error instanceof Error ? error.message : "Check your hero locks.";
     joinerFormations = [];
