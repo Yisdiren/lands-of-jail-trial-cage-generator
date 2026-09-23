@@ -37,7 +37,8 @@ test("a partial roster returns only legal, non-repeating Joiners", () => {
   assert.ok(leader);
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader);
   assert.equal(joiners.length, 1);
-  assert.equal(joiners[0].middle, undefined);\n  assert.equal(joiners[0].right, undefined);
+  assert.equal(joiners[0].middle, undefined);
+  assert.equal(joiners[0].right, undefined);
 });
 
 test("saved and imported stars reject corrupt values and unknown heroes", () => {
@@ -174,7 +175,7 @@ for (const season of [1,2,3,4,5,6,7]) {
     const leader = generateLeaderFormation(pool, [], stars);
     if (!leader) return;
     const joiners = generateJoinerFormations(pool, 6, {}, [], false, stars, leader);
-    const all = [leader,...joiners], names = all.flatMap(f=>[f.left.name,f.middle!.name,f.right!.name]);
+    const all = [leader,...joiners], names = all.flatMap(f=>[f.left.name,f.middle?.name ?? null,f.right?.name ?? null]);
     assert.equal(new Set(names).size,names.length);
     for (const formation of all) assert.deepEqual(new Set([formation.left.cls,formation.middle!.cls,formation.right!.cls]).size,3);
     assert.ok(joiners.flatMap(f=>[f.left,f.middle,f.right]).every(hero=>hero.rarity!=="KOF"&&hero.rarity!=="R"));
@@ -355,7 +356,11 @@ test("S1-S6 formation stress matrix preserves legality across counts, stars, ver
 });
 
 test("hero text import tolerates spacing, case, stars, duplicates and unknown rows", () => {
-  const parsed = parseHeroListText("  TYRONN ★★★  \nAda 4 stars\nTyronn 5 stars\nNot A Hero\nRyuichi ★");
+  const parsed = parseHeroListText("  TYRONN ★★★  
+Ada 4 stars
+Tyronn 5 stars
+Not A Hero
+Ryuichi ★");
   assert.deepEqual(parsed.matched, ["Tyronn", "Ada", "Ryuichi"]);
   assert.equal(parsed.stars.Tyronn, 3);
   assert.equal(parsed.stars.Ada, 4);
@@ -404,8 +409,13 @@ test("S6 ranked LEFT heroes keep heuristic labeling separate from verified skill
 });
 
 test("hero import handles empty files, CRLF, punctuation and clamps star syntax", () => {
-  assert.deepEqual(parseHeroListText("   \r\n\r\n"), { matched: [], unmatched: [], duplicates: [], stars: {} });
-  const parsed = parseHeroListText("TYRONN - 5 stars\r\nAda: ★★★★★\r\nUnknown!!!\r\nADA 2 stars");
+  assert.deepEqual(parseHeroListText("   \r
+\r
+"), { matched: [], unmatched: [], duplicates: [], stars: {} });
+  const parsed = parseHeroListText("TYRONN - 5 stars\r
+Ada: ★★★★★\r
+Unknown!!!\r
+ADA 2 stars");
   assert.deepEqual(parsed.matched, ["Tyronn", "Ada"]);
   assert.equal(parsed.stars.Tyronn, 5);
   assert.equal(parsed.stars.Ada, 5);
@@ -566,7 +576,7 @@ test("Main plus Joiner generation is deterministic for identical inputs", () => 
   const snapshot=()=> {
     const leader=generateLeaderFormation(pool,robots);
     const joiners=generateJoinerFormations(pool,6,{},robots,false,{},leader);
-    return JSON.stringify([leader,...joiners].map(f=>f&&[f.id,f.left.name,f.middle!.name,f.right!.name,f.robot]));
+    return JSON.stringify([leader,...joiners].map(f=>f&&[f.id,f.left.name,f.middle?.name ?? null,f.right?.name ?? null,f.robot]));
   };
   assert.equal(snapshot(),snapshot());
   assert.equal(snapshot(),snapshot());
@@ -594,4 +604,31 @@ test("Joiner filler does not consume another protected LEFT hero when ordinary f
   assert.equal(joiners.length, 2);
   assert.notEqual(joiners[0].left.name, joiners[1].left.name);
 });
-\n\ntest("Joiners are LEFT-only even when neutral support heroes are available", () => {\n  const pool = heroes.filter(hero => ["Lofili", "Iwado", "Gerd", "Vesaryon"].includes(hero.name));\n  const joiners = generateJoinerFormations(pool, 1);\n  assert.equal(joiners.length, 1);\n  assert.equal(joiners[0].middle, undefined);\n  assert.equal(joiners[0].right, undefined);\n  assert.notEqual(joiners[0].left.name, "Iwado");\n});\n
+
+
+test("Joiners are LEFT-only even when neutral support heroes are available", () => {
+  const pool = heroes.filter(hero => ["Lofili", "Iwado", "Gerd", "Vesaryon"].includes(hero.name));
+  const joiners = generateJoinerFormations(pool, 1);
+  assert.equal(joiners.length, 1);
+  assert.equal(joiners[0].middle, undefined);
+  assert.equal(joiners[0].right, undefined);
+  assert.notEqual(joiners[0].left.name, "Iwado");
+});
+
+
+test("full Joiner mode preserves LEFT recommendations and fills support without reuse", () => {
+  const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
+  const leader = generateLeaderFormation(pool);
+  const leftOnly = generateJoinerFormations(pool, 6, {}, [], false, {}, leader, false);
+  const full = generateJoinerFormations(pool, 6, {}, [], false, {}, leader, true);
+  assert.deepEqual(full.map(f => f.left.name), leftOnly.map(f => f.left.name));
+  const names = full.flatMap(f => [f.left.name, f.middle?.name, f.right?.name].filter((name): name is string => Boolean(name)));
+  assert.equal(new Set(names).size, names.length);
+});
+
+test("LEFT-only mode leaves support slots empty", () => {
+  const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
+  const leader = generateLeaderFormation(pool);
+  const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader, false);
+  assert.ok(joiners.every(f => !f.middle && !f.right));
+});
