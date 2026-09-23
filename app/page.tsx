@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import packageInfo from "../package.json";
 import { felons, heroes, robots, type HeroClass } from "../data/heroes";
 import {
   generateJoinerFormations,
@@ -564,7 +565,7 @@ export default function Home() {
           </h1>
           <p>{t.subtitle}</p>
         </div>
-        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v2.36 BETA</div></div>
+        <div className="header-actions"><label className="language-picker">🌐 <select aria-label="Language" value={language} onChange={e=>setLanguage(e.target.value as UiLanguage)}>{languageOptions.map(item=><option key={item.code} value={item.code}>{item.label}</option>)}</select></label><div className="badge">DEV v{packageInfo.version.replace(/\.0$/, "")} BETA</div></div>
       </header>
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
