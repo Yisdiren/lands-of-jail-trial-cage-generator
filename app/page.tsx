@@ -579,6 +579,10 @@ export default function Home() {
         </div>
         <div><label htmlFor="season-select">{t.season}</label><select id="season-select" value={season} onChange={(e)=>{setSeason(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6,7].map(s=><option key={s} value={s}>Season {s}</option>)}</select></div>
         <div><label htmlFor="join-count-select">{t.joiners}</label><select id="join-count-select" value={joinCount} onChange={(e)=>{setJoinCount(+e.target.value);setGenerated(false)}}>{[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}</option>)}</select></div>
+        <label className="verified-toggle">
+          <input type="checkbox" checked={fillJoinerSlots} onChange={(e)=>{setFillJoinerSlots(e.target.checked);setGenerated(false)}} />
+          <span><b>FILL ALL 3 HERO SLOTS FOR JOINERS</b><small>{fillJoinerSlots ? "Full Joiners: keep the recommended LEFT hero and fill MIDDLE/RIGHT with available support heroes." : "Off by default: Joiners use only the recommended LEFT hero."}</small></span>
+        </label>
         {unavailableSelected.length > 0 && <p role="status" className="helper">Unavailable in Season {season}: {unavailableSelected.join(", ")}. Your selections return when you switch back.</p>}
       </section>
 
