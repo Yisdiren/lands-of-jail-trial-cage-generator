@@ -16,7 +16,7 @@ test("one displayed Main reserves its heroes and robot from six Joiners", () => 
   assert.ok(leader);
   const joiners = generateJoinerFormations(pool, 6, {}, robots, false, {}, leader);
   const all = [leader, ...joiners];
-  const names = all.flatMap(formation => [formation.left.name, formation.middle!.name, formation.right!.name]);
+  const names = [leader.left.name, leader.middle!.name, leader.right!.name, ...joiners.map(formation => formation.left.name)];
   assert.equal(new Set(names).size, names.length);
   const assignedRobots = all.map(formation => formation.robot).filter(Boolean);
   assert.equal(new Set(assignedRobots).size, assignedRobots.length);
@@ -28,7 +28,7 @@ test("Joiners reserve pinned Main heroes rather than a separately calculated Mai
   const pinned = buildLockedFormations(pool, 1, { "0:left": "Phoenix" }, {}, [], false, null, "leader", { Phoenix: 3 })[0];
   assert.equal(pinned.left.name, "Phoenix");
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, pinned);
-  assert.ok(joiners.every(formation => ![formation.left, formation.middle, formation.right].some(hero => hero.name === "Phoenix")));
+  assert.ok(joiners.every(formation => formation.left.name !== "Phoenix"));
 });
 
 test("a partial roster returns only legal, non-repeating Joiners", () => {
@@ -37,7 +37,7 @@ test("a partial roster returns only legal, non-repeating Joiners", () => {
   assert.ok(leader);
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader);
   assert.equal(joiners.length, 1);
-  assert.deepEqual(new Set([joiners[0].left.cls, joiners[0].middle!.cls, joiners[0].right!.cls]).size, 3);
+  assert.equal(joiners[0].middle, undefined);\n  assert.equal(joiners[0].right, undefined);
 });
 
 test("saved and imported stars reject corrupt values and unknown heroes", () => {
@@ -594,3 +594,4 @@ test("Joiner filler does not consume another protected LEFT hero when ordinary f
   assert.equal(joiners.length, 2);
   assert.notEqual(joiners[0].left.name, joiners[1].left.name);
 });
+\n\ntest("Joiners are LEFT-only even when neutral support heroes are available", () => {\n  const pool = heroes.filter(hero => ["Lofili", "Iwado", "Gerd", "Vesaryon"].includes(hero.name));\n  const joiners = generateJoinerFormations(pool, 1);\n  assert.equal(joiners.length, 1);\n  assert.equal(joiners[0].middle, undefined);\n  assert.equal(joiners[0].right, undefined);\n  assert.notEqual(joiners[0].left.name, "Iwado");\n});\n
