@@ -1,3 +1,9 @@
+## Beta v2.39.1 — LEFT-only Joiner correction
+
+- Joiner recommendations now leave MIDDLE and RIGHT empty by default.
+- Neutral/support heroes such as Iwado are no longer auto-filled into Joiner support slots.
+- Main Rally remains a full three-hero formation.
+
 ## v2.22.0
 - Added S6 robot Bastion and screenshot-backed Shockwave Crush Lv1–10 Power Armor data.
 - Added PA30–100 unlock gates, 2h duration and 20h cooldown for Shockwave Crush.
