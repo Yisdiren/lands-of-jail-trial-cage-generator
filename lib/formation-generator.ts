@@ -60,16 +60,16 @@ export function generateLeaderFormationSmart(availableHeroes:Hero[],ownedRobots:
 }
 
 export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:number,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={},leaderFormation:Formation|null=null):Formation[]{
-  const reserved=new Set(leaderFormation?[leaderFormation.left.name,leaderFormation.middle.name,leaderFormation.right.name]:[]);
+  const reserved=new Set(leaderFormation?[leaderFormation.left.name,leaderFormation.middle?.name,leaderFormation.right?.name].filter((name): name is string => Boolean(name)):[]);
   const eligible=availableHeroes.filter(h=>isBaseJoinerEligible(h)&&!reserved.has(h.name));
   const candidates=chooseLeft(eligible,eligible.length,warSkillLevels,heroStarLevels,verifiedOnly);
   const protectedNames=new Set(candidates.map(h=>h.name)),used=new Set<string>(),results:Formation[]=[];
   for(const left of candidates){
     if(results.length>=count||used.has(left.name))continue;
     const missing=classOrder.filter(cls=>cls!==left.cls),local=new Set(used);local.add(left.name);
-    const middle=pickFiller(eligible,missing[0],local,protectedNames,warSkillLevels,heroStarLevels);if(!middle)continue;local.add(middle.name);
-    const right=pickFiller(eligible,missing[1],local,protectedNames,warSkillLevels,heroStarLevels);if(!right)continue;
-    used.add(left.name);used.add(middle.name);used.add(right.name);
+    const middle=pickFiller(eligible,missing[0],local,protectedNames,warSkillLevels,heroStarLevels);if(middle)local.add(middle.name);
+    const right=pickFiller(eligible,missing[1],local,protectedNames,warSkillLevels,heroStarLevels);
+    used.add(left.name);if(middle)used.add(middle.name);if(right)used.add(right.name);
     const level=levelOf(left,warSkillLevels),base:Omit<Formation,"alerts"|"status">={id:`J${results.length+1}`,left,middle,right,robot:ownedRobots[results.length],leftSkillLevel:level,leftSkillPercent:left.leftSkillValues?.[level-1],troopText:"10,000 Bombers + 90,000 Shooters OR 100,000 Shooters"};
     results.push({...base,...validateFormation(base,"joiner")});
   }
