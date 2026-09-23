@@ -8,7 +8,14 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.37**
+**Beta v2.38**
+
+### Beta v2.38 — Joiner LEFT-priority clarity
+
+- Joiner result cards now visually emphasize the LEFT hero as the Cage-priority slot.
+- MIDDLE and RIGHT are explicitly labeled as filler/formation slots rather than extra damage recommendations.
+- The legal 1 Shield + 1 Bomber + 1 Shooter formation requirement remains unchanged.
+- No hero recommendation weights or verified game data changed.
 
 ### Beta v2.37 — version-sync safeguards
 
