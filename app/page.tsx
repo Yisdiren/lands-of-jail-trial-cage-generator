@@ -280,8 +280,8 @@ export default function Home() {
   const joinerRosterDiagnostics = diagnoseJoinerRoster(generatorAvailable, joinCount, leaderFormation, verifiedOnly, automaticWarSkillLevels, heroStarLevels);
   const missingShieldCount = Math.max(0, joinCount - joinerRosterDiagnostics.counts.Shield);
   const shieldSuggestions = seasonHeroes.filter(hero => hero.cageAllowed && showHeroInGenerator(hero) && hero.cls === "Shield" && !owned.includes(hero.name));
-  const leaderReservedNames = leaderFormation ? [leaderFormation.left.name, leaderFormation.middle.name, leaderFormation.right.name] : [];
-  const projectedJoinerHeroNames = Array.from(new Set(joinerFormations.flatMap(formation => [formation.left.name, formation.middle.name, formation.right.name])));
+  const leaderReservedNames = leaderFormation ? [leaderFormation.left.name, leaderFormation.middle!.name, leaderFormation.right!.name] : [];
+  const projectedJoinerHeroNames = Array.from(new Set(joinerFormations.flatMap(formation => [formation.left.name, formation.middle?.name, formation.right?.name].filter((name): name is string => Boolean(name)))));
   const assignedRobotNames = [leaderFormation?.robot, ...joinerFormations.map(formation => formation.robot)].filter((name): name is string => Boolean(name));
   const unassignedRobotNames = availableRobots.filter(robot => !assignedRobotNames.includes(robot));
   const requestedRobotSlots = (leaderFormation ? 1 : 0) + joinCount;
@@ -351,7 +351,7 @@ export default function Home() {
     const robot = formation.robot ? ` • Robot: ${formation.robot}` : "";
     const leftLevel = kind === "Joiner" && formation.leftSkillLevel ? ` • LEFT Lv${formation.leftSkillLevel}` : "";
     const text = [
-      `${formation.id}: ${formation.left.name} / ${formation.middle.name} / ${formation.right.name}${leftLevel}`,
+      `${formation.id}: ${formation.left.name} / ${formation.middle?.name ?? "—"} / ${formation.right?.name ?? "—"}${leftLevel}`,
       `${kind} troops: ${formation.troopText}${robot}`,
     ].join("\n");
     try {
@@ -472,8 +472,8 @@ export default function Home() {
       lines: formations.map(formation => ({
         id: formation.id,
         left: formation.left.name,
-        middle: formation.middle.name,
-        right: formation.right.name,
+        middle: formation.middle?.name ?? "—",
+        right: formation.right?.name ?? "—",
         robot: formation.robot ?? "None",
         status: formation.status,
       })),
@@ -517,12 +517,12 @@ export default function Home() {
       `Season ${season} • ${verifiedOnly ? "Verified LEFT skills only" : "Standard LEFT skill priority"}`,
       ...(selectedBuffIds.length ? [...preCageShareLines({ selectedBuffIds, activationLeadMinutes }, armorSettings), ""] : []),
       ...(leaderFormation ? [
-        `MAIN: ${leaderFormation.left.name} / ${leaderFormation.middle.name} / ${leaderFormation.right.name}`,
+        `MAIN: ${leaderFormation.left.name} / ${leaderFormation.middle!.name} / ${leaderFormation.right!.name}`,
         `  Main troops: ${leaderFormation.troopText} • Robot: ${leaderFormation.robot ?? "none"} • ${leaderFormation.status.toUpperCase()}`,
       ] : ["MAIN: unavailable — check hero class readiness."]),
       "",
       ...joinerFormations.flatMap((formation) => [
-        `${formation.id}: ${formation.left.name} (LEFT Lv${formation.leftSkillLevel}) / ${formation.middle.name} / ${formation.right.name}`,
+        `${formation.id}: ${formation.left.name} (LEFT Lv${formation.leftSkillLevel}) / ${formation.middle?.name ?? "—"} / ${formation.right?.name ?? "—"}`,
         `  Joiner troops: ${formation.troopText} • Robot: ${formation.robot ?? "none"} • ${formation.status.toUpperCase()}`,
       ]),
       ...readinessLines,
@@ -1168,22 +1168,22 @@ export default function Home() {
                     <b>{leaderFormation.left.name}</b><small>{heroStarLevels[leaderFormation.left.name] ? "★".repeat(heroStarLevels[leaderFormation.left.name]) : "Stars not set"}</small>
               </div>
               <div className="slot">
-                <span>MIDDLE • {leaderFormation.middle.cls}</span>
-                {heroIconNames.has(leaderFormation.middle.name) && (
+                <span>MIDDLE • {leaderFormation.middle!.cls}</span>
+                {heroIconNames.has(leaderFormation.middle!.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(leaderFormation.middle.name)}
-                        alt={`${leaderFormation.middle.name} portrait`} width={42} height={52} />
+                        src={heroIconPath(leaderFormation.middle!.name)}
+                        alt={`${leaderFormation.middle!.name} portrait`} width={42} height={52} />
                     )}
-                    <b>{leaderFormation.middle.name}</b><small>{heroStarLevels[leaderFormation.middle.name] ? "★".repeat(heroStarLevels[leaderFormation.middle.name]) : "Stars not set"}</small>
+                    <b>{leaderFormation.middle!.name}</b><small>{heroStarLevels[leaderFormation.middle!.name] ? "★".repeat(heroStarLevels[leaderFormation.middle!.name]) : "Stars not set"}</small>
               </div>
               <div className="slot">
-                <span>RIGHT • {leaderFormation.right.cls}</span>
-                {heroIconNames.has(leaderFormation.right.name) && (
+                <span>RIGHT • {leaderFormation.right!.cls}</span>
+                {heroIconNames.has(leaderFormation.right!.name) && (
                       <Image className="formation-hero-icon"
-                        src={heroIconPath(leaderFormation.right.name)}
-                        alt={`${leaderFormation.right.name} portrait`} width={42} height={52} />
+                        src={heroIconPath(leaderFormation.right!.name)}
+                        alt={`${leaderFormation.right!.name} portrait`} width={42} height={52} />
                     )}
-                    <b>{leaderFormation.right.name}</b><small>{heroStarLevels[leaderFormation.right.name] ? "★".repeat(heroStarLevels[leaderFormation.right.name]) : "Stars not set"}</small>
+                    <b>{leaderFormation.right!.name}</b><small>{heroStarLevels[leaderFormation.right!.name] ? "★".repeat(heroStarLevels[leaderFormation.right!.name]) : "Stars not set"}</small>
               </div>
             </div>
             <p>
@@ -1271,7 +1271,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-          <p className="result-intro"><b>Joiner priority: LEFT hero.</b> MIDDLE and RIGHT are formation/filler slots used to complete the required classes; do not treat them as extra Cage-damage recommendations without direct evidence.</p>
+          <p className="result-intro"><b>Joiner priority: LEFT hero.</b> MIDDLE and RIGHT are optional support/filler. The generator fills them when possible for members who prefer a full 3-hero rally, without sacrificing another useful LEFT hero.</p>
           {lockError && <div className="warning-box">{lockError}</div>}
           {joinerFormations.length === 0 && (
             <div className="warning-box">
@@ -1304,22 +1304,10 @@ export default function Home() {
                     <details><summary>{tx.skill}</summary><p><b>GAME EVIDENCE:</b> {f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p><p><b>RECOMMENDATION MODEL:</b> {cageRecommendationEvidence(f.left).recommendationBasis === "tested-priority" ? "Established Cage priority." : cageRecommendationEvidence(f.left).recommendationBasis === "heuristic-only" ? "Heuristic priority; not an in-game percentage or proven ranking." : "No priority rank inferred from the evidence."}</p></details>
                   </div>
                   <div className="slot">
-                    <span>MIDDLE • {f.middle.cls} • FILLER</span>
-                    {heroIconNames.has(f.middle.name) && (
-                      <Image className="formation-hero-icon"
-                        src={heroIconPath(f.middle.name)}
-                        alt={`${f.middle.name} portrait`} width={42} height={52} />
-                    )}
-                    <b>{f.middle.name}</b>{supportShieldNames.has(f.middle.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.middle.name] ? "★".repeat(heroStarLevels[f.middle.name]) : "Stars not set"}</small>
+                    {f.middle ? <><span>MIDDLE • {f.middle.cls} • OPTIONAL</span>{heroIconNames.has(f.middle.name) && <Image className="formation-hero-icon" src={heroIconPath(f.middle.name)} alt={`${f.middle.name} portrait`} width={42} height={52} />}<b>{f.middle.name}</b><small>Optional support/filler for a full 3-hero rally.</small></> : <><span>MIDDLE • OPTIONAL</span><b>Not required</b><small>LEFT hero is enough for the Cage recommendation.</small></>}
                   </div>
                   <div className="slot">
-                    <span>RIGHT • {f.right.cls} • FILLER</span>
-                    {heroIconNames.has(f.right.name) && (
-                      <Image className="formation-hero-icon"
-                        src={heroIconPath(f.right.name)}
-                        alt={`${f.right.name} portrait`} width={42} height={52} />
-                    )}
-                    <b>{f.right.name}</b>{supportShieldNames.has(f.right.name) && <small>SR Shield support fallback · fills this class slot while preserving offensive LEFT heroes.</small>}<small>{heroStarLevels[f.right.name] ? "★".repeat(heroStarLevels[f.right.name]) : "Stars not set"}</small>
+                    {f.right ? <><span>RIGHT • {f.right.cls} • OPTIONAL</span>{heroIconNames.has(f.right.name) && <Image className="formation-hero-icon" src={heroIconPath(f.right.name)} alt={`${f.right.name} portrait`} width={42} height={52} />}<b>{f.right.name}</b><small>Optional support/filler for a full 3-hero rally.</small></> : <><span>RIGHT • OPTIONAL</span><b>Not required</b><small>LEFT hero is enough for the Cage recommendation.</small></>}
                   </div>
                 </div>
                 {availableRobots.length > 0 && (
