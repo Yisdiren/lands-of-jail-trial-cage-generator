@@ -1269,3 +1269,15 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .formation-head-actions, .result-card-actions { width:100%; justify-content:flex-start; }
   .verified-toggle { min-width:0; }
 }
+
+/* Cage test results tracker */
+.test-entry-grid{display:grid;grid-template-columns:minmax(160px,.7fr) minmax(220px,1.3fr) auto;gap:10px;align-items:end}
+.test-entry-grid label{display:grid;gap:5px}
+.test-entry-grid label span{font-size:.76rem;font-weight:800;letter-spacing:.04em}
+.test-entry-grid input{width:100%;box-sizing:border-box}
+.cage-test-list{display:grid;gap:10px;margin-top:14px}
+.cage-test-card{border:1px solid rgba(128,128,128,.28);border-radius:12px;padding:12px;display:grid;gap:6px}
+.cage-test-card>div{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;justify-content:space-between}
+.cage-test-card small{opacity:.72}
+.cage-test-card p{margin:0}
+@media (max-width:700px){.test-entry-grid{grid-template-columns:1fr}}
