@@ -359,8 +359,7 @@ export default function Home() {
     const text = [
       `${formation.id}: ${formation.left.name} / ${formation.middle?.name ?? "—"} / ${formation.right?.name ?? "—"}${leftLevel}`,
       `${kind} troops: ${formation.troopText}${robot}`,
-    ].join("
-");
+    ].join("\n");
     try {
       await navigator.clipboard.writeText(text);
       setNotice(`${formation.id} copied.`);
@@ -535,8 +534,7 @@ export default function Home() {
       ...readinessLines,
     ];
     try {
-      await navigator.clipboard.writeText(lines.join("
-"));
+      await navigator.clipboard.writeText(lines.join("\n"));
       setNotice("Alliance instructions copied to the clipboard.");
     } catch {
       setNotice("Clipboard access was blocked. Select and copy the formation list manually.");
