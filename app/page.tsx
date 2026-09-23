@@ -354,8 +354,7 @@ export default function Home() {
     const text = [
       `${formation.id}: ${formation.left.name} / ${formation.middle?.name ?? "—"} / ${formation.right?.name ?? "—"}${leftLevel}`,
       `${kind} troops: ${formation.troopText}${robot}`,
-    ].join("
-");
+    ].join("\n");
     try {
       await navigator.clipboard.writeText(text);
       setNotice(`${formation.id} copied.`);
