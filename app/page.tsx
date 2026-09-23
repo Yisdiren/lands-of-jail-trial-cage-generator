@@ -84,7 +84,8 @@ export default function Home() {
   const [season, setSeason] = useState(6);
   const [owned, setOwned] = useState<string[]>([]);
   const [joinCount, setJoinCount] = useState(6);
-  const [leftOnlyJoiners, setLeftOnlyJoiners] = useState(false);\n  const [joinerTroopLimit, setJoinerTroopLimit] = useState<90 | 100>(100);
+  const [leftOnlyJoiners, setLeftOnlyJoiners] = useState(false);
+  const [joinerTroopLimit, setJoinerTroopLimit] = useState<90 | 100>(100);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
@@ -290,7 +291,8 @@ export default function Home() {
   const requestedRobotSlots = (leaderFormation ? 1 : 0) + joinCount;
   const preflightStatus = lockError || !leaderFormation ? "blocked" : joinerFormations.length < joinCount ? "review" : "ready";
   const topRecoveryOptions = joinerRosterDiagnostics.rankedLeftAlternatives.slice(0, 6);
-  const shortageActions: string[] = [];\n  const fullJoinerMode = !leftOnlyJoiners;
+  const shortageActions: string[] = [];
+  const fullJoinerMode = !leftOnlyJoiners;
   if (fullJoinerMode && joinerRosterDiagnostics.counts.Shield < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shield} eligible Shield hero${joinCount - joinerRosterDiagnostics.counts.Shield === 1 ? "" : "es"}.`);
   if (fullJoinerMode && joinerRosterDiagnostics.counts.Bomber < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Bomber} eligible Bomber hero${joinCount - joinerRosterDiagnostics.counts.Bomber === 1 ? "" : "es"}.`);
   if (fullJoinerMode && joinerRosterDiagnostics.counts.Shooter < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shooter} eligible Shooter hero${joinCount - joinerRosterDiagnostics.counts.Shooter === 1 ? "" : "es"}.`);
