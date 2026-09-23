@@ -420,3 +420,77 @@ test("generator backup defaults malformed missing counts safely without acceptin
   assert.deepEqual(restored.ownedRobots, []);
   assert.throws(() => normalizeGeneratorBackup({ format: "loj-trial-cage-backup", version: 999 }), /not supported/);
 });
+
+
+test("pinned formation conflicts fail clearly and valid mixed pins remain legal", () => {
+  const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed && hero.rarity !== "R" && hero.rarity !== "KOF");
+  assert.throws(() => buildLockedFormations(pool, 2, { "0:left": "Tyronn", "1:left": "Tyronn" }, {}, [], false, null, "joiner"), /locked into more than one slot/);
+  assert.throws(() => buildLockedFormations(pool, 1, { "0:left": "Omega Rugal" }, {}, [], false, null, "joiner"), /unavailable, excluded, or reserved/);
+  const locked = buildLockedFormations(pool, 2, { "0:left": "Worrell", "1:right": "Kate" }, {}, [], false, null, "joiner");
+  assert.equal(locked.length, 2);
+  const names = locked.flatMap(f => [f.left.name, f.middle.name, f.right.name]);
+  assert.equal(new Set(names).size, names.length);
+  for (const formation of locked) assert.equal(new Set([formation.left.cls, formation.middle.cls, formation.right.cls]).size, 3);
+});
+
+test("pinned Joiners reject heroes already reserved by Main", () => {
+  const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
+  const leader = generateLeaderFormation(pool, [], { Tyronn: 3, Phoenix: 3, Xuanming: 3 });
+  assert.ok(leader);
+  assert.throws(() => buildLockedFormations(pool, 1, { "0:left": leader.left.name }, {}, [], false, leader, "joiner"), /reserved for the Main Rally/);
+});
+
+test("exact roster boundaries produce only the maximum legal number of formations", () => {
+  const byClass = (cls: "Shield"|"Bomber"|"Shooter") => heroes.filter(h => h.season <= 6 && h.cageAllowed && h.rarity !== "R" && h.rarity !== "KOF" && h.cls === cls);
+  for (let joins = 1; joins <= 6; joins++) {
+    const needed = joins + 1;
+    const pool = [...byClass("Shield").slice(0, needed), ...byClass("Bomber").slice(0, needed), ...byClass("Shooter").slice(0, needed)];
+    const stars = Object.fromEntries(pool.map(h => [h.name, 5]));
+    const leader = generateLeaderFormation(pool, [], stars);
+    assert.ok(leader, `exact roster for ${joins} Joiners needs a Main`);
+    assert.equal(generateJoinerFormations(pool, joins, {}, [], false, stars, leader).length, joins);
+    const shortPool = pool.filter(h => h.name !== byClass("Shooter").slice(0, needed).at(-1)?.name);
+    const shortLeader = generateLeaderFormation(shortPool, [], stars);
+    assert.ok(shortLeader);
+    assert.ok(generateJoinerFormations(shortPool, joins, {}, [], false, stars, shortLeader).length < joins);
+  }
+});
+
+test("robot assignment remains unique when robot supply is smaller than formation demand", () => {
+  const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
+  for (const robotPool of [[], robots.slice(0, 1), robots.slice(0, 3), robots]) {
+    const leader = generateLeaderFormation(pool, robotPool);
+    assert.ok(leader);
+    const joiners = generateJoinerFormations(pool, 6, {}, robotPool, false, {}, leader);
+    const assigned = [leader, ...joiners].map(f => f.robot).filter(Boolean);
+    assert.equal(new Set(assigned).size, assigned.length);
+    assert.ok(assigned.every(robot => robotPool.includes(robot!)));
+  }
+});
+
+test("version-1 backup fixture stays restorable as the roster evolves", () => {
+  const fixture = {
+    format: "loj-trial-cage-backup", version: 1, season: 5, joinCount: 4,
+    owned: ["Tyronn", "Ryuichi", "Ada", "Old Removed Hero"],
+    heroStarLevels: { Tyronn: 4, Ryuichi: 5, Ada: 3, "Old Removed Hero": 5 },
+    ownedRobots: ["Musashimaru", "Old Robot"], robotPriority: ["Musashimaru", "Old Robot"],
+    ownedFelons: [], rallyFills: true, seatHolder: false, verifiedOnly: false,
+    hideFillerLeft: false, leftClassFilter: "all", selectedBuffIds: [], armorSettings: {}, activationLeadMinutes: 5,
+  };
+  const restored = normalizeGeneratorBackup(fixture);
+  assert.equal(restored.season, 5); assert.equal(restored.joinCount, 4);
+  assert.deepEqual(restored.owned, ["Tyronn", "Ryuichi", "Ada"]);
+  assert.deepEqual(restored.ownedRobots, ["Musashimaru"]);
+  assert.equal(restored.robotPriority[0], "Musashimaru");
+  assert.equal(restored.robotPriority.includes("Old Robot"), false);
+});
+
+test("local storage recovery survives nulls, arrays, primitive JSON and extreme values", () => {
+  for (const raw of ["null", "[]", "true", "42", "\"\"", JSON.stringify({ season: 999999, joinCount: -999, owned: [null, 7, "Tyronn"], heroStarLevels: { Tyronn: 999 } })]) {
+    const parsed = parseStoredSimpleSetup(raw);
+    assert.ok(parsed.setup.season >= 1 && parsed.setup.season <= 7);
+    assert.ok(parsed.setup.joinCount >= 1 && parsed.setup.joinCount <= 6);
+    assert.ok(parsed.setup.owned.every(name => heroes.some(hero => hero.name === name)));
+    assert.ok(Object.values(parsed.setup.heroStarLevels).every(stars => stars >= 1 && stars <= 5));
+  }
+});

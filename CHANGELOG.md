@@ -12,7 +12,7 @@
 - Recorded Server 260 entering Season 6 and kept remaining S6 data evidence-first.
 - Updated Worrell, Kate and Wukong to the new unlocked screenshots and retained the simplified default workflow.
 
-# Changelog
+# Changelog\n\n## Beta v2.34 — formation boundary and restore stress tests\n\n- Added pinned-formation conflict and Main-reservation regression coverage.\n- Added exact-roster boundary tests from one through six Joiners, including one-class-short cases.\n- Added robot-supply uniqueness tests for zero, partial, and full robot pools.\n- Added a permanent version-1 backup compatibility fixture with removed/unknown roster entries.\n- Expanded local-storage recovery tests across primitive JSON, arrays, nulls, and extreme values.\n- Recorded screenshot-verified Bastion Tactical Optimization Core Skill text without assigning an untested Cage priority.\n- No new visible controls or recommendation-weight changes.\n
 
 ## Beta v2.33 — documentation and regression safeguards
 

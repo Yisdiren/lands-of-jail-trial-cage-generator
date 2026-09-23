@@ -8,7 +8,7 @@ Direct in-game screenshots are the source of truth for Season 6 hero and robot d
 | Kate LEFT skill | Lv1–Lv5 recorded in hero data | Recheck only if the game changes |
 | Otto LEFT / first skill — Natural Hymn | Verified from direct screenshots | Recheck only if the game changes |
 | Wukong LEFT / first skill — Calamity Inferno | Verified Lv1–Lv5 from direct screenshots | Recheck only if the game changes |
-| Bastion — S6 robot | Identity and Shockwave Crush Lv1–10 verified | Core Skill remains locked/pending; do not infer Trial Cage assignment priority |
+| Bastion — S6 robot | Identity, Shockwave Crush Lv1–10, and Tactical Optimization Core Skill text verified | Core Skill is visible but still locked on the account; do not infer Trial Cage assignment priority until tested |
 
 ## Verified Otto data
 
@@ -37,4 +37,4 @@ Server 260 is now in Season 6. Worrell, Kate and Wukong have unlocked roster scr
 
 
 ## Verified Bastion data
-Shockwave Crush: Enemy ATK Reduction **2 / 2.5 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10%** at Lv1–10, **2h** duration, **20h** cooldown. Lv3–10 unlock at Power Armor **30 / 40 / 50 / 60 / 70 / 80 / 90 / 100**. Core Skill remains locked; no Cage assignment priority is inferred.
+Shockwave Crush: Enemy ATK Reduction **2 / 2.5 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10%** at Lv1–10, **2h** duration, **20h** cooldown. Lv3–10 unlock at Power Armor **30 / 40 / 50 / 60 / 70 / 80 / 90 / 100**.\n\n**Tactical Optimization (Core Skill)** is visible in-game even while locked. War Mode: accompanying troops' **DEF +2.66%**, **Lethality +2.33%**, and **Tactical DMG +3.33%**; when the round number is not a multiple of 3, Tactical DMG is further increased by **15.33%**. The screenshot also shows the unlock condition: activate any Core Node of Bastion's Prisoner Power Armor. This is verified skill text, but Bastion remains unranked for Trial Cage robot priority until actual Cage testing supports a ranking.
