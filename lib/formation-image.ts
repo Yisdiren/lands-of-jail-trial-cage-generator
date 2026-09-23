@@ -60,7 +60,7 @@ export async function downloadFormationImage(
     ctx.font = "bold 15px sans-serif";
     ctx.fillText(f.status.toUpperCase(), 104, y + 33);
 
-    for (const [j, hero] of [f.left, f.middle, f.right].entries()) {
+    for (const [j, hero] of [f.left, f.middle, f.right].filter((hero): hero is NonNullable<typeof hero> => Boolean(hero)).entries()) {
       const x = 38 + j * 378;
       const slotY = y + 52;
       ctx.fillStyle = j === 0 && f.id !== "MAIN" ? "#33291a" : "#172126";

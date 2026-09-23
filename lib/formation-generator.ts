@@ -24,8 +24,7 @@ const valuable = (hero: Hero) => hero.leftTier === "top" || hero.leftTier === "s
 const leftSorter = (levels: WarSkillLevels, stars: HeroStarLevels) => (a:Hero,b:Hero) => scoreJoinerLeftHero(b,levels,stars)-scoreJoinerLeftHero(a,levels,stars) || starOf(b,stars)-starOf(a,stars) || a.name.localeCompare(b.name);
 const pickBest = (list:Hero[], cls:HeroClass, used:Set<string>, stars:HeroStarLevels) => list.filter(h=>h.cls===cls&&!used.has(h.name)).sort((a,b)=>starOf(b,stars)-starOf(a,stars)||a.name.localeCompare(b.name))[0];
 const chooseLeft = (eligible:Hero[],count:number,levels:WarSkillLevels,stars:HeroStarLevels,verifiedOnly:boolean) => eligible.filter(h=>!!h.leftSkill&&(!verifiedOnly||h.leftSkillVerified)).sort(leftSorter(levels,stars)).slice(0,count);
-const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedNames:Set<string>,levels:WarSkillLevels,stars:HeroStarLevels) => eligible.filter(h=>h.cls===cls&&!used.has(h.name)).sort((a,b)=>{
-  const ap=protectedNames.has(a.name)?1:0,bp=protectedNames.has(b.name)?1:0;if(ap!==bp)return ap-bp;
+const pickFiller = (eligible:Hero[],cls:HeroClass,used:Set<string>,protectedNames:Set<string>,levels:WarSkillLevels,stars:HeroStarLevels) => eligible.filter(h=>h.cls===cls&&!used.has(h.name)&&!protectedNames.has(h.name)).sort((a,b)=>{
   const av=valuable(a)?1:0,bv=valuable(b)?1:0;if(av!==bv)return av-bv;
   const al=a.leftSkill?1:0,bl=b.leftSkill?1:0;if(al!==bl)return al-bl;
   return starOf(a,stars)-starOf(b,stars)||scoreJoinerLeftHero(a,levels,stars)-scoreJoinerLeftHero(b,levels,stars)||a.name.localeCompare(b.name);
@@ -60,16 +59,16 @@ export function generateLeaderFormationSmart(availableHeroes:Hero[],ownedRobots:
 }
 
 export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:number,warSkillLevels:WarSkillLevels={},ownedRobots:string[]=[],verifiedOnly=false,heroStarLevels:HeroStarLevels={},leaderFormation:Formation|null=null):Formation[]{
-  const reserved=new Set(leaderFormation?[leaderFormation.left.name,leaderFormation.middle.name,leaderFormation.right.name]:[]);
+  const reserved=new Set(leaderFormation?[leaderFormation.left.name,leaderFormation.middle?.name,leaderFormation.right?.name].filter((name): name is string => Boolean(name)):[]);
   const eligible=availableHeroes.filter(h=>isBaseJoinerEligible(h)&&!reserved.has(h.name));
   const candidates=chooseLeft(eligible,eligible.length,warSkillLevels,heroStarLevels,verifiedOnly);
   const protectedNames=new Set(candidates.map(h=>h.name)),used=new Set<string>(),results:Formation[]=[];
   for(const left of candidates){
     if(results.length>=count||used.has(left.name))continue;
     const missing=classOrder.filter(cls=>cls!==left.cls),local=new Set(used);local.add(left.name);
-    const middle=pickFiller(eligible,missing[0],local,protectedNames,warSkillLevels,heroStarLevels);if(!middle)continue;local.add(middle.name);
-    const right=pickFiller(eligible,missing[1],local,protectedNames,warSkillLevels,heroStarLevels);if(!right)continue;
-    used.add(left.name);used.add(middle.name);used.add(right.name);
+    const middle=pickFiller(eligible,missing[0],local,protectedNames,warSkillLevels,heroStarLevels);if(middle)local.add(middle.name);
+    const right=pickFiller(eligible,missing[1],local,protectedNames,warSkillLevels,heroStarLevels);
+    used.add(left.name);if(middle)used.add(middle.name);if(right)used.add(right.name);
     const level=levelOf(left,warSkillLevels),base:Omit<Formation,"alerts"|"status">={id:`J${results.length+1}`,left,middle,right,robot:ownedRobots[results.length],leftSkillLevel:level,leftSkillPercent:left.leftSkillValues?.[level-1],troopText:"10,000 Bombers + 90,000 Shooters OR 100,000 Shooters"};
     results.push({...base,...validateFormation(base,"joiner")});
   }

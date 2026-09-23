@@ -16,7 +16,7 @@ test("one displayed Main reserves its heroes and robot from six Joiners", () => 
   assert.ok(leader);
   const joiners = generateJoinerFormations(pool, 6, {}, robots, false, {}, leader);
   const all = [leader, ...joiners];
-  const names = all.flatMap(formation => [formation.left.name, formation.middle.name, formation.right.name]);
+  const names = all.flatMap(formation => [formation.left.name, formation.middle!.name, formation.right!.name]);
   assert.equal(new Set(names).size, names.length);
   const assignedRobots = all.map(formation => formation.robot).filter(Boolean);
   assert.equal(new Set(assignedRobots).size, assignedRobots.length);
@@ -37,7 +37,7 @@ test("a partial roster returns only legal, non-repeating Joiners", () => {
   assert.ok(leader);
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader);
   assert.equal(joiners.length, 1);
-  assert.deepEqual(new Set([joiners[0].left.cls, joiners[0].middle.cls, joiners[0].right.cls]).size, 3);
+  assert.deepEqual(new Set([joiners[0].left.cls, joiners[0].middle!.cls, joiners[0].right!.cls]).size, 3);
 });
 
 test("saved and imported stars reject corrupt values and unknown heroes", () => {
@@ -62,9 +62,9 @@ test("Season 5 visible roster can build Main plus six Joiners with SR Shield fal
   assert.ok(leader);
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader);
   assert.equal(joiners.length, 6);
-  const allNames = [leader, ...joiners].flatMap(formation => [formation.left.name, formation.middle.name, formation.right.name]);
+  const allNames = [leader, ...joiners].flatMap(formation => [formation.left.name, formation.middle!.name, formation.right!.name]);
   assert.equal(new Set(allNames).size, allNames.length);
-  assert.ok(joiners.some(formation => [formation.middle.name, formation.right.name].some(name => ["Gerd", "Iwado", "Vesaryon"].includes(name))));
+  assert.ok(joiners.some(formation => [formation.middle!.name, formation.right!.name].some(name => ["Gerd", "Iwado", "Vesaryon"].includes(name))));
 });
 
 
@@ -82,7 +82,7 @@ test("SR Shield fallbacks survive saved quick-setup restore", () => {
 
 test("Main Shield requires three stars and prefers eligible Tyronn", () => {
   const pool = heroes.filter(h => ["Tyronn", "Phoenix", "Xuanming", "Ada", "Ryuichi"].includes(h.name));
-  const shield = (stars: Record<string, number>, available = pool) => generateLeaderFormation(available, [], stars)?.right.name;
+  const shield = (stars: Record<string, number>, available = pool) => generateLeaderFormation(available, [], stars)?.right!.name;
   assert.equal(shield({ Tyronn: 2, Phoenix: 3, Xuanming: 2 }), "Phoenix");
   assert.equal(shield({ Tyronn: 1, Phoenix: 2, Xuanming: 3 }), "Xuanming");
   assert.equal(shield({ Phoenix: 3 }, pool.filter(h => h.name !== "Tyronn")), "Phoenix");
@@ -91,7 +91,7 @@ test("Main Shield requires three stars and prefers eligible Tyronn", () => {
   assert.equal(shield({}), undefined);
   for (const name of ["Tyronn", "Phoenix", "Xuanming"]) {
     assert.throws(() => buildLockedFormations(pool, 1, { "0:right": name }, {}, [], false, null, "leader", { [name]: 2 }), /at least 3 stars/);
-    assert.equal(buildLockedFormations(pool, 1, { "0:right": name }, {}, [], false, null, "leader", { [name]: 3 })[0].right.name, name);
+    assert.equal(buildLockedFormations(pool, 1, { "0:right": name }, {}, [], false, null, "leader", { [name]: 3 })[0].right!.name, name);
   }
 });
 
@@ -119,9 +119,9 @@ test("Season 5 full visible roster builds Main plus six legal Joiners across sta
     const joiners = generateJoinerFormations(pool, 6, {}, [], false, levels, leader);
     assert.equal(joiners.length, 6);
     const all = [leader, ...joiners];
-    const names = all.flatMap(f => [f.left.name, f.middle.name, f.right.name]);
+    const names = all.flatMap(f => [f.left.name, f.middle!.name, f.right!.name]);
     assert.equal(new Set(names).size, names.length);
-    for (const formation of all) assert.equal(new Set([formation.left.cls, formation.middle.cls, formation.right.cls]).size, 3);
+    for (const formation of all) assert.equal(new Set([formation.left.cls, formation.middle!.cls, formation.right!.cls]).size, 3);
   }
 });
 
@@ -162,9 +162,9 @@ test("Main Rally keeps documented class priorities across representative rosters
   const pick = (names: string[], stars: Record<string, number> = {}) =>
     generateLeaderFormation(heroes.filter(hero => names.includes(hero.name)), [], stars);
   const preferred = pick(["Tyronn","Phoenix","Xuanming","Ryuichi","Vivian","Ada","Veronica"], { Tyronn:3, Phoenix:5, Xuanming:5 });
-  assert.ok(preferred); assert.equal(preferred.right.name,"Tyronn"); assert.equal(preferred.middle.name,"Ryuichi"); assert.equal(preferred.left.name,"Ada");
+  assert.ok(preferred); assert.equal(preferred.right!.name,"Tyronn"); assert.equal(preferred.middle!.name,"Ryuichi"); assert.equal(preferred.left.name,"Ada");
   const fallback = pick(["Phoenix","Xuanming","Vivian","Veronica"], { Phoenix:3, Xuanming:5 });
-  assert.ok(fallback); assert.equal(fallback.right.name,"Xuanming"); assert.equal(fallback.middle.name,"Vivian"); assert.equal(fallback.left.name,"Veronica");
+  assert.ok(fallback); assert.equal(fallback.right!.name,"Xuanming"); assert.equal(fallback.middle!.name,"Vivian"); assert.equal(fallback.left.name,"Veronica");
 });
 
 for (const season of [1,2,3,4,5,6,7]) {
@@ -174,9 +174,9 @@ for (const season of [1,2,3,4,5,6,7]) {
     const leader = generateLeaderFormation(pool, [], stars);
     if (!leader) return;
     const joiners = generateJoinerFormations(pool, 6, {}, [], false, stars, leader);
-    const all = [leader,...joiners], names = all.flatMap(f=>[f.left.name,f.middle.name,f.right.name]);
+    const all = [leader,...joiners], names = all.flatMap(f=>[f.left.name,f.middle!.name,f.right!.name]);
     assert.equal(new Set(names).size,names.length);
-    for (const formation of all) assert.deepEqual(new Set([formation.left.cls,formation.middle.cls,formation.right.cls]).size,3);
+    for (const formation of all) assert.deepEqual(new Set([formation.left.cls,formation.middle!.cls,formation.right!.cls]).size,3);
     assert.ok(joiners.flatMap(f=>[f.left,f.middle,f.right]).every(hero=>hero.rarity!=="KOF"&&hero.rarity!=="R"));
   });
 }
@@ -221,8 +221,8 @@ test("Season 6 full visible roster builds Main plus six legal Joiners", () => {
   const pool=heroes.filter(h=>(h.season===0||h.season<=6)&&h.cageAllowed&&h.rarity!=="R"&&h.rarity!=="KOF"&&(h.rarity!=="SR"||visibleSr.has(h.name)));
   const stars=Object.fromEntries(pool.map(h=>[h.name,5])); const leader=generateLeaderFormation(pool,robots,stars); assert.ok(leader);
   const joiners=generateJoinerFormations(pool,6,{},robots,false,stars,leader); assert.equal(joiners.length,6);
-  const all=[leader,...joiners], names=all.flatMap(x=>[x.left.name,x.middle.name,x.right.name]);
-  assert.equal(new Set(names).size,names.length); for(const x of all) assert.equal(new Set([x.left.cls,x.middle.cls,x.right.cls]).size,3);
+  const all=[leader,...joiners], names=all.flatMap(x=>[x.left.name,x.middle!.name,x.right!.name]);
+  assert.equal(new Set(names).size,names.length); for(const x of all) assert.equal(new Set([x.left.cls,x.middle!.cls,x.right!.cls]).size,3);
 });
 
 test("robot roster is unique and includes the screenshot-verified roster", () => {
@@ -272,7 +272,7 @@ test("Season 1 through Season 6 always produce legal non-repeating formations", 
     assert.ok(leader, `Season ${season} should produce a Main Rally`);
     const joiners = generateJoinerFormations(pool, 6, {}, robots, false, {}, leader);
     const formations = [leader, ...joiners];
-    const names = formations.flatMap(f => [f.left.name, f.middle.name, f.right.name]);
+    const names = formations.flatMap(f => [f.left.name, f.middle!.name, f.right!.name]);
     assert.equal(new Set(names).size, names.length, `Season ${season} should not reuse heroes`);
     for (const f of formations) assert.notEqual(f.status, "blocked", `Season ${season} formation ${f.id} should be legal`);
   }
@@ -338,10 +338,10 @@ test("S1-S6 formation stress matrix preserves legality across counts, stars, ver
             const joiners = generateJoinerFormations(pool, count, {}, robotPool, verifiedOnly, stars, leader);
             assert.ok(joiners.length <= count);
             const formations = [...(leader ? [leader] : []), ...joiners];
-            const names = formations.flatMap(formation => [formation.left.name, formation.middle.name, formation.right.name]);
+            const names = formations.flatMap(formation => [formation.left.name, formation.middle!.name, formation.right!.name]);
             assert.equal(new Set(names).size, names.length, `S${season}, ${starLevel}★, ${count} Joiners must not reuse heroes`);
             for (const formation of formations) {
-              assert.equal(new Set([formation.left.cls, formation.middle.cls, formation.right.cls]).size, 3);
+              assert.equal(new Set([formation.left.cls, formation.middle!.cls, formation.right!.cls]).size, 3);
               assert.notEqual(formation.status, "blocked");
             }
             if (verifiedOnly) assert.ok(joiners.every(formation => formation.left.leftSkillVerified));
@@ -429,9 +429,9 @@ test("pinned formation conflicts fail clearly and valid mixed pins remain legal"
   assert.throws(() => buildLockedFormations(pool, 1, { "0:left": "Omega Rugal" }, {}, [], false, null, "joiner"), /unavailable, excluded, or reserved/);
   const locked = buildLockedFormations(pool, 2, { "0:left": "Worrell", "1:right": "Kate" }, {}, [], false, null, "joiner");
   assert.equal(locked.length, 2);
-  const names = locked.flatMap(f => [f.left.name, f.middle.name, f.right.name]);
+  const names = locked.flatMap(f => [f.left.name, f.middle!.name, f.right!.name]);
   assert.equal(new Set(names).size, names.length);
-  for (const formation of locked) assert.equal(new Set([formation.left.cls, formation.middle.cls, formation.right.cls]).size, 3);
+  for (const formation of locked) assert.equal(new Set([formation.left.cls, formation.middle!.cls, formation.right!.cls]).size, 3);
 });
 
 test("pinned Joiners reject heroes already reserved by Main", () => {
@@ -566,7 +566,7 @@ test("Main plus Joiner generation is deterministic for identical inputs", () => 
   const snapshot=()=> {
     const leader=generateLeaderFormation(pool,robots);
     const joiners=generateJoinerFormations(pool,6,{},robots,false,{},leader);
-    return JSON.stringify([leader,...joiners].map(f=>f&&[f.id,f.left.name,f.middle.name,f.right.name,f.robot]));
+    return JSON.stringify([leader,...joiners].map(f=>f&&[f.id,f.left.name,f.middle!.name,f.right!.name,f.robot]));
   };
   assert.equal(snapshot(),snapshot());
   assert.equal(snapshot(),snapshot());
@@ -577,4 +577,20 @@ test("public beta badge version is sourced from package metadata", async () => {
   const source = await import("node:fs/promises").then(fs => fs.readFile(new URL("../app/page.tsx", import.meta.url), "utf8"));
   assert.match(source, /packageInfo\.version/);
   assert.doesNotMatch(source, /DEV v\d+\.\d+ BETA/);
+});
+
+
+test("Joiners remain usable when only LEFT heroes are available", () => {
+  const leftOnly = heroes.filter(hero => ["Lofili", "Lunarl"].includes(hero.name));
+  const joiners = generateJoinerFormations(leftOnly, 2, {}, [], false, {}, null);
+  assert.equal(joiners.length, 2);
+  assert.ok(joiners.every(formation => formation.left.leftSkill));
+  assert.ok(joiners.every(formation => !formation.middle && !formation.right));
+});
+
+test("Joiner filler does not consume another protected LEFT hero when ordinary filler is available", () => {
+  const selected = heroes.filter(hero => ["Lofili", "Lunarl", "Gerd", "Iwado", "Vesaryon", "Platos"].includes(hero.name));
+  const joiners = generateJoinerFormations(selected, 2, {}, [], false, {}, null);
+  assert.equal(joiners.length, 2);
+  assert.notEqual(joiners[0].left.name, joiners[1].left.name);
 });
