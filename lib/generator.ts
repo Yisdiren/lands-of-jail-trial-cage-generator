@@ -9,11 +9,12 @@ const streamlinedHeroes = (pool: Hero[]) => pool.filter(hero => hero.rarity !== 
 
 export type FormationAlert = { severity: "error" | "warning" | "info"; message: string };
 export type FormationStatus = "blocked" | "review" | "ready";
-export type Formation = { id:string; left:Hero; middle:Hero; right:Hero; troopText:string; robot?:string; leftSkillLevel?:number; leftSkillPercent?:number; alerts:FormationAlert[]; status:FormationStatus };
+export type Formation = { id:string; left:Hero; middle?:Hero; right?:Hero; troopText:string; robot?:string; leftSkillLevel?:number; leftSkillPercent?:number; alerts:FormationAlert[]; status:FormationStatus };
 export type FelonPlan = { selected: Felon[]; preferredThird: "Rage Fist" | "Devil"; warning?: string };
 export function validateFormation(formation:Omit<Formation,"alerts"|"status">,mode:"leader"|"joiner"):Pick<Formation,"alerts"|"status">{
-  const alerts:FormationAlert[]=[],formationHeroes=[formation.left,formation.middle,formation.right];
-  if(new Set(formationHeroes.map(hero=>hero.cls)).size!==3)alerts.push({severity:"error",message:"Formation must contain exactly one Shield, one Bomber and one Shooter hero."});
+  const alerts:FormationAlert[]=[],formationHeroes=[formation.left,formation.middle,formation.right].filter((hero): hero is Hero => Boolean(hero));
+  if(mode==="leader"&&formationHeroes.length!==3)alerts.push({severity:"error",message:"Main Rally must contain three heroes."});
+  if(mode==="joiner"&&formationHeroes.length<3)alerts.push({severity:"info",message:"MIDDLE/RIGHT support heroes are optional for Cage Joiners; add them when your alliance prefers a full three-hero rally."});
   formationHeroes.forEach(hero=>{if(hero.rarity==="KOF"&&mode==="joiner")alerts.push({severity:"error",message:`${hero.name} is a KOF event hero and is excluded from Joiner generation.`})});
   if(!formation.robot)alerts.push({severity:"info",message:"No robot selected. Robot setup is optional and does not affect formation legality."});
   if(mode==="joiner"){
@@ -46,7 +47,7 @@ export function diagnoseJoinerRoster(
   warSkillLevels:WarSkillLevels={},
   heroStarLevels:HeroStarLevels={},
 ) {
-  const reserved=new Set(leader?[leader.left.name,leader.middle.name,leader.right.name]:[]);
+  const reserved=new Set(leader?[leader.left.name,leader.middle?.name,leader.right?.name].filter((name): name is string => Boolean(name)):[]);
   const eligible=streamlinedHeroes(availableHeroes).filter(hero=>hero.cageAllowed&&hero.rarity!=="KOF"&&!reserved.has(hero.name));
   const counts={
     Shield: eligible.filter(hero=>hero.cls==="Shield").length,
@@ -55,14 +56,11 @@ export function diagnoseJoinerRoster(
   };
   const leftCandidates=eligible.filter(hero=>Boolean(hero.leftSkill)&&(!verifiedOnly||hero.leftSkillVerified));
   const leftSkills=leftCandidates.length;
-  const requiredHeroes=requested*3;
+  const requiredHeroes=requested;
   const availableTotal=eligible.length;
   const blockers:string[]=[];
-  (["Shield","Bomber","Shooter"] as const).forEach(cls=>{
-    if(counts[cls]<requested) blockers.push(`Need ${requested-counts[cls]} more ${cls} hero${requested-counts[cls]===1?"":"es"} for ${requested} non-repeating Joiners.`);
-  });
   if(leftSkills<requested) blockers.push(`Need ${requested-leftSkills} more ${verifiedOnly?"verified ":""}eligible LEFT-skill hero${requested-leftSkills===1?"":"es"}.`);
-  if(availableTotal<requiredHeroes) blockers.push(`Need ${requiredHeroes-availableTotal} more eligible hero${requiredHeroes-availableTotal===1?"":"es"} overall to fill all ${requested} Joiners.`);
+  if(availableTotal<requiredHeroes) blockers.push(`Need ${requiredHeroes-availableTotal} more eligible hero${requiredHeroes-availableTotal===1?"":"es"} overall to lead all ${requested} Joiners.`);
   const bottleneck = (["Shield","Bomber","Shooter"] as const)
     .map(cls=>({cls,available:counts[cls],short:Math.max(0,requested-counts[cls])}))
     .filter(x=>x.short>0)
