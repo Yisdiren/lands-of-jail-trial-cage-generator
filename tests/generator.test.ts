@@ -571,3 +571,10 @@ test("Main plus Joiner generation is deterministic for identical inputs", () => 
   assert.equal(snapshot(),snapshot());
   assert.equal(snapshot(),snapshot());
 });
+
+
+test("public beta badge version is sourced from package metadata", async () => {
+  const source = await import("node:fs/promises").then(fs => fs.readFile(new URL("../app/page.tsx", import.meta.url), "utf8"));
+  assert.match(source, /packageInfo\.version/);
+  assert.doesNotMatch(source, /DEV v\d+\.\d+ BETA/);
+});
