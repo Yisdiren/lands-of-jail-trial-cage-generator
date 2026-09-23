@@ -529,8 +529,7 @@ export default function Home() {
       ...readinessLines,
     ];
     try {
-      await navigator.clipboard.writeText(lines.join("
-"));
+      await navigator.clipboard.writeText(lines.join("\n"));
       setNotice("Alliance instructions copied to the clipboard.");
     } catch {
       setNotice("Clipboard access was blocked. Select and copy the formation list manually.");
