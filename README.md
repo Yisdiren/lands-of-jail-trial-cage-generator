@@ -8,37 +8,14 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.45**
+**Beta v2.50**
 
-### Beta v2.45 — reliability pass
+### Beta v2.50 — milestone cleanup
 
-- Adds regression coverage for full Joiners versus LEFT-only Joiners.
-- Protects the same LEFT recommendation order in both modes and checks hero reuse.
-- Repairs older optional-slot test assumptions.
-
-### Beta v2.44 — mobile cleanup
-
-- Compacts formation cards on narrow screens and keeps result actions usable on phones.
-
-### Beta v2.43 — alliance sharing cleanup
-
-- Alliance copy output follows the generated Joiner formation mode and selected troop limit.
-
-### Beta v2.42 — Joiner card clarity
-
-- LEFT remains the Cage-priority slot.
-- Full mode labels MIDDLE/RIGHT as support/filler; LEFT-only mode intentionally leaves them empty.
-
-### Beta v2.41 — Joiner troop limit
-
-- Quick Setup now offers a 90K or 100K total Joiner troop instruction.
-- The generator does not invent a Bomber/Shooter mix; members should follow their alliance's preferred mix.
-
-### Beta v2.40 — Joiner formation mode
-
-- Full three-hero Joiners are the default.
-- Check **LEFT HERO ONLY FOR JOINERS** to leave MIDDLE and RIGHT empty.
-- Full mode protects the LEFT heroes needed by later Joiners before filling support slots.
+- Consolidates the Full/LEFT-only Joiner workflow, 90K/100K troop instructions, seasonal recommendation safeguards, and mobile/result polish.
+- Keeps Main Rally as a full three-hero formation while Joiners default to full formations and can be switched to LEFT-only.
+- Keeps screenshot-backed game evidence separate from generator recommendation heuristics.
+- Removes stale release wording from the active documentation and preserves regression coverage for S6/S7 behavior.
 
 ### Beta v2.38 — Joiner LEFT-priority clarity
 
