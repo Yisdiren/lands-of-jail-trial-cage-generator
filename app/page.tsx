@@ -261,7 +261,8 @@ export default function Home() {
 
   let lockError = "";
   let leaderFormation = automaticLeader;
-  const joinerTroopText = `${joinerTroopLimit.toLocaleString()},000 total troops`;\n  let joinerFormations = automaticJoiners.map(formation => ({...formation, troopText: joinerTroopText}));
+  const joinerTroopText = `${joinerTroopLimit.toLocaleString()},000 total troops`;
+  let joinerFormations = automaticJoiners.map(formation => ({...formation, troopText: joinerTroopText}));
   try {
     if (Object.values(leaderLocks).some(Boolean)) leaderFormation = buildLockedFormations(available, 1, leaderLocks, automaticWarSkillLevels, availableRobots, false, null, "leader", heroStarLevels)[0] ?? null;
     const leaderRobot = leaderFormation?.robot;
@@ -358,7 +359,8 @@ export default function Home() {
     const text = [
       `${formation.id}: ${formation.left.name} / ${formation.middle?.name ?? "—"} / ${formation.right?.name ?? "—"}${leftLevel}`,
       `${kind} troops: ${formation.troopText}${robot}`,
-    ].join("\n");
+    ].join("
+");
     try {
       await navigator.clipboard.writeText(text);
       setNotice(`${formation.id} copied.`);
@@ -533,7 +535,8 @@ export default function Home() {
       ...readinessLines,
     ];
     try {
-      await navigator.clipboard.writeText(lines.join("\n"));
+      await navigator.clipboard.writeText(lines.join("
+"));
       setNotice("Alliance instructions copied to the clipboard.");
     } catch {
       setNotice("Clipboard access was blocked. Select and copy the formation list manually.");
