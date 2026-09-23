@@ -622,3 +622,23 @@ test("LEFT-only mode leaves support slots empty", () => {
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader, false);
   assert.ok(joiners.every(f => !f.middle && !f.right));
 });
+
+
+test("Season 6 established Main defaults remain stable", () => {
+  const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
+  const main = generateLeaderFormation(pool, [], { Tyronn: 3 });
+  assert.ok(main);
+  assert.equal(main.right?.name, "Tyronn");
+  assert.equal(main.middle?.name, "Ryuichi");
+  assert.equal(main.left.name, "Ada");
+});
+
+test("Season 7 Main uses screenshot-backed offensive S7 options when owned", () => {
+  const names = ["Tyronn","Ryuichi","Ada","Boogie","Rin","Rex"];
+  const pool = heroes.filter(hero => names.includes(hero.name));
+  const main = generateLeaderFormation(pool, [], { Tyronn: 3 });
+  assert.ok(main);
+  assert.equal(main.right?.name, "Tyronn");
+  assert.equal(main.middle?.name, "Boogie");
+  assert.equal(main.left.name, "Rin");
+});
