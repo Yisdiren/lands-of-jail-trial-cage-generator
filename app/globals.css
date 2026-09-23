@@ -1253,3 +1253,9 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   .formation-card, .result-card { padding-left: .65rem; padding-right: .65rem; }
   .results-actions > button, .formation-actions > button { width: 100%; }
 }
+
+
+/* v2.38 — Joiner cards emphasize the Cage-relevant LEFT slot. */
+.formation-card .slot:not(.left){opacity:.76;background:linear-gradient(180deg,rgba(24,27,28,.86),rgba(12,15,16,.9))}
+.formation-card .slot:not(.left)>span{color:#8ea5bb}
+.formation-card .slot.left>span::after{content:" • CAGE PRIORITY";color:#f0ce75}
