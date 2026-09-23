@@ -59,7 +59,10 @@ export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:numbe
   const used=new Set<string>(),results:Formation[]=[];
   for(const left of candidates){
     if(results.length>=count||used.has(left.name))continue;
-    // Cage Joiners are LEFT-only recommendations by default. MIDDLE/RIGHT are intentionally left empty.\n    // This prevents neutral/support heroes from looking like additional Cage recommendations.\n    const middle = undefined, right = undefined;\n    used.add(left.name);
+    // Cage Joiners are LEFT-only recommendations by default. MIDDLE/RIGHT are intentionally left empty.
+    // This prevents neutral/support heroes from looking like additional Cage recommendations.
+    const middle = undefined, right = undefined;
+    used.add(left.name);
     const level=levelOf(left,warSkillLevels),base:Omit<Formation,"alerts"|"status">={id:`J${results.length+1}`,left,middle,right,robot:ownedRobots[results.length],leftSkillLevel:level,leftSkillPercent:left.leftSkillValues?.[level-1],troopText:"10,000 Bombers + 90,000 Shooters OR 100,000 Shooters"};
     results.push({...base,...validateFormation(base,"joiner")});
   }
