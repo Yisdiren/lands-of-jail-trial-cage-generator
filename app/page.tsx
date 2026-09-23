@@ -83,7 +83,8 @@ export default function Home() {
   const tx = extraUiText[language];
   const [season, setSeason] = useState(6);
   const [owned, setOwned] = useState<string[]>([]);
-  const [joinCount, setJoinCount] = useState(6);\n  const [fillJoinerSlots, setFillJoinerSlots] = useState(false);
+  const [joinCount, setJoinCount] = useState(6);
+  const [fillJoinerSlots, setFillJoinerSlots] = useState(false);
   const [warSkillLevels, setWarSkillLevels] = useState<WarSkillLevels>({});
   const [heroStarLevels, setHeroStarLevels] = useState<Record<string, number>>({});
   const [ownedRobots, setOwnedRobots] = useState<string[]>([]);
@@ -353,7 +354,8 @@ export default function Home() {
     const text = [
       `${formation.id}: ${formation.left.name} / ${formation.middle?.name ?? "—"} / ${formation.right?.name ?? "—"}${leftLevel}`,
       `${kind} troops: ${formation.troopText}${robot}`,
-    ].join("\n");
+    ].join("
+");
     try {
       await navigator.clipboard.writeText(text);
       setNotice(`${formation.id} copied.`);
@@ -528,7 +530,8 @@ export default function Home() {
       ...readinessLines,
     ];
     try {
-      await navigator.clipboard.writeText(lines.join("\n"));
+      await navigator.clipboard.writeText(lines.join("
+"));
       setNotice("Alliance instructions copied to the clipboard.");
     } catch {
       setNotice("Clipboard access was blocked. Select and copy the formation list manually.");
