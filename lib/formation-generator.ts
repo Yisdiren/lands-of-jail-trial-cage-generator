@@ -60,7 +60,7 @@ export function generateJoinerFormationsSmart(availableHeroes:Hero[],count:numbe
   const used=new Set<string>(),results:Formation[]=[];
   const pickSupport=(cls:HeroClass,local:Set<string>)=>eligible
     .filter(hero=>hero.cls===cls&&!local.has(hero.name)&&!protectedNames.has(hero.name)&&starOf(hero,heroStarLevels)>=3)
-    .sort((a,b)=>(Number(Boolean(a.leftSkill))-Number(Boolean(b.leftSkill)))||(Number(b.rarity==="SSR")-Number(a.rarity==="SSR"))||a.name.localeCompare(b.name))[0];
+    .sort((a,b)=>(Number(b.rarity==="SSR")-Number(a.rarity==="SSR"))||(Number(Boolean(a.leftSkill))-Number(Boolean(b.leftSkill)))||a.name.localeCompare(b.name))[0];
   for(const left of candidates){
     if(results.length>=count||used.has(left.name))continue;
     const missing=classOrder.filter(cls=>cls!==left.cls),local=new Set(used); local.add(left.name);
