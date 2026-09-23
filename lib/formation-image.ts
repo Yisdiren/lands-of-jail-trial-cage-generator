@@ -60,7 +60,7 @@ export async function downloadFormationImage(
     ctx.font = "bold 15px sans-serif";
     ctx.fillText(f.status.toUpperCase(), 104, y + 33);
 
-    for (const [j, hero] of [f.left, f.middle, f.right].entries()) {
+    for (const [j, hero] of [f.left, f.middle, f.right].filter(Boolean).entries()) {
       const x = 38 + j * 378;
       const slotY = y + 52;
       ctx.fillStyle = j === 0 && f.id !== "MAIN" ? "#33291a" : "#172126";
@@ -68,7 +68,7 @@ export async function downloadFormationImage(
       ctx.strokeStyle = j === 0 && f.id !== "MAIN" ? "#d5a43a" : "#4d4435";
       ctx.strokeRect(x, slotY, 356, 126);
 
-      const path = iconPath(hero.name);
+      const path = iconPath(hero!.name);
       ctx.fillStyle = "#26343b";
       ctx.fillRect(x + 10, slotY + 10, 70, 88);
       if (path) {
@@ -89,7 +89,7 @@ export async function downloadFormationImage(
       ctx.font = "15px sans-serif";
       ctx.fillText(stars[hero.name] ? "★".repeat(stars[hero.name]) : "Stars not set", x + 92, slotY + 77);
       ctx.fillStyle = "#9fb1c3";
-      ctx.fillText(hero.cls, x + 92, slotY + 100);
+      ctx.fillText(hero!.cls, x + 92, slotY + 100);
 
       if (j === 0 && f.id !== "MAIN") {
         ctx.fillStyle = "#d5a43a";
