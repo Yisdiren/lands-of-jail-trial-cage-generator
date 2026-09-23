@@ -8,7 +8,14 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.38**
+**Beta v2.39**
+
+### Beta v2.39 — optional Joiner support heroes
+
+- A Cage Joiner now requires only an eligible LEFT hero in the recommendation model.
+- MIDDLE and RIGHT are optional support/filler slots and are filled when ordinary support heroes are available for members who prefer full three-hero rallies.
+- Eligible LEFT candidates are protected from being consumed as filler for another Joiner.
+- Main Rally remains a full three-hero formation.
 
 ### Beta v2.38 — Joiner LEFT-priority clarity
 
