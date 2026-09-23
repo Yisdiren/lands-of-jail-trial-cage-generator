@@ -244,6 +244,7 @@ export default function Home() {
         verifiedOnly,
         heroStarLevels,
         automaticLeader,
+        fillJoinerSlots,
       ),
     [
       generatorAvailable,
@@ -253,6 +254,7 @@ export default function Home() {
       verifiedOnly,
       heroStarLevels,
       automaticLeader,
+      fillJoinerSlots,
     ],
   );
 
