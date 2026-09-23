@@ -14,6 +14,13 @@
 
 # Changelog
 
+## Beta v2.38 — Joiner LEFT-priority clarity
+
+- Emphasized the LEFT hero on Joiner result cards.
+- Labeled MIDDLE and RIGHT as formation/filler slots so they are not mistaken for additional Cage-damage recommendations.
+- Preserved class legality, no-reuse rules, and existing recommendation weights/data.
+
+
 ## Beta v2.37 — version-sync safeguards
 
 - Removed the hard-coded header beta version and now derive it from `package.json`.
