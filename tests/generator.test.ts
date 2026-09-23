@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { heroes, robots } from "../data/heroes";
 import { robotIconPaths } from "../data/robot-presentation";
-import { generateJoinerFormations, generateLeaderFormation } from "../lib/generator";
+import { diagnoseJoinerRoster, generateJoinerFormations, generateLeaderFormation } from "../lib/generator";
 import { buildLockedFormations } from "../lib/formation-locks";
 import { normalizeRobotPriority, normalizeSimpleSetup, normalizeStars, parseHeroListText, parseStoredSimpleSetup } from "../lib/simple-setup";
 import { cageBuffs, buffEffectLabel, prisonerArmorSetting, powerArmorBreakthroughLabel } from "../lib/cage-buffs";
@@ -523,4 +523,51 @@ test("Cage Power Armor verified level caps and values remain exact", () => {
   assert.deepEqual(byId["overload-charge"].levelValues, [16000,32000,48000,64000,80000,96000,112000,128000,144000,160000]);
   assert.deepEqual(byId["valiant-breach"].levelValues, [2,2.5,3,4,5,6,7,8,9,10]);
   for (const id of ["shockwave-crush","multidimensional","emergency-shelter"]) assert.equal(byId[id], undefined);
+});
+
+
+test("important Joiner recommendation ordering stays stable through Season 6", () => {
+  const ranked = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed && hero.leftSkill && hero.rarity !== "KOF")
+    .map(hero => ({ name: hero.name, score: scoreJoinerLeftHero(hero, {}, {}) }))
+    .sort((a,b) => b.score-a.score || a.name.localeCompare(b.name));
+  const position = (name: string) => ranked.findIndex(hero => hero.name === name);
+  for (const defensive of ["Whisper","Marcus","Caesar","Zoltan","Gerd","Vesaryon","Platos","Otto","Wukong"]) {
+    assert.ok(position(defensive) > position("Tyronn"), `${defensive} must not outrank Tyronn without recommendation evidence`);
+    assert.ok(position(defensive) > position("Worrell"), `${defensive} must not outrank Worrell without recommendation evidence`);
+  }
+  assert.ok(position("Worrell") < position("Kate"));
+});
+
+test("short-roster diagnostics identify exact class and LEFT-skill shortages", () => {
+  const names = ["Tyronn","Ryuichi","Ada","Phoenix","Worrell","Kate"];
+  const pool = heroes.filter(hero => names.includes(hero.name));
+  const leader = generateLeaderFormation(pool, [], { Tyronn: 3, Phoenix: 3 });
+  assert.ok(leader);
+  const diagnosis = diagnoseJoinerRoster(pool, 2, leader);
+  assert.ok(diagnosis.blockers.some(message => /Need 1 more .* hero/.test(message)));
+  assert.ok(diagnosis.blockers.some(message => /eligible hero.*overall/.test(message)));
+  assert.ok(diagnosis.bottleneck);
+  assert.equal(diagnosis.heroShortage, 3);
+});
+
+test("diagnostics and generation agree across S1-S6 and requested Joiner counts", () => {
+  for (let season=1; season<=6; season++) for (let requested=1; requested<=6; requested++) {
+    const pool=heroes.filter(hero=>hero.season<=season&&hero.cageAllowed);
+    const leader=generateLeaderFormation(pool);
+    const generated=generateJoinerFormations(pool,requested,{},[],false,{},leader);
+    const diagnosis=diagnoseJoinerRoster(pool,requested,leader);
+    if (generated.length===requested) assert.equal(diagnosis.blockers.length,0, `S${season} J${requested}`);
+    if (diagnosis.heroShortage>0) assert.ok(generated.length<requested, `S${season} J${requested} cannot fill when total heroes are short`);
+  }
+});
+
+test("Main plus Joiner generation is deterministic for identical inputs", () => {
+  const pool=heroes.filter(hero=>hero.season<=6&&hero.cageAllowed);
+  const snapshot=()=> {
+    const leader=generateLeaderFormation(pool,robots);
+    const joiners=generateJoinerFormations(pool,6,{},robots,false,{},leader);
+    return JSON.stringify([leader,...joiners].map(f=>f&&[f.id,f.left.name,f.middle.name,f.right.name,f.robot]));
+  };
+  assert.equal(snapshot(),snapshot());
+  assert.equal(snapshot(),snapshot());
 });

@@ -14,6 +14,16 @@
 
 # Changelog
 
+## Beta v2.36 — recommendation and release safeguards
+
+- Added season-6 recommendation-order guards so defensive/evidence-only LEFT heroes cannot silently overtake established offensive priorities.
+- Added short-roster diagnostic tests for exact class, LEFT-skill, and overall hero shortages.
+- Added S1–S6 agreement tests between roster diagnostics and generated Joiner counts.
+- Added deterministic generation regression coverage for identical inputs.
+- Added a unified `npm run check` release gate that runs the full test suite plus TypeScript validation.
+- No visible controls, game data, or recommendation weights changed.
+
+
 ## Beta v2.35 — quality, accessibility and integrity pass
 
 - Re-audited the complete 15-language catalogs and retained safe English fallback behavior.

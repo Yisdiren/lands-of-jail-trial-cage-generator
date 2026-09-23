@@ -8,7 +8,13 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.35**
+**Beta v2.36**
+
+### Beta v2.36 — release and recommendation safeguards
+
+- Protects established S1–S6 recommendation ordering against accidental promotion of defensive/evidence-only LEFT heroes.
+- Cross-checks short-roster diagnostics against actual generation and verifies deterministic output for identical inputs.
+- Adds `npm run check` as the pre-deployment gate for tests plus TypeScript validation.
 
 ### Beta v2.35 — quality, accessibility and integrity safeguards
 
