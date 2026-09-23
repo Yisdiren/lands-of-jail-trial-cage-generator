@@ -37,8 +37,7 @@ test("a partial roster returns only legal, non-repeating Joiners", () => {
   assert.ok(leader);
   const joiners = generateJoinerFormations(pool, 6, {}, [], false, {}, leader);
   assert.equal(joiners.length, 1);
-  assert.equal(joiners[0].middle, undefined);
-  assert.equal(joiners[0].right, undefined);
+  assert.equal(joiners[0].middle, undefined);\n  assert.equal(joiners[0].right, undefined);
 });
 
 test("saved and imported stars reject corrupt values and unknown heroes", () => {
@@ -356,11 +355,7 @@ test("S1-S6 formation stress matrix preserves legality across counts, stars, ver
 });
 
 test("hero text import tolerates spacing, case, stars, duplicates and unknown rows", () => {
-  const parsed = parseHeroListText("  TYRONN ★★★  
-Ada 4 stars
-Tyronn 5 stars
-Not A Hero
-Ryuichi ★");
+  const parsed = parseHeroListText("  TYRONN ★★★  \nAda 4 stars\nTyronn 5 stars\nNot A Hero\nRyuichi ★");
   assert.deepEqual(parsed.matched, ["Tyronn", "Ada", "Ryuichi"]);
   assert.equal(parsed.stars.Tyronn, 3);
   assert.equal(parsed.stars.Ada, 4);
@@ -409,13 +404,8 @@ test("S6 ranked LEFT heroes keep heuristic labeling separate from verified skill
 });
 
 test("hero import handles empty files, CRLF, punctuation and clamps star syntax", () => {
-  assert.deepEqual(parseHeroListText("   \r
-\r
-"), { matched: [], unmatched: [], duplicates: [], stars: {} });
-  const parsed = parseHeroListText("TYRONN - 5 stars\r
-Ada: ★★★★★\r
-Unknown!!!\r
-ADA 2 stars");
+  assert.deepEqual(parseHeroListText("   \r\n\r\n"), { matched: [], unmatched: [], duplicates: [], stars: {} });
+  const parsed = parseHeroListText("TYRONN - 5 stars\r\nAda: ★★★★★\r\nUnknown!!!\r\nADA 2 stars");
   assert.deepEqual(parsed.matched, ["Tyronn", "Ada"]);
   assert.equal(parsed.stars.Tyronn, 5);
   assert.equal(parsed.stars.Ada, 5);
