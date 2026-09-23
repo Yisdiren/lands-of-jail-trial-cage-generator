@@ -8,14 +8,37 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.39**
+**Beta v2.45**
 
-### Beta v2.39 — optional Joiner support heroes
+### Beta v2.45 — reliability pass
 
-- A Cage Joiner now requires only an eligible LEFT hero in the recommendation model.
-- MIDDLE and RIGHT are optional support/filler slots and are filled when ordinary support heroes are available for members who prefer full three-hero rallies.
-- Eligible LEFT candidates are protected from being consumed as filler for another Joiner.
-- Main Rally remains a full three-hero formation.
+- Adds regression coverage for full Joiners versus LEFT-only Joiners.
+- Protects the same LEFT recommendation order in both modes and checks hero reuse.
+- Repairs older optional-slot test assumptions.
+
+### Beta v2.44 — mobile cleanup
+
+- Compacts formation cards on narrow screens and keeps result actions usable on phones.
+
+### Beta v2.43 — alliance sharing cleanup
+
+- Alliance copy output follows the generated Joiner formation mode and selected troop limit.
+
+### Beta v2.42 — Joiner card clarity
+
+- LEFT remains the Cage-priority slot.
+- Full mode labels MIDDLE/RIGHT as support/filler; LEFT-only mode intentionally leaves them empty.
+
+### Beta v2.41 — Joiner troop limit
+
+- Quick Setup now offers a 90K or 100K total Joiner troop instruction.
+- The generator does not invent a Bomber/Shooter mix; members should follow their alliance's preferred mix.
+
+### Beta v2.40 — Joiner formation mode
+
+- Full three-hero Joiners are the default.
+- Check **LEFT HERO ONLY FOR JOINERS** to leave MIDDLE and RIGHT empty.
+- Full mode protects the LEFT heroes needed by later Joiners before filling support slots.
 
 ### Beta v2.38 — Joiner LEFT-priority clarity
 
@@ -67,9 +90,9 @@ The browser remembers the core quick setup: season, Joiner count, selected heroe
 
 ## Core formation rules
 
-- Every formation uses exactly **1 Shield + 1 Bomber + 1 Shooter hero**.
+- Main Rally uses **1 Shield + 1 Bomber + 1 Shooter hero**. Joiners use a recommended LEFT hero plus optional MIDDLE/RIGHT support unless LEFT-only mode is enabled.
 - Main Rally uses the player's **maximum available troops**.
-- Joiners use **10,000 Bombers + 90,000 Shooters** or **100,000 Shooters**.
+- Joiner troop instructions can be set to **90K total** or **100K total**; the tool does not invent an alliance-specific Bomber/Shooter mix.
 - Joiner recommendations prioritize the hero physically placed in the **LEFT** slot and that hero's first War skill.
 - Main Rally heroes are reserved and cannot be reused in Joiners.
 - Joiner heroes cannot be reused across J1–J6.
