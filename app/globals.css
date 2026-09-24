@@ -1281,3 +1281,11 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 .cage-test-card small{opacity:.72}
 .cage-test-card p{margin:0}
 @media (max-width:700px){.test-entry-grid{grid-template-columns:1fr}}
+
+.cage-test-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+.cage-test-stats>div{border:1px solid rgba(128,128,128,.28);border-radius:10px;padding:10px;display:grid;gap:3px}
+.cage-test-stats span{font-size:.7rem;font-weight:800;letter-spacing:.06em;opacity:.72}
+.cage-test-stats b{font-size:1.05rem}
+.cage-test-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.cage-test-best{outline:2px solid rgba(210,160,55,.7)}
+@media (max-width:700px){.cage-test-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
