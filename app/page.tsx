@@ -372,6 +372,12 @@ export default function Home() {
   const topRecoveryOptions = joinerRosterDiagnostics.rankedLeftAlternatives.slice(0, 6);
   const shortageActions: string[] = [];
   const fullJoinerMode = !leftOnlyJoiners;
+  const joinerSupportSlotsFilled = joinerFormations.reduce((sum, formation) => sum + Number(Boolean(formation.middle)) + Number(Boolean(formation.right)), 0);
+  const joinerSupportSlotsNeeded = joinCount * 2;
+  const joinerSupportShortage = fullJoinerMode ? Math.max(0, joinerSupportSlotsNeeded - joinerSupportSlotsFilled) : 0;
+  if (fullJoinerMode && joinerFormations.length === joinCount && joinerSupportShortage > 0) {
+    shortageActions.push(`You have enough LEFT heroes for ${joinCount} Joiners, but ${joinerSupportShortage} support slot${joinerSupportShortage === 1 ? "" : "s"} cannot be filled with available 3★+ support heroes without consuming protected LEFT recommendations.`);
+  }
   if (fullJoinerMode && joinerRosterDiagnostics.counts.Shield < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shield} eligible Shield hero${joinCount - joinerRosterDiagnostics.counts.Shield === 1 ? "" : "es"}.`);
   if (fullJoinerMode && joinerRosterDiagnostics.counts.Bomber < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Bomber} eligible Bomber hero${joinCount - joinerRosterDiagnostics.counts.Bomber === 1 ? "" : "es"}.`);
   if (fullJoinerMode && joinerRosterDiagnostics.counts.Shooter < joinCount) shortageActions.push(`Add ${joinCount - joinerRosterDiagnostics.counts.Shooter} eligible Shooter hero${joinCount - joinerRosterDiagnostics.counts.Shooter === 1 ? "" : "es"}.`);
