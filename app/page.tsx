@@ -127,6 +127,9 @@ export default function Home() {
   const [testDamage, setTestDamage] = useState("");
   const [testNotes, setTestNotes] = useState("");
   const [expandedCageTestId, setExpandedCageTestId] = useState<string | null>(null);
+  const [editingCageTestId, setEditingCageTestId] = useState<string | null>(null);
+  const [editCageDamage, setEditCageDamage] = useState("");
+  const [editCageNotes, setEditCageNotes] = useState("");
 
   useEffect(() => {
     try {
@@ -156,6 +159,20 @@ export default function Home() {
     setTestDamage("");
     setTestNotes("");
     setNotice("Cage test saved on this device.");
+  };
+  const beginEditCageTest = (test: CageTestResult) => {
+    setEditingCageTestId(test.id);
+    setEditCageDamage(String(test.damage));
+    setEditCageNotes(test.notes);
+  };
+  const saveEditedCageTest = () => {
+    const damage = Number(editCageDamage.replace(/,/g, ""));
+    if (!editingCageTestId || !Number.isFinite(damage) || damage <= 0) { setNotice("Enter a valid damage result."); return; }
+    const next = cageTests.map(test => test.id === editingCageTestId ? {...test, damage, notes: editCageNotes.trim()} : test);
+    setCageTests(next);
+    try { window.localStorage.setItem("loj-cage-tests-v1", JSON.stringify(next)); } catch {}
+    setEditingCageTestId(null);
+    setNotice("Cage result updated.");
   };
   const deleteCageTest = (id: string) => {
     if (!window.confirm("Delete this Cage result? This cannot be undone unless you exported a backup.")) return;
@@ -1230,8 +1247,15 @@ export default function Home() {
                   <p><strong>Main:</strong> {test.main}</p>
                   <p><strong>Joiner LEFT:</strong> {test.joinerLefts || "None recorded"}</p>
                   <p><strong>Joiner troops:</strong> {test.troopLimit}K</p>
-                  {test.notes && <p><strong>Notes:</strong> {test.notes}</p>}
-                  <button type="button" className="mini-copy" onClick={()=>deleteCageTest(test.id)}>DELETE</button>
+                  {editingCageTestId === test.id ? <div className="cage-test-edit">
+                    <label><span>Damage</span><input inputMode="numeric" value={editCageDamage} onChange={event=>setEditCageDamage(event.target.value)} /></label>
+                    <label><span>Notes</span><input value={editCageNotes} onChange={event=>setEditCageNotes(event.target.value)} /></label>
+                    <button type="button" className="mini-copy" onClick={saveEditedCageTest}>SAVE EDIT</button>
+                    <button type="button" className="mini-copy" onClick={()=>setEditingCageTestId(null)}>CANCEL</button>
+                  </div> : <>
+                    {test.notes && <p><strong>Notes:</strong> {test.notes}</p>}
+                    <div className="cage-test-actions"><button type="button" className="mini-copy" onClick={()=>beginEditCageTest(test)}>EDIT</button><button type="button" className="mini-copy" onClick={()=>deleteCageTest(test.id)}>DELETE</button></div>
+                  </>}
                 </div>}
               </article>
             )})}
