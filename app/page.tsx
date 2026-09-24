@@ -126,6 +126,7 @@ export default function Home() {
   const [cageTests, setCageTests] = useState<CageTestResult[]>([]);
   const [testDamage, setTestDamage] = useState("");
   const [testNotes, setTestNotes] = useState("");
+  const [expandedCageTestId, setExpandedCageTestId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -157,6 +158,7 @@ export default function Home() {
     setNotice("Cage test saved on this device.");
   };
   const deleteCageTest = (id: string) => {
+    if (!window.confirm("Delete this Cage result? This cannot be undone unless you exported a backup.")) return;
     const next = cageTests.filter(test => test.id !== id);
     setCageTests(next);
     try { window.localStorage.setItem("loj-cage-tests-v1", JSON.stringify(next)); } catch {}
@@ -190,6 +192,16 @@ export default function Home() {
     average: Math.round(cageTests.reduce((sum, test) => sum + test.damage, 0) / cageTests.length),
     total: cageTests.reduce((sum, test) => sum + test.damage, 0),
   } : null;
+  const cageSetupGroups = Object.values(cageTests.reduce<Record<string, { key: string; main: string; joinerLefts: string; troopLimit: 90 | 100; robot: string; hits: CageTestResult[] }>>((groups, test) => {
+    const key = [test.main, test.joinerLefts, test.troopLimit, test.robot].join("||");
+    (groups[key] ??= { key, main: test.main, joinerLefts: test.joinerLefts, troopLimit: test.troopLimit, robot: test.robot, hits: [] }).hits.push(test);
+    return groups;
+  }, {})).map(group => ({
+    ...group,
+    best: Math.max(...group.hits.map(hit => hit.damage)),
+    average: Math.round(group.hits.reduce((sum, hit) => sum + hit.damage, 0) / group.hits.length),
+  })).sort((a,b) => b.average - a.average);
+  const cageChartMax = cageTestStats?.best || 1;
 
   useEffect(() => {
     try {
@@ -591,6 +603,17 @@ export default function Home() {
     } catch (error) {
       setNotice(error instanceof Error ? error.message : "Image download failed.");
     } finally { setExportingImage(false); }
+  };
+  const copyGeneratedSetup = async () => {
+    const lines = [
+      "LANDS OF JAIL • TRIAL CAGE SETUP",
+      leaderFormation ? `MAIN: ${[leaderFormation.left.name, leaderFormation.middle?.name, leaderFormation.right?.name].filter(Boolean).join(" / ")}${leaderFormation.robot ? ` • Robot: ${leaderFormation.robot}` : ""}` : "MAIN: Not generated",
+      ...joinerFormations.map(formation => `${formation.id}: LEFT ${formation.left.name}${formation.middle ? ` / ${formation.middle.name}` : ""}${formation.right ? ` / ${formation.right.name}` : ""} • ${formation.troopText}`),
+    ];
+    try {
+      await navigator.clipboard.writeText(lines.join("\n"));
+      setNotice("Generated setup copied for sharing.");
+    } catch { setNotice("Clipboard access was blocked."); }
   };
   const copyAllianceInstructions = async () => {
     const recoveryNames = topRecoveryOptions.map((hero, index) => `${index + 1}. ${hero.name} (Lv${hero.level}, ${hero.verified ? "verified" : "unverified"})`);
@@ -1174,6 +1197,20 @@ export default function Home() {
             <div><span>TOTAL DAMAGE</span><b>{cageTestStats.total.toLocaleString()}</b></div>
           </div>
         )}
+        {cageTests.length > 1 && (
+          <div className="cage-history-chart" aria-label="Cage damage history">
+            <div className="cage-chart-bars">
+              {[...cageTests].reverse().map(test => <div key={test.id} className="cage-chart-column" title={`${test.date}: ${test.damage.toLocaleString()}`}><span style={{height:`${Math.max(4,(test.damage/cageChartMax)*100)}%`}} /></div>)}
+            </div>
+            <small>Damage history • oldest to newest</small>
+          </div>
+        )}
+        {cageSetupGroups.length > 0 && (
+          <div className="cage-setup-groups">
+            <h3>Results by setup</h3>
+            {cageSetupGroups.map((group,index)=><div className="cage-setup-summary" key={group.key}><b>{index===0 && cageSetupGroups.length>1 ? "Highest average • " : ""}{group.hits.length} hit{group.hits.length===1?"":"s"} • {group.average.toLocaleString()} avg • {group.best.toLocaleString()} best</b><small>{group.main} • {group.robot} • {group.troopLimit}K</small></div>)}
+          </div>
+        )}
         <div className="cage-test-tools">
           <button type="button" onClick={exportCageTests} disabled={!cageTests.length}>EXPORT CAGE RESULTS</button>
           <button type="button" onClick={()=>cageTestImportRef.current?.click()}>IMPORT CAGE RESULTS</button>
@@ -1183,13 +1220,19 @@ export default function Home() {
           <div className="cage-test-list">
             {cageTests.map(test => {
               const isBest = test.damage === cageTestStats?.best;
+              const expanded = expandedCageTestId === test.id;
               return (
-              <article className={`cage-test-card${isBest ? " cage-test-best" : ""}`} key={test.id}>
-                <div><b>{isBest ? "🏆 BEST • " : ""}{test.damage.toLocaleString()} damage</b><small>{test.date} • {test.troopLimit}K Joiners • Main robot: {test.robot}</small></div>
-                <p><strong>Main:</strong> {test.main}</p>
-                <p><strong>Joiner LEFT:</strong> {test.joinerLefts || "None recorded"}</p>
-                {test.notes && <p><strong>Notes:</strong> {test.notes}</p>}
-                <button type="button" className="mini-copy" onClick={()=>deleteCageTest(test.id)}>DELETE</button>
+              <article className={`cage-test-card cage-test-compact${isBest ? " cage-test-best" : ""}`} key={test.id}>
+                <button type="button" className="cage-test-row" onClick={()=>setExpandedCageTestId(expanded ? null : test.id)}>
+                  <b>{isBest ? "🏆 BEST • " : ""}{test.damage.toLocaleString()}</b><span>{test.date} • {test.robot}</span><span>{expanded ? "▲" : "▼"}</span>
+                </button>
+                {expanded && <div className="cage-test-details">
+                  <p><strong>Main:</strong> {test.main}</p>
+                  <p><strong>Joiner LEFT:</strong> {test.joinerLefts || "None recorded"}</p>
+                  <p><strong>Joiner troops:</strong> {test.troopLimit}K</p>
+                  {test.notes && <p><strong>Notes:</strong> {test.notes}</p>}
+                  <button type="button" className="mini-copy" onClick={()=>deleteCageTest(test.id)}>DELETE</button>
+                </div>}
               </article>
             )})}
           </div>
@@ -1273,6 +1316,7 @@ export default function Home() {
             {resultsOnly ? "BACK TO SETUP" : "RESULTS ONLY"}
           </button>
           <button className="copy-button" type="button" onClick={()=>window.print()}>PRINT RESULTS</button>
+          <button className="copy-button" type="button" onClick={copyGeneratedSetup}>COPY / SHARE SETUP</button>
           {!lockError && (
             <button className="copy-button" disabled={exportingImage || (!leaderFormation && !joinerFormations.length)} onClick={exportFormationImage}>
               {exportingImage ? "CREATING IMAGE…" : "DOWNLOAD IMAGE"}
@@ -1405,6 +1449,10 @@ export default function Home() {
               </button>
             </div>
           </div>
+          <details className="recommendation-help">
+            <summary>HOW RECOMMENDATIONS WORK</summary>
+            <p>LEFT is the Cage recommendation for each Joiner. Main Rally heroes are reserved and heroes are not reused across generated Joiners. In full 3-hero mode, MIDDLE/RIGHT are support slots: only available 3★+ heroes are considered, SSR is preferred over SR, and protected LEFT recommendations are not consumed as support. LEFT-only mode intentionally leaves MIDDLE/RIGHT empty.</p>
+          </details>
           <p className="result-intro"><b>Joiner priority: LEFT hero.</b> {leftOnlyJoiners ? "LEFT-only mode is on, so MIDDLE and RIGHT are intentionally empty." : "Full mode keeps the LEFT recommendation and uses MIDDLE/RIGHT as support/filler without sacrificing another useful LEFT hero."}</p>
           {lockError && <div className="warning-box">{lockError}</div>}
           {joinerFormations.length === 0 && (
