@@ -118,6 +118,7 @@ export default function Home() {
   const [importReport, setImportReport] = useState<ImportReport | null>(null);
   const heroImportRef = useRef<HTMLInputElement>(null);
   const backupImportRef = useRef<HTMLInputElement>(null);
+  const cageTestImportRef = useRef<HTMLInputElement>(null);
   const [selectedBuffIds, setSelectedBuffIds] = useState<string[]>([]);
   const [armorSettings, setArmorSettings] = useState<PrisonerArmorSettings>({});
   const [activationLeadMinutes, setActivationLeadMinutes] = useState(5);
@@ -160,6 +161,35 @@ export default function Home() {
     setCageTests(next);
     try { window.localStorage.setItem("loj-cage-tests-v1", JSON.stringify(next)); } catch {}
   };
+  const exportCageTests = () => {
+    const blob = new Blob([JSON.stringify({ format: "loj-cage-tests", version: 1, exportedAt: new Date().toISOString(), results: cageTests }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `loj-cage-results-${new Date().toISOString().slice(0,10)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+  const importCageTests = async (file: File) => {
+    try {
+      const parsed = JSON.parse(await file.text());
+      const rows = Array.isArray(parsed) ? parsed : parsed?.results;
+      if (!Array.isArray(rows)) throw new Error("No results found");
+      const valid = rows.filter((row: CageTestResult) => row && typeof row.id === "string" && typeof row.date === "string" && Number.isFinite(Number(row.damage)) && typeof row.main === "string" && typeof row.joinerLefts === "string");
+      const merged = [...valid, ...cageTests].filter((row, index, all) => all.findIndex(item => item.id === row.id) === index).slice(0, 50);
+      setCageTests(merged);
+      window.localStorage.setItem("loj-cage-tests-v1", JSON.stringify(merged));
+      setNotice(`Imported ${valid.length} Cage result${valid.length === 1 ? "" : "s"}.`);
+    } catch {
+      setNotice("That Cage results backup could not be imported.");
+    }
+  };
+  const cageTestStats = cageTests.length ? {
+    count: cageTests.length,
+    best: Math.max(...cageTests.map(test => test.damage)),
+    average: Math.round(cageTests.reduce((sum, test) => sum + test.damage, 0) / cageTests.length),
+    total: cageTests.reduce((sum, test) => sum + test.damage, 0),
+  } : null;
 
   useEffect(() => {
     try {
@@ -1130,17 +1160,32 @@ export default function Home() {
           <label><span>Notes</span><input placeholder="Cage 1, robot test, hero swap…" value={testNotes} onChange={event=>setTestNotes(event.target.value)} /></label>
           <button type="button" onClick={saveCageTest} disabled={!generated || !leaderFormation}>SAVE THIS HIT</button>
         </div>
+        {cageTestStats && (
+          <div className="cage-test-stats">
+            <div><span>HITS</span><b>{cageTestStats.count}</b></div>
+            <div><span>BEST</span><b>{cageTestStats.best.toLocaleString()}</b></div>
+            <div><span>AVERAGE</span><b>{cageTestStats.average.toLocaleString()}</b></div>
+            <div><span>TOTAL DAMAGE</span><b>{cageTestStats.total.toLocaleString()}</b></div>
+          </div>
+        )}
+        <div className="cage-test-tools">
+          <button type="button" onClick={exportCageTests} disabled={!cageTests.length}>EXPORT CAGE RESULTS</button>
+          <button type="button" onClick={()=>cageTestImportRef.current?.click()}>IMPORT CAGE RESULTS</button>
+          <input ref={cageTestImportRef} type="file" accept="application/json,.json" hidden onChange={event=>{ const file=event.target.files?.[0]; if(file) void importCageTests(file); event.currentTarget.value=""; }} />
+        </div>
         {cageTests.length > 0 ? (
           <div className="cage-test-list">
-            {cageTests.map(test => (
-              <article className="cage-test-card" key={test.id}>
-                <div><b>{test.damage.toLocaleString()} damage</b><small>{test.date} • {test.troopLimit}K Joiners • Main robot: {test.robot}</small></div>
+            {cageTests.map(test => {
+              const isBest = test.damage === cageTestStats?.best;
+              return (
+              <article className={`cage-test-card${isBest ? " cage-test-best" : ""}`} key={test.id}>
+                <div><b>{isBest ? "🏆 BEST • " : ""}{test.damage.toLocaleString()} damage</b><small>{test.date} • {test.troopLimit}K Joiners • Main robot: {test.robot}</small></div>
                 <p><strong>Main:</strong> {test.main}</p>
                 <p><strong>Joiner LEFT:</strong> {test.joinerLefts || "None recorded"}</p>
                 {test.notes && <p><strong>Notes:</strong> {test.notes}</p>}
                 <button type="button" className="mini-copy" onClick={()=>deleteCageTest(test.id)}>DELETE</button>
               </article>
-            ))}
+            )})}
           </div>
         ) : <p className="helper">No Cage tests saved yet.</p>}
       </section>
