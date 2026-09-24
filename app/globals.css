@@ -1307,3 +1307,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 .recommendation-help summary{font-weight:800;cursor:pointer}
 .recommendation-help p{margin:8px 0 0}
 @media(max-width:600px){.cage-test-row{grid-template-columns:1fr auto}.cage-test-row span:first-of-type{grid-column:1/2;grid-row:2}.cage-test-row span:last-child{grid-column:2;grid-row:1/3}}
+
+.cage-test-actions,.cage-test-edit{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.cage-test-edit label{display:grid;gap:4px;min-width:180px;flex:1}
+.cage-test-edit label span{font-size:.72rem;font-weight:800}
