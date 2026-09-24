@@ -642,3 +642,49 @@ test("Season 7 Main uses screenshot-backed offensive S7 options when owned", () 
   assert.equal(main.middle?.name, "Boogie");
   assert.equal(main.left.name, "Rin");
 });
+
+
+test("full Joiner support excludes heroes below 3 stars", () => {
+  const names = ["Lofili", "Gerd", "Iwado", "Vesaryon", "Marcus", "Ryuichi"];
+  const pool = heroes.filter(hero => names.includes(hero.name));
+  const stars = Object.fromEntries(names.map(name => [name, name === "Lofili" ? 5 : 2]));
+  const joiners = generateJoinerFormations(pool, 1, {}, [], false, stars, null, true);
+  assert.equal(joiners.length, 1);
+  assert.equal(joiners[0].left.name, "Lofili");
+  assert.equal(joiners[0].middle, undefined);
+  assert.equal(joiners[0].right, undefined);
+});
+
+test("full Joiner support prefers eligible SSR over SR of the same class", () => {
+  const names = ["Lofili", "Iwado", "Marcus", "Ryuichi"];
+  const pool = heroes.filter(hero => names.includes(hero.name));
+  const stars = Object.fromEntries(names.map(name => [name, 3]));
+  const joiners = generateJoinerFormations(pool, 1, {}, [], false, stars, null, true);
+  assert.equal(joiners.length, 1);
+  const support = [joiners[0].middle, joiners[0].right].filter(Boolean);
+  assert.ok(support.some(hero => hero?.name === "Marcus"));
+  assert.ok(!support.some(hero => hero?.name === "Iwado"));
+});
+
+test("full Joiner support never consumes a protected LEFT recommendation", () => {
+  const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
+  const stars = Object.fromEntries(pool.map(hero => [hero.name, 5]));
+  const leftOnly = generateJoinerFormations(pool, 6, {}, [], false, stars, null, false);
+  const full = generateJoinerFormations(pool, 6, {}, [], false, stars, null, true);
+  const expectedLeft = leftOnly.map(formation => formation.left.name);
+  assert.deepEqual(full.map(formation => formation.left.name), expectedLeft);
+  const supportNames = full.flatMap(formation => [formation.middle?.name, formation.right?.name].filter((name): name is string => Boolean(name)));
+  assert.ok(expectedLeft.every(name => !supportNames.includes(name)));
+});
+
+test("LEFT-only and full Joiner generation remain available through Seasons 1-6", () => {
+  for (let season = 1; season <= 6; season++) {
+    const pool = heroes.filter(hero => hero.season <= season && hero.cageAllowed);
+    const stars = Object.fromEntries(pool.map(hero => [hero.name, 5]));
+    const leader = generateLeaderFormation(pool, [], stars);
+    const leftOnly = generateJoinerFormations(pool, 6, {}, [], false, stars, leader, false);
+    const full = generateJoinerFormations(pool, 6, {}, [], false, stars, leader, true);
+    assert.deepEqual(full.map(formation => formation.left.name), leftOnly.map(formation => formation.left.name), `S${season}`);
+    assert.ok(leftOnly.every(formation => !formation.middle && !formation.right), `S${season} LEFT-only`);
+  }
+});
