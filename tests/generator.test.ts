@@ -11,6 +11,7 @@ import { extraUiText, languageOptions, uiText } from "../data/ui-text";
 import { cageRecommendationEvidence } from "../lib/evidence";
 import { auditGeneratorData } from "../lib/data-audit";
 import { recommendationReason, seasonTransitionHeroes } from "../lib/presentation-insights";
+import { compareHero, personalBestProgression } from "../lib/community-insights";
 
 test("one displayed Main reserves its heroes and robot from six Joiners", () => {
   const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
@@ -766,4 +767,24 @@ test("recommendation reason uses verified progression without inventing missing 
   assert.match(recommendationReason(tyronn,5), /25%/);
   const noProgression=heroes.find(hero=>hero.leftSkill && !hero.leftSkillValues);
   if (noProgression) assert.doesNotMatch(recommendationReason(noProgression,5), /Lv5: \d+%/);
+});
+
+
+test("personal-best progression keeps only chronological record breakers", () => {
+  const newestFirst=[
+    {id:"4",date:"2026-09-04",damage:110},
+    {id:"3",date:"2026-09-03",damage:120},
+    {id:"2",date:"2026-09-02",damage:90},
+    {id:"1",date:"2026-09-01",damage:100},
+  ];
+  assert.deepEqual(personalBestProgression(newestFirst).map(hit=>hit.damage),[100,120]);
+});
+
+test("hero comparison reports evidence without inventing a winner", () => {
+  const hero=heroes.find(item=>item.name==="Tyronn");
+  assert.ok(hero);
+  const comparison=compareHero(hero,5,5);
+  assert.equal(comparison.name,"Tyronn");
+  assert.equal(comparison.evidence.gameEvidence,"verified");
+  assert.doesNotMatch(JSON.stringify(comparison), /winner|outperform/i);
 });
