@@ -8,106 +8,115 @@ Live site: https://lands-of-jail-trial-cage-generator.vercel.app
 
 ## Current release
 
-**Beta v2.50**
+**Beta v2.56**
 
-### Beta v2.50 — milestone cleanup
+The generator is designed for players across Lands of Jail rather than one server or alliance. The normal workflow stays simple, while testing, evidence, diagnostics, and alliance-oriented tools remain optional.
 
-- Consolidates the Full/LEFT-only Joiner workflow, 90K/100K troop instructions, seasonal recommendation safeguards, and mobile/result polish.
-- Keeps Main Rally as a full three-hero formation while Joiners default to full formations and can be switched to LEFT-only.
-- Keeps screenshot-backed game evidence separate from generator recommendation heuristics.
-- Removes stale release wording from the active documentation and preserves regression coverage for S6/S7 behavior.
+### What's new in v2.56
 
-### Beta v2.38 — Joiner LEFT-priority clarity
+- **LEFT Hero Comparison** compares two owned LEFT candidates using entered War-skill data, stars, skill level, evidence status, and recommendation basis without inventing a damage winner.
+- **Personal-best progression** automatically finds record-breaking hits in saved Cage history.
+- **Community evidence guide** explains what screenshots and information are useful for correcting or expanding the database.
+- Includes the v2.55 recommendation explanations, Cage sessions, season-transition helper, and S1–S6 data-quality dashboard.
+- Includes the v2.54 generator self-check and the start of the ongoing component cleanup/refactor.
 
-- Joiner result cards now visually emphasize the LEFT hero as the Cage-priority slot.
-- MIDDLE and RIGHT are explicitly labeled as filler/formation slots rather than extra damage recommendations.
-- The legal 1 Shield + 1 Bomber + 1 Shooter formation requirement remains unchanged.
-- No hero recommendation weights or verified game data changed.
+## Quick start
 
-### Beta v2.37 — version-sync safeguards
-
-- The visible header beta badge now derives from `package.json`, preventing the UI version from drifting behind the release version again.
-- Release metadata remains centralized while the normal generator workflow and recommendation data stay unchanged.
-
-### Beta v2.36 — release and recommendation safeguards
-
-- Protects established S1–S6 recommendation ordering against accidental promotion of defensive/evidence-only LEFT heroes.
-- Cross-checks short-roster diagnostics against actual generation and verifies deterministic output for identical inputs.
-- Adds `npm run check` as the pre-deployment gate for tests plus TypeScript validation.
-
-### Beta v2.35 — quality, accessibility and integrity safeguards
-
-- Completed another 15-language catalog integrity pass while preserving English fallback for untranslated Advanced copy.
-- Added polite live-region announcements for generator notices and tightened narrow-screen result actions.
-- Added database integrity checks for hero identity/class/season/rarity, verified five-level LEFT evidence, and complete robot icon mappings.
-- Locked verified Cage Power Armor level caps/value arrays and continued excluding non-Cage utility skills from Cage buff choices.
-- Results/image-export behavior remains unchanged; regression coverage protects the formation data it consumes.
-
-### Beta v2.33 — reliability and evidence safeguards
-
-- Production remains intentionally simple: Main Rally + up to six Joiners, with optional tools kept in Advanced.
-- S1–S6 generation is protected by broad legality/no-reuse stress tests.
-- Backup and browser-state recovery are hardened against malformed or obsolete values.
-- Game evidence and recommendation heuristics are explicitly separated; verified data alone does not imply Cage priority.
-- The 15-language interface is checked for complete, non-empty fallback coverage.
-
-### Beta v2.20 — multilingual public interface
-
-The header now includes a compact language selector for English, Spanish, Portuguese, German, French, Italian, Polish, Turkish, Russian, Dutch, Indonesian, Vietnamese, Japanese, Korean, and Simplified Chinese. The browser language is used on first visit when supported, the visitor's choice is remembered locally, and English remains the fallback. Core public setup/results labels are translated; hero, skill, robot, and other in-game proper names remain unchanged unless official localized names are verified.
-
-The public workflow is intentionally simple:
-
-1. Choose your server season.
+1. Choose your current season.
 2. Choose how many Joiner rallies you want.
-3. Select the heroes you own and set their star levels.
+3. Select the heroes you actually own and set their star levels.
 4. Press **Generate My Cage Setup**.
 5. Use the generated **Main Rally + J1–J6** formations.
 
 The browser remembers the core quick setup: season, Joiner count, selected heroes, and star levels.
 
-## Core formation rules
+## Formation model
 
-- Main Rally uses **1 Shield + 1 Bomber + 1 Shooter hero**. Joiners use a recommended LEFT hero plus optional MIDDLE/RIGHT support unless LEFT-only mode is enabled.
-- Main Rally uses the player's **maximum available troops**.
-- Joiner troop instructions can be set to **90K total** or **100K total**; the tool does not invent an alliance-specific Bomber/Shooter mix.
-- Joiner recommendations prioritize the hero physically placed in the **LEFT** slot and that hero's first War skill.
-- Main Rally heroes are reserved and cannot be reused in Joiners.
-- Joiner heroes cannot be reused across J1–J6.
-- KOF heroes remain excluded from Joiner generation.
+- Main Rally is a full **Shield + Bomber + Shooter** formation and uses the player's maximum available troops.
+- Joiners prioritize the hero physically placed in the **LEFT** slot and that hero's first War skill.
+- Joiners default to full three-hero formations when enough eligible support is available.
+- **LEFT HERO ONLY FOR JOINERS** intentionally leaves MIDDLE and RIGHT empty.
+- Full-mode MIDDLE/RIGHT support requires **3★+** heroes, prefers SSR over SR, and protects useful future LEFT candidates from being consumed as filler.
+- Main heroes are reserved and cannot be reused in Joiners.
+- Joiner heroes are not reused across J1–J6.
+- KOF heroes are excluded from Joiner generation.
+- Joiner troop instructions can be set to **90K total** or **100K total**. The generator does not invent an alliance-specific troop mix.
 - Robots are optional guidance and do not determine formation legality.
-- The generator does not invent missing game values.
 
-## Simple first, advanced when needed
+## Evidence-first recommendations
 
-The normal page stays focused on hero selection and formation generation.
+Game evidence and generator recommendations are deliberately separate.
 
-The collapsed **Advanced / Optional Setup** area contains the extra tools:
+The generator can show why a LEFT hero was selected, including the recorded first War skill, skill level, verified percentage when available, and the recommendation basis. A verified skill does **not** automatically mean a hero receives a high Cage priority.
+
+Unknown values stay unknown. The project does not extrapolate missing percentages or treat unverified community reports as established game data.
+
+## Season coverage
+
+The hero database supports seasons through **Season 7**. Active refinement currently focuses on **S1–S6**.
+
+Season 6 includes direct first/LEFT War-skill evidence for **Otto, Wukong, Worrell, and Kate**. Bastion is the verified S6 robot. Its Shockwave Crush evidence is retained, but enemy ATK reduction is not treated as a Cage damage buff.
+
+Existing S7 screenshot-backed data includes **Rin, Rex, Boogie, and Fran & Pike**. S7 support remains available, but active recommendation tuning is intentionally deferred until stronger Cage evidence is available.
+
+See **[Season 6 evidence intake](docs/season-6-evidence.md)** for the detailed S6 evidence work.
+
+## Advanced / optional tools
+
+None of these are required for normal generation:
 
 - Robots and robot priority/overrides
 - Felons
 - Prison Buffs and Power Armor
-- LEFT filters
+- LEFT filters and verified-only filtering
 - Formation pinning
-- Evidence details
-- Roster backup/import tools
+- Hero evidence details
+- Roster backup/import
 - Formation comparison
-- Preflight and recovery diagnostics
+- LEFT Hero Comparison
+- Preflight/recovery diagnostics
+- Generator data self-check
+- S1–S6 data-quality summary
+- Community evidence guidance
 
-None of those are required to generate normal Main + Joiner formations.
+## Actual Cage results
 
-## Current hero/data coverage
+The optional browser-local Cage tracker can record real damage hits from generated setups.
 
-- Season-aware hero support through **Season 7**
-- Screenshot-backed S7 data for **Rin, Rex, Boogie, and Fran & Pike**
-- Season 6 hero entries for **Otto, Wukong, Worrell, and Kate**
-- All four S6 heroes now have direct screenshot-backed first/LEFT War-skill evidence recorded
-- **Otto — Natural Hymn:** Tactical DMG Taken Reduction 12/24/36/48/60% and Basic Attack DMG Taken Reduction 8/16/24/32/40%
-- **Wukong — Calamity Inferno:** Lv1–Lv5 progression 30/60/90/120/150%
-- **Bastion** is the verified Season 6 robot. Its Shockwave Crush data is retained as evidence but intentionally excluded from Cage pre-buff choices because enemy ATK reduction does not improve Cage damage when the target does not attack back
+It provides:
 
-See [Season 6 evidence intake](docs/season-6-evidence.md).
+- Hit count, best, average, and total damage
+- Damage-history chart
+- Results grouped by exact setup
+- Sessions grouped by date
+- Personal-best progression
+- Editable notes/damage
+- JSON export/import backup
 
-## Power Armor data
+Cage records are personal testing data. They **do not change universal recommendation rankings**.
+
+Records are stored in browser local storage, so exporting a JSON backup is recommended before clearing browser data or moving to another browser/device.
+
+## Season transition helper
+
+When a season is selected, the generator can show heroes introduced in that season, their class/rarity, recorded LEFT skill, evidence status, and current generator role.
+
+This is an information aid—not a claim that a newly unlocked hero is automatically stronger than an older hero.
+
+## Data integrity
+
+The generator self-check looks for problems such as:
+
+- Duplicate hero or robot names
+- Invalid season values
+- Verified skills without skill text
+- Malformed Lv1–Lv5 progressions
+- Cage-priority data without corresponding LEFT-skill data
+- Missing S1–S6 class coverage
+
+Regression coverage also stress-tests S1–S6 generation, Main reservations, no hero reuse, LEFT-only/full-mode behavior, 3★ support requirements, SSR support preference, protected LEFT candidates, and verified-only generation.
+
+## Power Armor
 
 Verified Cage-relevant Power Armor data currently includes:
 
@@ -116,114 +125,17 @@ Verified Cage-relevant Power Armor data currently includes:
 - **Halo — Overload Charge:** Lv1–Lv10, including Lv10 **+160,000 Rally Troop Capacity**
 - **Yokozuna — Valiant Breach:** Lv1–Lv10
 
-Infercore and Atlax max at Lv90/Lv9. Halo and Yokozuna support Lv10 where directly verified.
-
-Utility/non-Cage Pilot skills are kept out of Cage buff recommendations. The robot selector now includes real screenshot-derived icons for the verified roster, including Bastion and Pluto. Unknown values are left unverified instead of being extrapolated.
-
-## Beta v2.19 — simple results and reliability pass
-
-- Simplified Joiner result wording and collapsed technical LEFT explanations into compact skill details.
-- Incomplete results now lead with the first plain-language shortage instead of a long diagnostic dump.
-- Added regression coverage for documented Main Rally class priorities.
-- Added season-by-season legality/no-reuse tests through Season 7.
-- Added hero database integrity checks for duplicate names, class/season validity, verified LEFT evidence, five-level skill arrays, and KOF exclusion.
-- Added evidence-first guards for S6/S7 LEFT data and explicit caveats on promoted S7 heuristic priorities.
-
-## Beta v2.18 — evidence and ranking regression guard
-
-The current pre-S6 evidence pass is now protected by regression tests:
-
-- Every pre-S6 non-R Cage hero that has a recorded LEFT skill must keep a verified five-level progression.
-- Marcus, Caesar, Zoltan, Gerd, Vesaryon, Whisper, and Platos are explicitly guarded against accidental Cage-priority promotion until direct Cage evidence supports one.
-- The existing Season 5 Main + six-Joiner legality/no-reuse/KOF/R regression tests remain in place.
-
-The audit found no remaining pre-S6 non-R hero with a recorded LEFT skill that lacks a verified Lv1-Lv5 progression. Heroes whose skills have not been directly captured remain unguessed.
-
-## Beta v2.17 — remaining pre-S6 War-skill evidence
-
-Direct screenshots supplied on 2026-09-20 now record the displayed War-skill sets for **Marcus, Caesar, Zoltan, Gerd, Vesaryon, Whisper, and Platos**.
-
-- Exact displayed Lv1-Lv5 progressions are recorded for each first/LEFT War skill.
-- Additional War-skill progressions shown in the screenshots are preserved in hero notes.
-- Defensive, utility, conditional, and untested effects do not receive unsupported Trial Cage priority promotions.
-- This closes the specific pre-S6 evidence gaps identified by the v2.16 audit.
-
-## Beta v2.16 — pre-S6 audit and simple-results pass
-
-Five-part maintenance pass completed without adding controls to the simple setup:
-
-1. **Hero evidence audit:** remaining pre-S6 screenshot gaps are explicitly marked for Marcus, Caesar, Zoltan, Gerd, Vesaryon, Whisper, and Platos.
-2. **Cage priority audit:** newly verified offensive first/LEFT skills receive conservative generator weights only where the screenshots support an offensive effect; defensive and utility skills remain unpromoted.
-3. **Season 5 six-Joiner regression:** tests exercise Main + J1-J6 across star scenarios and assert class legality, no reuse, and no KOF/R Joiners.
-4. **Simple results cleanup:** technical next-best LEFT comparisons and informational formation notices are removed from the normal results path; actionable warnings remain.
-5. **Season 6 freeze:** unknown Season 6 hero and robot values remain deferred until direct evidence is available.
-
-## v2.15 Edwin War-skill evidence
-
-Direct screenshots supplied on 2026-09-20 now verify Edwin's complete three-skill War kit and Lv1-Lv5 progressions.
-
-## v2.14 War-skill evidence expansion II
-
-Direct screenshots supplied on 2026-09-20 now verify complete War-skill sets for **Ada, Mireya, Drake, Sawyer, Devilian, Inata, and Mia Scarlet Pyros**.
-
-- Added exact displayed Lv1–Lv5 progressions for all seven first/LEFT War skills.
-- Recorded the verified second and third War-skill mechanics in hero evidence notes.
-- Kept utility and conditional skills from receiving unsupported Trial Cage priority changes.
-
-## v2.13 War-skill evidence expansion
-
-Direct screenshots supplied on 2026-09-20 now verify complete War-skill sets for **Samir, Flameborne, Lee, Tormund, Alph, and Lanchester**.
-
-- The hero database records the exact displayed Lv1–Lv5 progressions.
-- First/LEFT skills are identified separately from second/third War skills so useful support effects do not get mistaken for LEFT bonuses.
-- Existing Cage priority tiers are not promoted solely from these screenshots; effects that need Cage testing remain conservatively ranked.
-
-## v2.11 Season 5 Shield fallback support
-
-Season 5 has only six usable SSR Shield heroes, while one Main Rally plus six Joiners requires seven different Shields. To avoid forcing players to wait for or heavily spend on Otto in Season 6:
-
-- **Gerd, Iwado, and Vesaryon** are now visible as SR Shield support fallbacks.
-- The normal Main Rally still prefers the existing SSR Main choices.
-- These SR Shields have no offensive LEFT priority and are used as MIDDLE/RIGHT support when the SSR Shield pool runs short.
-- Added cleaned icons for all three support heroes.
-- This lets a Season 5 roster build a full Main + J1–J6 when the player owns enough heroes in the other classes.
-
-## v2.10 Season 6 evidence correction
-
-- Corrected the older Otto/Wukong “deferred” note after reviewing the screenshots already supplied.
-- Added Otto's verified **Natural Hymn** first/LEFT skill progression to hero data.
-- Added Wukong's verified **Calamity Inferno** Lv1–Lv5 progression to hero data.
-- Kept their generator priority neutral unless Trial Cage testing supports a stronger ranking.
-
-## v2.09 reliability work
-
-The current release also adds:
-
-- Shared Main Rally reservation for Joiner generation
-- Safer pinned-Main handling
-- Joiner generation that keeps trying later LEFT candidates when an earlier one cannot complete a legal march
-- Saved-setup validation for unknown heroes and invalid star values
-- Season-change protection so later-season selections return when switching back
-- Optional actual LEFT War-skill level entry inside hero evidence details
-- Clear shortage/recovery messages for incomplete rally sets
-- Regression tests for reuse, pinned Main, partial rosters, and bad saved data
-
-Stars determine the highest **unlocked** LEFT War-skill level. By default, the generator assumes that unlocked maximum unless the player enters a lower actual level in the optional skill details.
+Utility/non-Cage Pilot skills are kept out of Cage buff recommendations. Unknown values are not extrapolated.
 
 ## Sharing and mobile use
 
-- Copy MAIN or any Joiner formation individually
-- Copy the full alliance instruction block
-- Download a formation image
-- Use **Results Only** for cleaner sharing/printing
-- Mobile layout includes a sticky Generate button
-- Generated cards show LEFT / MIDDLE / RIGHT clearly
+Generated setups can be copied individually or as a full setup for alliance sharing. Results can also be printed or exported as an image. The interface includes mobile-specific layout adjustments and a compact formation overview.
 
-## Evidence policy
+## Community evidence
 
-Trial Cage has RNG, and some mechanics still require direct in-game verification.
+Useful evidence is a clear in-game screenshot showing the hero name and War skill screen. When possible, include the season, rarity, first/LEFT War-skill text, and displayed Lv1–Lv5 values.
 
-Exact hero skills, robot effects, Power Armor values, or other mechanics are not added as facts unless we have reliable direct evidence. Unknown data stays marked as unknown instead of being guessed.
+Submitted information is reviewed before changing the database. Evidence alone does not automatically establish a Trial Cage recommendation or ranking.
 
 ## Development
 
@@ -240,33 +152,28 @@ Run regression tests:
 npm test
 ```
 
-Run the production build check:
+Run the full project check:
+
+```bash
+npm run check
+```
+
+Run a production build:
 
 ```bash
 npm run build
 ```
 
-The release gate is a passing test/build plus a successful deployment.
+The project uses Next.js 15. The release goal is passing tests/type checks plus a successful production deployment.
+
+The codebase is also undergoing a gradual component refactor. Large page sections are being extracted incrementally rather than through a high-risk rewrite.
 
 ## Project history
 
-The detailed beta-by-beta history was moved out of this README to keep this page useful and readable.
+The README describes the current product rather than carrying every historical beta note.
 
-See **[CHANGELOG.md](CHANGELOG.md)** for the full development history.
+See **[CHANGELOG.md](CHANGELOG.md)** for detailed release history.
 
 ---
 
 This community project is not affiliated with Lands of Jail or its publisher.
-
-
-## Beta v2.21 — translation and reliability pass
-
-- Expanded localization into the Advanced / Optional Setup area, including pre-Cage, Power Armor, backup, bulk-star and skill-detail controls while leaving game proper names unchanged.
-- Corrected the English subtitle/helper localization fallback introduced in v2.20.
-- Refreshed the S6 hero icons for Worrell, Kate and Wukong from unlocked Server 260 screenshots.
-- Server 260 is now in Season 6. S6 evidence collection is active; unknown hero/robot values remain evidence-first and are not guessed.
-- Rechecked the simple public workflow contract: season → Joiner count → heroes/stars → Generate; Advanced remains collapsed and optional.
-
-
-### Beta v2.22 — Season 6 live
-Server 260 is now in Season 6. Worrell, Kate and Wukong War-skill evidence is already recorded. Bastion is confirmed as the S6 robot. Shockwave Crush is verified Lv1–10: Enemy ATK Reduction 2/2.5/3/4/5/6/7/8/9/10%, lasting 2h with a 20h cooldown. Bastion's Core Skill remains unknown until direct evidence is available. The simple default workflow remains unchanged and Advanced stays optional.
