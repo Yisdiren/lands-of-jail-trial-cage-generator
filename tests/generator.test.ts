@@ -9,6 +9,7 @@ import { cageBuffs, buffEffectLabel, prisonerArmorSetting, powerArmorBreakthroug
 import { normalizeGeneratorBackup } from "../lib/generator-backup";
 import { extraUiText, languageOptions, uiText } from "../data/ui-text";
 import { cageRecommendationEvidence } from "../lib/evidence";
+import { auditGeneratorData } from "../lib/data-audit";
 
 test("one displayed Main reserves its heroes and robot from six Joiners", () => {
   const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
@@ -736,4 +737,16 @@ test("verified-only Joiners never use unverified LEFT skill data", () => {
     const joiners = generateJoinerFormations(pool, 6, {}, [], true, stars, leader, false);
     assert.ok(joiners.every(formation => formation.left.leftSkillVerified), `S${season}`);
   }
+});
+
+
+test("generator data audit has no integrity errors", () => {
+  const audit = auditGeneratorData();
+  assert.deepEqual(audit.checks.filter(check => check.level === "error"), []);
+});
+
+test("generator data audit does not confuse informational gaps with errors", () => {
+  const audit = auditGeneratorData();
+  assert.equal(audit.errors, 0);
+  assert.equal(audit.checks.length, audit.errors + audit.warnings + audit.info);
 });
