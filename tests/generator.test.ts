@@ -688,3 +688,52 @@ test("LEFT-only and full Joiner generation remain available through Seasons 1-6"
     assert.ok(leftOnly.every(formation => !formation.middle && !formation.right), `S${season} LEFT-only`);
   }
 });
+
+
+test("S1-S6 stress matrix preserves Main reservations, unique Joiner LEFTs, and mode behavior", () => {
+  for (let season = 1; season <= 6; season++) {
+    const pool = heroes.filter(hero => hero.season <= season && hero.cageAllowed);
+    const stars = Object.fromEntries(pool.map(hero => [hero.name, 5]));
+    const leader = generateLeaderFormation(pool, [], stars);
+    assert.ok(leader, `S${season} Main`);
+    const reserved = new Set([leader.left.name, leader.middle?.name, leader.right?.name].filter(Boolean));
+    for (let requested = 1; requested <= 6; requested++) {
+      for (const full of [false, true]) {
+        const joiners = generateJoinerFormations(pool, requested, {}, [], false, stars, leader, full);
+        assert.ok(joiners.length <= requested, `S${season} J${requested} mode=${full}`);
+        const lefts = joiners.map(formation => formation.left.name);
+        assert.equal(new Set(lefts).size, lefts.length, `S${season} J${requested} unique LEFT`);
+        assert.ok(lefts.every(name => !reserved.has(name)), `S${season} J${requested} Main reserved`);
+        if (!full) assert.ok(joiners.every(formation => !formation.middle && !formation.right), `S${season} J${requested} LEFT-only`);
+        if (full) {
+          const allNames = joiners.flatMap(formation => [formation.left.name, formation.middle?.name, formation.right?.name].filter((name): name is string => Boolean(name)));
+          assert.equal(new Set(allNames).size, allNames.length, `S${season} J${requested} no reuse`);
+          const support = joiners.flatMap(formation => [formation.middle, formation.right].filter((hero): hero is NonNullable<typeof hero> => Boolean(hero)));
+          assert.ok(support.every(hero => (stars[hero.name] ?? 1) >= 3), `S${season} J${requested} support stars`);
+        }
+      }
+    }
+  }
+});
+
+test("small rosters degrade safely instead of reusing heroes", () => {
+  const names = ["Tyronn", "Ryuichi", "Ada", "Lofili", "Lunarl", "Gerd", "Iwado"];
+  const pool = heroes.filter(hero => names.includes(hero.name));
+  const stars = Object.fromEntries(pool.map(hero => [hero.name, 5]));
+  const leader = generateLeaderFormation(pool, [], stars);
+  assert.ok(leader);
+  const joiners = generateJoinerFormations(pool, 6, {}, [], false, stars, leader, true);
+  const allNames = joiners.flatMap(formation => [formation.left.name, formation.middle?.name, formation.right?.name].filter((name): name is string => Boolean(name)));
+  assert.equal(new Set(allNames).size, allNames.length);
+  assert.ok(joiners.length < 6);
+});
+
+test("verified-only Joiners never use unverified LEFT skill data", () => {
+  for (let season = 1; season <= 6; season++) {
+    const pool = heroes.filter(hero => hero.season <= season && hero.cageAllowed);
+    const stars = Object.fromEntries(pool.map(hero => [hero.name, 5]));
+    const leader = generateLeaderFormation(pool, [], stars);
+    const joiners = generateJoinerFormations(pool, 6, {}, [], true, stars, leader, false);
+    assert.ok(joiners.every(formation => formation.left.leftSkillVerified), `S${season}`);
+  }
+});
