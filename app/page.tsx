@@ -24,6 +24,8 @@ import { languageOptions, uiText, extraUiText, type UiLanguage } from "../data/u
 import { robotIconPaths } from "../data/robot-presentation";
 import { generatorBackupFormat, generatorBackupVersion, normalizeGeneratorBackup, type GeneratorBackup } from "../lib/generator-backup";
 import { cageRecommendationEvidence } from "../lib/evidence";
+import { auditGeneratorData } from "../lib/data-audit";
+import FormationQuickList from "../components/FormationQuickList";
 
 
 type Mode = "leader" | "joiner";
@@ -203,6 +205,7 @@ export default function Home() {
       setNotice("That Cage results backup could not be imported.");
     }
   };
+  const dataAudit = useMemo(() => auditGeneratorData(), []);
   const cageTestStats = cageTests.length ? {
     count: cageTests.length,
     best: Math.max(...cageTests.map(test => test.damage)),
@@ -840,6 +843,12 @@ export default function Home() {
           <span><b>{t.advanced}</b><small>{tx.advSummary}</small></span>
         </summary>
         <div className="advanced-tools-body">
+          <section className="panel data-health-panel">
+            <div className="title"><div><label>GENERATOR SELF-CHECK</label><h2>Data integrity</h2></div><span className={dataAudit.errors ? "status status-blocked" : "status status-ready"}>{dataAudit.errors ? `${dataAudit.errors} ERROR${dataAudit.errors===1?"":"S"}` : "NO DATA ERRORS"}</span></div>
+            <p className="helper">Automatic checks look for duplicate names, invalid seasons, inconsistent verified skill data, malformed skill progressions, and missing S1–S6 hero classes. Warnings and informational gaps do not become game facts.</p>
+            <div className="data-health-counts"><span><b>{dataAudit.errors}</b> errors</span><span><b>{dataAudit.warnings}</b> warnings</span><span><b>{dataAudit.info}</b> info</span></div>
+            {dataAudit.checks.length>0 && <details><summary>VIEW SELF-CHECK DETAILS</summary><div className="data-health-list">{dataAudit.checks.map((check,index)=><p key={`${check.code}-${index}`}><b>{check.level.toUpperCase()}</b> • {check.message}</p>)}</div></details>}
+          </section>
           <section className="panel">
             <div className="title"><div><label>OPTIONAL CAGE SETTINGS</label><h2>Extra filters and modifiers</h2></div></div>
             <div className="advanced-toggle-grid">
@@ -1340,6 +1349,8 @@ export default function Home() {
           <span>You are a seat holder: +10% ATK against Imprisoned Scarlet Butcher.</span>
         </div>
       )}
+
+      {generated && <FormationQuickList formations={[...(leaderFormation ? [leaderFormation] : []), ...joinerFormations]} copyFormation={copySingleFormation} />}
 
       {generated && (
         <div className="result-toolbar">
