@@ -19,8 +19,8 @@ export function auditGeneratorData(): DataAudit {
   }
   const robotNames = new Set<string>();
   for (const robot of robots) {
-    if (robotNames.has(robot.name)) checks.push({ level: "error", code: "duplicate-robot", message: `Duplicate robot name: ${robot.name}` });
-    robotNames.add(robot.name);
+    if (robotNames.has(robot)) checks.push({ level: "error", code: "duplicate-robot", message: `Duplicate robot name: ${robot}` });
+    robotNames.add(robot);
   }
   for (let season=1; season<=6; season++) {
     const pool=heroes.filter(hero=>hero.season<=season&&hero.cageAllowed&&hero.rarity!=="KOF");
