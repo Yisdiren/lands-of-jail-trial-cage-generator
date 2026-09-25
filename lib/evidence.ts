@@ -9,7 +9,7 @@ export function cageRecommendationEvidence(hero: Hero): CageRecommendationEviden
   return {
     gameEvidence: hero.leftSkill ? (hero.leftSkillVerified ? "verified" : "unverified") : "not-entered",
     recommendationBasis: hero.leftTier || hero.leftValue !== undefined
-      ? (hero.priorityNote?.toLowerCase().includes("heuristic") ? "heuristic-only" : "tested-priority")
+      ? (hero.priorityNote?.toLowerCase().includes("tested cage priority") ? "tested-priority" : "heuristic-only")
       : "not-ranked",
   };
 }
