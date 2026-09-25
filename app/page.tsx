@@ -27,6 +27,7 @@ import { cageRecommendationEvidence } from "../lib/evidence";
 import { auditGeneratorData } from "../lib/data-audit";
 import FormationQuickList from "../components/FormationQuickList";
 import { recommendationReason, seasonTransitionHeroes } from "../lib/presentation-insights";
+import { compareHero, personalBestProgression } from "../lib/community-insights";
 
 
 type Mode = "leader" | "joiner";
@@ -113,6 +114,8 @@ export default function Home() {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [hideFillerLeft, setHideFillerLeft] = useState(false);
   const [leftClassFilter, setLeftClassFilter] = useState<HeroClass | "all">("all");
+  const [heroCompareA, setHeroCompareA] = useState("");
+  const [heroCompareB, setHeroCompareB] = useState("");
   const [comparisonA, setComparisonA] = useState<FormationSnapshot | null>(null);
   const [comparisonB, setComparisonB] = useState<FormationSnapshot | null>(null);
   const [resultsOnly, setResultsOnly] = useState(false);
@@ -225,6 +228,9 @@ export default function Home() {
     average: Math.round(group.hits.reduce((sum, hit) => sum + hit.damage, 0) / group.hits.length),
   })).sort((a,b) => b.average - a.average);
   const cageChartMax = cageTestStats?.best || 1;
+  const personalBests = personalBestProgression(cageTests);
+  const comparisonHeroes = available.filter(hero=>Boolean(hero.leftSkill));
+  const comparisonRows = [heroCompareA,heroCompareB].map(name=>available.find(hero=>hero.name===name)).filter((hero): hero is (typeof available)[number]=>Boolean(hero)).map(hero=>compareHero(hero,heroStarLevels[hero.name]??1,automaticWarSkillLevels[hero.name]??1));
 
   useEffect(() => {
     try {
@@ -1248,6 +1254,13 @@ export default function Home() {
             <small>Damage history • oldest to newest</small>
           </div>
         )}
+        {personalBests.length > 0 && (
+          <div className="personal-best-progression">
+            <h3>Personal-best progression</h3>
+            <div>{personalBests.map((hit,index)=><span key={hit.id}><small>{hit.date}</small><b>{hit.damage.toLocaleString()}</b>{index<personalBests.length-1 && <i>→</i>}</span>)}</div>
+            <small>Built automatically from saved hits in chronological order. Existing records are not changed.</small>
+          </div>
+        )}
         {cageSessions.length > 0 && (
           <div className="cage-sessions">
             <h3>Cage sessions by date</h3>
@@ -1295,6 +1308,22 @@ export default function Home() {
         ) : <p className="helper">No Cage tests saved yet.</p>}
       </section>
 
+
+      <section className="panel hero-comparison" aria-labelledby="hero-comparison-heading">
+        <div className="title"><div><label>LEFT HERO COMPARISON</label><h2 id="hero-comparison-heading">Compare two owned LEFT candidates</h2></div></div>
+        <p className="helper">Compares entered game data and the generator's recommendation basis. It does not predict a damage winner.</p>
+        <div className="hero-compare-selects">
+          <select aria-label="First hero to compare" value={heroCompareA} onChange={event=>setHeroCompareA(event.target.value)}><option value="">Hero A</option>{comparisonHeroes.map(hero=><option key={hero.name} value={hero.name}>{hero.name}</option>)}</select>
+          <select aria-label="Second hero to compare" value={heroCompareB} onChange={event=>setHeroCompareB(event.target.value)}><option value="">Hero B</option>{comparisonHeroes.map(hero=><option key={hero.name} value={hero.name}>{hero.name}</option>)}</select>
+        </div>
+        <div className="hero-compare-grid">{comparisonRows.map(hero=><article key={hero.name}><b>{hero.name}</b><span>{hero.cls} • {hero.rarity} • {"★".repeat(hero.stars)}</span><p>{hero.reason}</p><small>Game evidence: {hero.evidence.gameEvidence} • Recommendation basis: {hero.evidence.recommendationBasis}</small></article>)}</div>
+      </section>
+
+      <section className="panel community-evidence">
+        <div className="title"><div><label>HELP IMPROVE THE DATA</label><h2>Community evidence guide</h2></div></div>
+        <p className="helper">Found missing or incorrect hero information? Send a clear in-game screenshot showing the hero name and the War skill screen. The most useful evidence includes season, rarity, first/LEFT War skill text, and each Lv1–Lv5 value when the game shows them. Star level can help explain the screenshot but is account-specific.</p>
+        <p className="helper"><b>Evidence is reviewed before generator data changes.</b> Community reports do not automatically become recommendations, rankings, or verified percentages.</p>
+      </section>
 
       <section className="panel comparison-workspace" aria-labelledby="comparison-heading">
         <div className="title"><div><label>FORMATION COMPARISON</label><h2 id="comparison-heading">Compare two saved setups</h2></div></div>
