@@ -1311,3 +1311,10 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 .cage-test-actions,.cage-test-edit{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
 .cage-test-edit label{display:grid;gap:4px;min-width:180px;flex:1}
 .cage-test-edit label span{font-size:.72rem;font-weight:800}
+
+.getting-started{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 14px}
+.getting-started>div{display:flex;gap:10px;align-items:flex-start;border:1px solid rgba(128,128,128,.25);border-radius:12px;padding:11px}
+.getting-started>div>b{display:grid;place-items:center;min-width:28px;height:28px;border-radius:50%;border:1px solid currentColor}
+.getting-started span{display:grid;gap:3px}.getting-started small{opacity:.72;line-height:1.35}
+.advanced-divider{text-align:center;opacity:.68;margin:20px 0 8px;font-size:.82rem}
+@media(max-width:700px){.getting-started{grid-template-columns:1fr}.getting-started>div{padding:9px 10px}}
