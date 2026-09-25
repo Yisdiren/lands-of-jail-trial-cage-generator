@@ -788,3 +788,12 @@ test("hero comparison reports evidence without inventing a winner", () => {
   assert.equal(comparison.evidence.gameEvidence,"verified");
   assert.doesNotMatch(JSON.stringify(comparison), /winner|outperform/i);
 });
+
+
+test("Sawyer remains Cage LEFT filler rather than a strong recommendation", () => {
+  const sawyer=heroes.find(hero=>hero.name==="Sawyer");
+  assert.ok(sawyer);
+  assert.equal(sawyer.leftTier,"filler");
+  assert.ok((sawyer.leftValue ?? 0) <= 20);
+  assert.equal(sawyer.leftSkillVerified,true);
+});
