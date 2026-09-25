@@ -700,6 +700,12 @@ export default function Home() {
 
       {notice && <p role="status" className="profile-notice">{notice}</p>}
 
+      <section className="getting-started setup-only" aria-label="How to use the generator">
+        <div><b>1</b><span><strong>Choose your season</strong><small>Set your current Lands of Jail season and Joiner count.</small></span></div>
+        <div><b>2</b><span><strong>Select heroes + stars</strong><small>Mark only the heroes you actually own and their current stars.</small></span></div>
+        <div><b>3</b><span><strong>Generate & share</strong><small>Use the recommended Main and LEFT heroes, then copy the setup for your alliance.</small></span></div>
+      </section>
+
       <section className="panel controls simple-setup setup-only">
         <div>
           <label>{t.quick}</label>
@@ -828,6 +834,7 @@ export default function Home() {
         </div>
       </section>
 
+      <p className="advanced-divider setup-only">Need more control? The generator works without anything below this point.</p>
       <details className="advanced-tools setup-only">
         <summary>
           <span><b>{t.advanced}</b><small>{tx.advSummary}</small></span>
