@@ -10,6 +10,7 @@ import { normalizeGeneratorBackup } from "../lib/generator-backup";
 import { extraUiText, languageOptions, uiText } from "../data/ui-text";
 import { cageRecommendationEvidence } from "../lib/evidence";
 import { auditGeneratorData } from "../lib/data-audit";
+import { recommendationReason, seasonTransitionHeroes } from "../lib/presentation-insights";
 
 test("one displayed Main reserves its heroes and robot from six Joiners", () => {
   const pool = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed);
@@ -749,4 +750,20 @@ test("generator data audit does not confuse informational gaps with errors", () 
   const audit = auditGeneratorData();
   assert.equal(audit.errors, 0);
   assert.equal(audit.checks.length, audit.errors + audit.warnings + audit.info);
+});
+
+
+test("season transition helper only returns Cage-eligible heroes introduced in that season", () => {
+  for (let season=1; season<=6; season++) {
+    const additions=seasonTransitionHeroes(heroes,season);
+    assert.ok(additions.every(hero => heroes.some(source => source.name===hero.name && source.season===season && source.cageAllowed)));
+  }
+});
+
+test("recommendation reason uses verified progression without inventing missing values", () => {
+  const tyronn=heroes.find(hero=>hero.name==="Tyronn");
+  assert.ok(tyronn);
+  assert.match(recommendationReason(tyronn,5), /25%/);
+  const noProgression=heroes.find(hero=>hero.leftSkill && !hero.leftSkillValues);
+  if (noProgression) assert.doesNotMatch(recommendationReason(noProgression,5), /Lv5: \d+%/);
 });
