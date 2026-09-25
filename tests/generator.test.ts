@@ -797,3 +797,42 @@ test("Sawyer remains Cage LEFT filler rather than a strong recommendation", () =
   assert.ok((sawyer.leftValue ?? 0) <= 20);
   assert.equal(sawyer.leftSkillVerified,true);
 });
+
+
+test("S1-S6 canonical LEFT order stays stable with equal max stars and skills", () => {
+  for (let season = 1; season <= 6; season++) {
+    const pool = heroes.filter(hero => hero.season <= season && hero.cageAllowed);
+    const stars = Object.fromEntries(pool.map(hero => [hero.name, 5]));
+    const leader = generateLeaderFormation(pool, [], stars);
+    assert.ok(leader);
+    const joiners = generateJoinerFormations(pool, 6, {}, [], false, stars, leader, false);
+    const expected = season < 6
+      ? ["Koschevoi", "Lunarl", "Phoenix", "Veronica", "Lofili", "Vivian"]
+      : ["Koschevoi", "Worrell", "Lunarl", "Phoenix", "Veronica", "Kate"];
+    assert.deepEqual(joiners.map(formation => formation.left.name), expected, `S${season} canonical LEFT order`);
+  }
+});
+
+test("ranked S1-S6 LEFT heroes have verified skill data and rankings default to heuristic evidence", () => {
+  const ranked = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed && hero.leftTier);
+  assert.ok(ranked.length > 0);
+  for (const hero of ranked) {
+    assert.equal(hero.leftSkillVerified, true, hero.name);
+    assert.ok(hero.leftSkillValues, hero.name);
+    const evidence = cageRecommendationEvidence(hero);
+    assert.notEqual(evidence.gameEvidence, "unverified", hero.name);
+    if (!hero.priorityNote?.toLowerCase().includes("tested cage priority")) {
+      assert.equal(evidence.recommendationBasis, "heuristic-only", hero.name);
+    }
+  }
+});
+
+test("filler LEFT heroes cannot outrank top or strong heroes at equal stars and skill levels", () => {
+  const ranked = heroes.filter(hero => hero.season <= 6 && hero.cageAllowed && hero.leftTier);
+  const stars = Object.fromEntries(ranked.map(hero => [hero.name, 5]));
+  const joiners = generateJoinerFormations(ranked, ranked.length, {}, [], false, stars, null, false);
+  const tierOrder = joiners.map(formation => formation.left.leftTier);
+  const firstFiller = tierOrder.indexOf("filler");
+  const lastPreferred = Math.max(tierOrder.lastIndexOf("top"), tierOrder.lastIndexOf("strong"));
+  assert.ok(firstFiller === -1 || firstFiller > lastPreferred);
+});
