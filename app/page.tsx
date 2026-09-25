@@ -26,6 +26,7 @@ import { generatorBackupFormat, generatorBackupVersion, normalizeGeneratorBackup
 import { cageRecommendationEvidence } from "../lib/evidence";
 import { auditGeneratorData } from "../lib/data-audit";
 import FormationQuickList from "../components/FormationQuickList";
+import { recommendationReason, seasonTransitionHeroes } from "../lib/presentation-insights";
 
 
 type Mode = "leader" | "joiner";
@@ -206,6 +207,8 @@ export default function Home() {
     }
   };
   const dataAudit = useMemo(() => auditGeneratorData(), []);
+  const seasonAdditions = useMemo(() => seasonTransitionHeroes(heroes, season), [season]);
+  const cageSessions = Object.values(cageTests.reduce<Record<string, CageTestResult[]>>((groups,test)=>{ (groups[test.date] ??= []).push(test); return groups; }, {})).map(hits=>({ date:hits[0].date, hits, best:Math.max(...hits.map(hit=>hit.damage)), average:Math.round(hits.reduce((sum,hit)=>sum+hit.damage,0)/hits.length), total:hits.reduce((sum,hit)=>sum+hit.damage,0) })).sort((a,b)=>b.date.localeCompare(a.date));
   const cageTestStats = cageTests.length ? {
     count: cageTests.length,
     best: Math.max(...cageTests.map(test => test.damage)),
@@ -725,6 +728,12 @@ export default function Home() {
         {unavailableSelected.length > 0 && <p role="status" className="helper">Unavailable in Season {season}: {unavailableSelected.join(", ")}. Your selections return when you switch back.</p>}
       </section>
 
+      <details className="panel season-transition setup-only">
+        <summary><b>SEASON {season} HERO ADDITIONS</b> • {seasonAdditions.length} Cage-eligible hero{seasonAdditions.length===1?"":"es"}</summary>
+        <p className="helper">Shows heroes introduced in this season and how the generator currently classifies their Cage data. It does not claim that a newly unlocked hero is automatically stronger.</p>
+        <div className="season-transition-grid">{seasonAdditions.map(hero=><div key={hero.name}><b>{hero.name}</b><span>{hero.cls} • {hero.rarity} • {hero.role}</span><small>{hero.skill} • {hero.verified ? "verified skill data" : "skill data not fully verified"}</small></div>)}</div>
+      </details>
+
       <section className="panel setup-only hero-picker-panel">
         <div className="title">
           <div>
@@ -847,6 +856,7 @@ export default function Home() {
             <div className="title"><div><label>GENERATOR SELF-CHECK</label><h2>Data integrity</h2></div><span className={dataAudit.errors ? "status status-blocked" : "status status-ready"}>{dataAudit.errors ? `${dataAudit.errors} ERROR${dataAudit.errors===1?"":"S"}` : "NO DATA ERRORS"}</span></div>
             <p className="helper">Automatic checks look for duplicate names, invalid seasons, inconsistent verified skill data, malformed skill progressions, and missing S1–S6 hero classes. Warnings and informational gaps do not become game facts.</p>
             <div className="data-health-counts"><span><b>{dataAudit.errors}</b> errors</span><span><b>{dataAudit.warnings}</b> warnings</span><span><b>{dataAudit.info}</b> info</span></div>
+            <div className="season-data-quality">{[1,2,3,4,5,6].map(s=>{const hs=heroes.filter(hero=>hero.season===s&&hero.cageAllowed);const verified=hs.filter(hero=>hero.leftSkillVerified).length;const unknown=hs.filter(hero=>!hero.leftSkill).length;return <span key={s}><b>S{s}</b> {verified}/{hs.length} verified LEFT progressions{unknown ? ` • ${unknown} no LEFT skill entered` : ""}</span>})}</div>
             {dataAudit.checks.length>0 && <details><summary>VIEW SELF-CHECK DETAILS</summary><div className="data-health-list">{dataAudit.checks.map((check,index)=><p key={`${check.code}-${index}`}><b>{check.level.toUpperCase()}</b> • {check.message}</p>)}</div></details>}
           </section>
           <section className="panel">
@@ -1238,6 +1248,12 @@ export default function Home() {
             <small>Damage history • oldest to newest</small>
           </div>
         )}
+        {cageSessions.length > 0 && (
+          <div className="cage-sessions">
+            <h3>Cage sessions by date</h3>
+            {cageSessions.map(session=><details key={session.date}><summary><b>{session.date}</b> • {session.hits.length} hit{session.hits.length===1?"":"s"} • {session.average.toLocaleString()} avg • {session.best.toLocaleString()} best</summary><p>Total damage: <b>{session.total.toLocaleString()}</b></p></details>)}
+          </div>
+        )}
         {cageSetupGroups.length > 0 && (
           <div className="cage-setup-groups">
             <h3>Results by setup</h3>
@@ -1525,6 +1541,7 @@ export default function Home() {
                     )}
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
+                    <small className="recommendation-reason"><b>WHY THIS LEFT:</b> {recommendationReason(f.left, f.leftSkillLevel)}</small>
                     <details><summary>{tx.skill}</summary><p><b>GAME EVIDENCE:</b> {f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p><p><b>RECOMMENDATION MODEL:</b> {cageRecommendationEvidence(f.left).recommendationBasis === "tested-priority" ? "Established Cage priority." : cageRecommendationEvidence(f.left).recommendationBasis === "heuristic-only" ? "Heuristic priority; not an in-game percentage or proven ranking." : "No priority rank inferred from the evidence."}</p></details>
                   </div>
                   <div className="slot">
