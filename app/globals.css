@@ -1318,3 +1318,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 .getting-started span{display:grid;gap:3px}.getting-started small{opacity:.72;line-height:1.35}
 .advanced-divider{text-align:center;opacity:.68;margin:20px 0 8px;font-size:.82rem}
 @media(max-width:700px){.getting-started{grid-template-columns:1fr}.getting-started>div{padding:9px 10px}}
+
+.data-health-counts{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.data-health-counts span{border:1px solid rgba(128,128,128,.28);border-radius:9px;padding:7px 10px}.data-health-list{display:grid;gap:4px;margin-top:8px}.data-health-list p{margin:0;font-size:.82rem}
+.formation-quick-grid{display:grid;gap:7px}.formation-quick-grid>div{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid rgba(128,128,128,.24);border-radius:9px;padding:8px 10px}.formation-quick-grid span{min-width:0}
+@media(max-width:600px){.formation-quick-grid>div{grid-template-columns:44px 1fr}.formation-quick-grid .mini-copy{grid-column:2;justify-self:start}}
