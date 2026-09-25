@@ -229,8 +229,6 @@ export default function Home() {
   })).sort((a,b) => b.average - a.average);
   const cageChartMax = cageTestStats?.best || 1;
   const personalBests = personalBestProgression(cageTests);
-  const comparisonHeroes = available.filter(hero=>Boolean(hero.leftSkill));
-  const comparisonRows = [heroCompareA,heroCompareB].map(name=>available.find(hero=>hero.name===name)).filter((hero): hero is (typeof available)[number]=>Boolean(hero)).map(hero=>compareHero(hero,heroStarLevels[hero.name]??1,automaticWarSkillLevels[hero.name]??1));
 
   useEffect(() => {
     try {
@@ -348,6 +346,12 @@ export default function Home() {
     });
     return levels;
   }, [available, heroStarLevels, warSkillLevels]);
+
+  const comparisonHeroes = available.filter(hero=>Boolean(hero.leftSkill));
+  const comparisonRows = [heroCompareA,heroCompareB]
+    .map(name=>available.find(hero=>hero.name===name))
+    .filter((hero): hero is (typeof available)[number]=>Boolean(hero))
+    .map(hero=>compareHero(hero,heroStarLevels[hero.name]??1,automaticWarSkillLevels[hero.name]??1));
 
   const automaticLeader = useMemo(
     () => generateLeaderFormation(available, availableRobots, heroStarLevels, kofLeaderLinks),
