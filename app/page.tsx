@@ -1329,6 +1329,12 @@ export default function Home() {
         <p className="helper"><b>Evidence is reviewed before generator data changes.</b> Community reports do not automatically become recommendations, rankings, or verified percentages.</p>
       </section>
 
+      <section className="panel community-feedback">
+        <div className="title"><div><label>COMMUNITY FEEDBACK</label><h2>Found a bad pick or wrong game data?</h2></div></div>
+        <p className="helper">Please report the season, requested Joiner count, selected heroes/stars, and the hero you think was picked incorrectly. Screenshots of War skills are especially useful for data corrections.</p>
+        <a className="button-link" href="https://github.com/Yisdiren/lands-of-jail-trial-cage-generator/issues/new" target="_blank" rel="noreferrer">REPORT GENERATOR ISSUE</a>
+      </section>
+
       <section className="panel comparison-workspace" aria-labelledby="comparison-heading">
         <div className="title"><div><label>FORMATION COMPARISON</label><h2 id="comparison-heading">Compare two saved setups</h2></div></div>
         <p className="helper">This compares formation choices only. It does not predict Cage damage or claim one setup will outperform the other.</p>
@@ -1575,6 +1581,12 @@ export default function Home() {
                     <b>{f.left.name}</b><small className="hero-stars">{heroStarLevels[f.left.name] ? "★".repeat(heroStarLevels[f.left.name]) : "Stars not set"}</small>
                     <small>{f.left.leftSkill}</small>
                     <small className="recommendation-reason"><b>WHY THIS LEFT:</b> {recommendationReason(f.left, f.leftSkillLevel)}</small>
+                    <small className={f.left.leftTier === "filler" ? "left-priority fallback" : "left-priority"}>
+                      <b>{f.left.leftTier === "filler" ? "FALLBACK LEFT:" : "PICK CONTEXT:"}</b>{" "}
+                      {f.left.leftTier === "filler"
+                        ? "Stronger ranked LEFT choices are unavailable, reserved for Main, or already used by earlier Joiners."
+                        : "Selected from the available LEFT pool after Main reservations, ownership, stars, War-skill level, and earlier Joiners are considered."}
+                    </small>
                     <details><summary>{tx.skill}</summary><p><b>GAME EVIDENCE:</b> {f.left.leftSkill}. War skill Lv{f.leftSkillLevel}; {f.left.leftSkillVerified ? "progression verified from direct evidence." : "exact progression is not yet verified."}</p><p><b>RECOMMENDATION MODEL:</b> {cageRecommendationEvidence(f.left).recommendationBasis === "tested-priority" ? "Established Cage priority." : cageRecommendationEvidence(f.left).recommendationBasis === "heuristic-only" ? "Heuristic priority; not an in-game percentage or proven ranking." : "No priority rank inferred from the evidence."}</p></details>
                   </div>
                   <div className="slot">
